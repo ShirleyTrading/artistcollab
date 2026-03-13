@@ -1,16 +1,18 @@
 import { shell, closeShell, publicNav } from '../layout';
 
+// Shared auth page styles using only AC/1 tokens
 const AUTH_STYLES = `
   .auth-shell {
-    min-height: calc(100vh - 64px);
+    min-height: calc(100vh - 56px);
     display: grid;
     grid-template-columns: 1fr 1fr;
     overflow: hidden;
   }
-  /* Left editorial panel */
-  .auth-editorial {
-    background: var(--ink);
-    border-right: 1px solid var(--hairline);
+
+  /* ─ Left panel: editorial / brand statement ─ */
+  .auth-left {
+    background: var(--c-base);
+    border-right: 1px solid var(--c-wire);
     padding: 48px;
     display: flex;
     flex-direction: column;
@@ -18,454 +20,414 @@ const AUTH_STYLES = `
     position: relative;
     overflow: hidden;
   }
-  .auth-editorial-bg {
-    position: absolute;
-    inset: 0;
-    background:
-      radial-gradient(ellipse at 30% 40%, rgba(139,92,246,0.15) 0%, transparent 55%),
-      radial-gradient(ellipse at 80% 80%, rgba(245,158,11,0.06) 0%, transparent 50%);
-    pointer-events: none;
-  }
-  .auth-editorial-grid {
+  /* DAW grid texture */
+  .auth-left-grid {
     position: absolute;
     inset: 0;
     background-image:
-      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
-    background-size: 60px 60px;
-    mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+      linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(ellipse 70% 70% at 40% 50%, black 0%, transparent 100%);
     pointer-events: none;
   }
-  /* Right form panel */
-  .auth-form-panel {
-    background: var(--void);
+  /* Signal glow accent */
+  .auth-left-glow {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 50% 60% at 20% 70%, rgba(200,255,0,0.05) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  /* ─ Right panel: form ─ */
+  .auth-right {
+    background: var(--c-void);
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 48px;
     overflow-y: auto;
   }
-  .auth-form-inner { width: 100%; max-width: 420px; }
-  .auth-wordmark {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+  .auth-form-wrap { width: 100%; max-width: 420px; }
+
+  /* Form elements */
+  .auth-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+  .auth-label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--t4);
+    font-family: var(--font-body);
+  }
+  .auth-input {
+    background: var(--c-raised);
+    border: 1px solid var(--c-rim);
+    border-radius: var(--r);
+    padding: 12px 14px;
+    color: var(--t1);
     font-size: 0.9375rem;
-    font-weight: 700;
-    letter-spacing: -0.02em;
+    font-family: var(--font-body);
+    width: 100%;
+    outline: none;
+    transition: border-color var(--t-fast), box-shadow var(--t-fast);
+    -webkit-appearance: none;
   }
-  /* Account type selector */
-  .type-tile {
-    border-radius: var(--r-md);
-    border: 1px solid var(--hairline);
-    background: var(--surface);
-    padding: 16px;
+  .auth-input:focus {
+    border-color: var(--signal);
+    box-shadow: 0 0 0 3px var(--signal-dim);
+  }
+  .auth-input::placeholder { color: var(--t4); }
+
+  /* Role toggle (artist / producer) */
+  .role-toggle {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .role-option {
+    border: 1px solid var(--c-rim);
+    border-radius: var(--r);
+    padding: 14px;
     cursor: pointer;
-    transition: all 0.18s;
-    user-select: none;
+    transition: all var(--t-base) var(--ease);
+    text-align: center;
+    background: var(--c-raised);
   }
-  .type-tile:hover { border-color: rgba(255,255,255,0.15); }
-  .type-tile.selected {
-    border-color: rgba(139,92,246,0.5);
-    background: rgba(139,92,246,0.08);
-    box-shadow: inset 0 0 0 1px rgba(139,92,246,0.25);
+  .role-option:hover { border-color: rgba(255,255,255,0.1); }
+  .role-option.on {
+    border-color: var(--signal);
+    background: var(--signal-dim);
   }
-  /* Social sign-in */
+  .role-option.on .role-icon { color: var(--signal); }
+
+  /* Social auth */
   .social-btn {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
-    width: 100%;
-    padding: 11px 16px;
-    background: var(--raised);
-    border: 1px solid var(--hairline);
+    padding: 12px;
     border-radius: var(--r);
-    font-size: 0.875rem;
-    font-weight: 600;
+    border: 1px solid var(--c-rim);
+    background: var(--c-raised);
     color: var(--t1);
+    font-size: 0.875rem;
+    font-weight: 500;
     cursor: pointer;
-    transition: all 0.15s;
-    font-family: inherit;
+    width: 100%;
+    font-family: var(--font-body);
+    transition: border-color var(--t-fast), background var(--t-fast);
+    text-decoration: none;
   }
-  .social-btn:hover { background: var(--elevated); border-color: rgba(255,255,255,0.15); }
-  /* Divider with label */
-  .or-divider {
+  .social-btn:hover { border-color: rgba(255,255,255,0.12); background: var(--c-lift); }
+
+  /* Divider */
+  .auth-divider {
     display: flex;
     align-items: center;
     gap: 12px;
-    margin: 18px 0;
+    margin: 20px 0;
+    color: var(--t4);
+    font-size: 0.75rem;
   }
-  .or-divider::before, .or-divider::after {
+  .auth-divider::before, .auth-divider::after {
     content: '';
     flex: 1;
     height: 1px;
-    background: var(--hairline);
+    background: var(--c-wire);
   }
-  .or-label { font-size: 0.75rem; color: var(--t4); white-space: nowrap; }
-  @media (max-width: 768px) {
+
+  @media (max-width: 900px) {
     .auth-shell { grid-template-columns: 1fr; }
-    .auth-editorial { display: none; }
-    .auth-form-panel { padding: 32px 24px; }
+    .auth-left { display: none; }
   }
 `;
 
-// ─── Sample stat card for editorial panel ────────────────────────────────────
-const editorialPanel = (quote: string, tagline: string) => `
-<div class="auth-editorial-bg"></div>
-<div class="auth-editorial-grid"></div>
+// ─────────────────────────────────────────────────────────────────────────────
+// SHARED: Left editorial panel
+// ─────────────────────────────────────────────────────────────────────────────
+function authLeft(headline: string, sub: string, quote?: {text:string;name:string;handle:string;img:string}) {
+  return `
+<div class="auth-left">
+  <div class="auth-left-grid"></div>
+  <div class="auth-left-glow"></div>
 
-<div style="position:relative;z-index:1;">
-  <div class="auth-wordmark">
-    <div style="width:30px;height:30px;background:linear-gradient(135deg,var(--uv),var(--uv-bright));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;box-shadow:0 0 20px var(--uv-glow);">🎵</div>
-    Artist Collab
-  </div>
-</div>
-
-<div style="position:relative;z-index:1;flex:1;display:flex;flex-direction:column;justify-content:center;padding:16px 0;">
-  <div style="margin-bottom:24px;">
-    <div style="font-size:0.71rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--uv-bright);margin-bottom:14px;">The Remote Studio</div>
-    <h2 style="font-size:clamp(2rem,3vw,2.75rem);font-weight:800;letter-spacing:-0.03em;line-height:1.1;margin-bottom:16px;">${quote}</h2>
-    <p style="font-size:0.9375rem;color:var(--t3);line-height:1.7;">${tagline}</p>
-  </div>
-
-  <!-- Floating project card preview -->
-  <div style="border:1px solid var(--hairline);border-radius:var(--r-lg);background:var(--surface);overflow:hidden;margin-bottom:24px;">
-    <div style="padding:14px 16px;border-bottom:1px solid var(--hairline);display:flex;align-items:center;justify-content:space-between;">
-      <span style="font-size:0.78rem;font-weight:600;color:var(--t2);">Current Collab</span>
-      <span class="badge badge-uv" style="font-size:0.65rem;"><i class="fas fa-circle" style="font-size:6px;"></i> Live</span>
-    </div>
-    <div style="padding:14px 16px;">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
-        <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=60&h=60&fit=crop&crop=face" class="av av-sm" style="border:1.5px solid rgba(139,92,246,0.4);" alt="Artist">
-        <span style="font-size:0.8125rem;color:var(--t2);font-style:italic;">"Stems are ready — check the chorus drop."</span>
+  <!-- Logo -->
+  <div style="position:relative;z-index:1;">
+    <a href="/" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;color:var(--t1);">
+      <div style="width:32px;height:32px;background:var(--c-panel);border:1px solid var(--c-rim);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;position:relative;">
+        <span style="font-family:var(--font-display);font-size:0.8125rem;font-weight:800;letter-spacing:-0.02em;">AC</span>
+        <div style="position:absolute;top:-3px;right:-3px;width:8px;height:8px;background:var(--signal);border-radius:50%;box-shadow:0 0 8px var(--signal);"></div>
       </div>
-      <div style="display:flex;gap:6px;">
-        ${['WAV', 'STEMS', 'MIX'].map(t => `<span class="badge badge-muted" style="font-size:0.65rem;">${t}</span>`).join('')}
-        <span style="margin-left:auto;font-size:0.75rem;font-weight:700;color:var(--ok);">$900 held</span>
+      <span style="font-family:var(--font-display);font-size:1rem;font-weight:700;letter-spacing:-0.01em;">Artist Collab</span>
+    </a>
+  </div>
+
+  <!-- Headline -->
+  <div style="position:relative;z-index:1;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+      <div style="height:1px;width:24px;background:var(--signal);box-shadow:0 0 6px var(--signal-glow);"></div>
+      <span style="font-family:var(--font-mono);font-size:0.65rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--signal);">The Session</span>
+    </div>
+    <h2 class="d2" style="margin-bottom:14px;">${headline}</h2>
+    <p class="body-base">${sub}</p>
+  </div>
+
+  <!-- Testimonial / social proof -->
+  <div style="position:relative;z-index:1;">
+    ${quote ? `
+    <div style="background:var(--c-panel);border:1px solid var(--c-wire);border-radius:var(--r-lg);padding:20px;margin-bottom:24px;">
+      <p style="font-size:0.9375rem;line-height:1.7;color:var(--t2);margin-bottom:14px;font-style:italic;">"${quote.text}"</p>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <img src="${quote.img}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:1.5px solid var(--c-rim);" alt="${quote.name}">
+        <div>
+          <div style="font-size:0.8125rem;font-weight:700;">${quote.name}</div>
+          <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--t4);">@${quote.handle}</div>
+        </div>
+        <div style="margin-left:auto;color:var(--signal);font-size:0.875rem;letter-spacing:2px;">★★★★★</div>
       </div>
+    </div>` : ''}
+
+    <!-- Mini stats -->
+    <div style="display:flex;gap:24px;">
+      ${[
+        { val:'12K+', lbl:'Artists' },
+        { val:'$2.1M', lbl:'Paid Out' },
+        { val:'4.9★', lbl:'Rating' },
+      ].map(s => `
+      <div>
+        <div style="font-family:var(--font-display);font-size:1.25rem;font-weight:800;letter-spacing:-0.03em;color:var(--signal);">${s.val}</div>
+        <div style="font-family:var(--font-mono);font-size:0.6rem;color:var(--t4);letter-spacing:0.1em;text-transform:uppercase;">${s.lbl}</div>
+      </div>`).join('')}
     </div>
   </div>
-
-  <!-- Platform stats row -->
-  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
-    ${[
-      {v:'12K+', l:'Artists'},
-      {v:'$2.8M', l:'Paid Out'},
-      {v:'4.9★', l:'Avg Rating'},
-    ].map(s => `
-    <div style="background:var(--surface);border:1px solid var(--hairline);border-radius:var(--r);padding:12px;text-align:center;">
-      <div style="font-size:1rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:2px;">${s.v}</div>
-      <div style="font-size:0.69rem;color:var(--t4);">${s.l}</div>
-    </div>`).join('')}
-  </div>
-</div>
-
-<div style="position:relative;z-index:1;">
-  <div style="display:flex;align-items:center;gap:-8px;">
-    ${['https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=60&h=60&fit=crop&crop=face',
-       'https://images.unsplash.com/photo-1516981442399-a91139e20ff8?w=60&h=60&fit=crop&crop=face',
-       'https://images.unsplash.com/photo-1520813792240-56fc4a3765a7?w=60&h=60&fit=crop&crop=face',
-       'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=60&h=60&fit=crop&crop=face'].map((src, i) =>
-    `<img src="${src}" class="av av-xs" style="border:2px solid var(--ink);margin-left:${i > 0 ? '-8px' : '0'};" alt="Artist">`
-    ).join('')}
-  </div>
-  <p style="font-size:0.78rem;color:var(--t3);margin-top:8px;">Join 12,000+ artists already collaborating.</p>
 </div>`;
+}
 
-// ─── LOGIN ───────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// LOGIN
+// ─────────────────────────────────────────────────────────────────────────────
 export function loginPage(): string {
-  return shell('Sign In', AUTH_STYLES) + publicNav() + `
+  return shell('Sign In', AUTH_STYLES) + `
 <div class="auth-shell">
-  <div class="auth-editorial">
-    ${editorialPanel('Make records.<br>Not headaches.', 'Professional remote music collaboration — booking, messaging, stems, and payments — all in one place.')}
-  </div>
 
-  <div class="auth-form-panel">
-    <div class="auth-form-inner">
+  ${authLeft(
+    'Back in<br>the session',
+    'Sign in to access your projects, messages, and earnings.',
+    {
+      text: 'I got paid same-day. The escrow system just works.',
+      name: 'Nova Lee',
+      handle: 'novalee',
+      img: 'https://images.unsplash.com/photo-1516981442399-a91139e20ff8?w=80&h=80&fit=crop&crop=face'
+    }
+  )}
+
+  <!-- Right: form -->
+  <div class="auth-right">
+    <div class="auth-form-wrap">
+
+      <!-- Header -->
       <div style="margin-bottom:32px;">
-        <h1 style="font-size:1.625rem;letter-spacing:-0.02em;margin-bottom:6px;">Welcome back</h1>
-        <p class="body-sm">Sign in to your Artist Collab account</p>
+        <h1 style="font-family:var(--font-display);font-size:1.75rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:8px;">Welcome back</h1>
+        <p class="body-sm">Don't have an account? <a href="/signup" style="color:var(--signal);font-weight:600;">Join Artist Collab</a></p>
       </div>
 
-      <!-- Social sign-in -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:0;">
-        <button class="social-btn" onclick="alert('Google auth — available at launch')">
-          <svg width="16" height="16" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
-          Continue with Google
-        </button>
-        <button class="social-btn" onclick="alert('Apple auth — available at launch')">
-          <i class="fab fa-apple" style="font-size:1rem;"></i>
-          Continue with Apple
-        </button>
-      </div>
+      <!-- Social auth -->
+      <a href="#" class="social-btn" style="margin-bottom:8px;" onclick="alert('Google auth coming soon')">
+        <svg width="18" height="18" viewBox="0 0 18 18"><path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 01-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853"/><path d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/><path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/></svg>
+        Continue with Google
+      </a>
+      <a href="#" class="social-btn" onclick="alert('Apple auth coming soon')">
+        <i class="fab fa-apple" style="font-size:1.0625rem;"></i>
+        Continue with Apple
+      </a>
 
-      <div class="or-divider"><span class="or-label">or sign in with email</span></div>
+      <div class="auth-divider">or sign in with email</div>
 
-      <form onsubmit="handleLogin(event)">
-        <div class="field mb-4">
-          <label class="field-label">Email</label>
-          <input type="email" class="field-input" placeholder="you@example.com" id="login-email" value="xavi@demo.com" required>
+      <!-- Form -->
+      <form onsubmit="event.preventDefault();window.location.href='/dashboard';">
+        <div class="auth-field">
+          <label class="auth-label">Email Address</label>
+          <input type="email" class="auth-input" placeholder="you@example.com" value="xavi@example.com" required>
         </div>
-        <div class="field mb-5">
-          <label class="field-label" style="display:flex;justify-content:space-between;align-items:center;">
-            Password
-            <a href="/forgot-password" style="font-size:0.75rem;color:var(--uv-bright);font-weight:600;text-transform:none;letter-spacing:0;text-decoration:none;" onmouseover="this.style.color='var(--uv-bright)'" onmouseout="">Forgot?</a>
-          </label>
-          <div style="position:relative;">
-            <input type="password" class="field-input" placeholder="••••••••" id="login-pass" value="demo123" required style="padding-right:44px;">
-            <button type="button" onclick="togglePwd('login-pass','eye1')" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--t3);cursor:pointer;font-size:0.875rem;padding:4px;">
-              <i class="fas fa-eye" id="eye1"></i>
-            </button>
+        <div class="auth-field">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <label class="auth-label">Password</label>
+            <a href="/forgot-password" style="font-size:0.75rem;color:var(--t3);transition:color 0.15s;" onmouseover="this.style.color='var(--t1)'" onmouseout="this.style.color='var(--t3)'">Forgot password?</a>
           </div>
+          <input type="password" class="auth-input" placeholder="••••••••" value="demo1234" required>
         </div>
-        <button type="submit" class="btn btn-primary btn-lg w-full" style="justify-content:center;margin-bottom:14px;" id="login-btn">
+
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px;">
+          <input type="checkbox" id="remember" style="accent-color:var(--signal);width:15px;height:15px;">
+          <label for="remember" style="font-size:0.8125rem;color:var(--t3);cursor:pointer;">Remember me for 30 days</label>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg btn-w">
+          <i class="fas fa-arrow-right-to-bracket" style="font-size:13px;"></i>
           Sign In
         </button>
-        <p style="text-align:center;font-size:0.8125rem;color:var(--t3);">
-          New to Artist Collab? <a href="/signup" style="color:var(--uv-bright);font-weight:600;text-decoration:none;">Create account</a>
-        </p>
       </form>
 
-      <div class="alert alert-info" style="margin-top:20px;">
-        <i class="fas fa-circle-info"></i>
-        <span><strong>Demo:</strong> xavi@demo.com / demo123</span>
+      <div style="margin-top:24px;padding:12px 14px;background:var(--signal-dim);border:1px solid rgba(200,255,0,0.18);border-radius:var(--r);display:flex;gap:8px;">
+        <i class="fas fa-bolt" style="color:var(--signal);font-size:0.875rem;flex-shrink:0;margin-top:1px;"></i>
+        <div style="font-size:0.75rem;color:var(--t2);">Demo account: <strong style="color:var(--signal);">xavi@example.com</strong> / <strong style="color:var(--signal);">demo1234</strong></div>
       </div>
+
     </div>
   </div>
 </div>
-
-<script>
-function togglePwd(inputId, iconId) {
-  const el = document.getElementById(inputId);
-  const ic = document.getElementById(iconId);
-  el.type = el.type === 'password' ? 'text' : 'password';
-  ic.className = el.type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
-}
-function handleLogin(e) {
-  e.preventDefault();
-  const btn = document.getElementById('login-btn');
-  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
-  btn.disabled = true;
-  setTimeout(() => window.location.href = '/dashboard', 1200);
-}
-</script>
-` + closeShell();
+${closeShell()}`;
 }
 
-// ─── SIGNUP ──────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// SIGNUP
+// ─────────────────────────────────────────────────────────────────────────────
 export function signupPage(): string {
-  return shell('Join Artist Collab', AUTH_STYLES + `
-    .step-dot {
-      width: 28px; height: 28px;
-      border-radius: 50%;
-      background: var(--raised);
-      border: 1px solid var(--hairline);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: var(--t3);
-      flex-shrink: 0;
-    }
-    .step-dot.active {
-      background: var(--uv);
-      border-color: var(--uv);
-      color: white;
-      box-shadow: 0 0 16px var(--uv-glow);
-    }
-    .step-dot.done {
-      background: var(--ok);
-      border-color: var(--ok);
-      color: white;
-    }
-  `) + publicNav() + `
+  return shell('Join Artist Collab', AUTH_STYLES) + `
 <div class="auth-shell">
-  <div class="auth-editorial">
-    ${editorialPanel('Your collab life,<br>organized.', 'Join thousands of rappers, singers, songwriters, and producers building records remotely on Artist Collab.')}
-  </div>
 
-  <div class="auth-form-panel">
-    <div class="auth-form-inner">
+  ${authLeft(
+    'Start your<br>first session',
+    'Join 12,000+ artists and producers already building their music on Artist Collab.',
+    {
+      text: 'The stem vault alone saved me from three near-disasters. Every collab on here has been clean.',
+      name: 'Marcus X',
+      handle: 'marcusx',
+      img: 'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=80&h=80&fit=crop&crop=face'
+    }
+  )}
+
+  <!-- Right: form -->
+  <div class="auth-right">
+    <div class="auth-form-wrap">
+
       <div style="margin-bottom:28px;">
-        <h1 style="font-size:1.625rem;letter-spacing:-0.02em;margin-bottom:6px;">Create your profile</h1>
-        <p class="body-sm">It's free. No credit card needed.</p>
+        <h1 style="font-family:var(--font-display);font-size:1.75rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:8px;">Create your account</h1>
+        <p class="body-sm">Already have an account? <a href="/login" style="color:var(--signal);font-weight:600;">Sign in</a></p>
       </div>
 
-      <!-- Account type selector -->
-      <div class="field mb-5">
-        <label class="field-label" style="margin-bottom:10px;">I am a...</label>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;" id="type-grid">
-          <div class="type-tile selected" id="tile-artist" onclick="selectType('artist')">
-            <div style="font-size:1.5rem;margin-bottom:8px;">🎤</div>
-            <div style="font-size:0.875rem;font-weight:700;margin-bottom:3px;">Artist</div>
-            <div style="font-size:0.75rem;color:var(--t3);">Rapper · Singer · Songwriter</div>
+      <!-- Social auth -->
+      <a href="#" class="social-btn" style="margin-bottom:8px;" onclick="alert('Google auth coming soon')">
+        <svg width="18" height="18" viewBox="0 0 18 18"><path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 01-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853"/><path d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/><path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/></svg>
+        Continue with Google
+      </a>
+
+      <div class="auth-divider">or create with email</div>
+
+      <!-- Role selection (artist-identity) -->
+      <div style="margin-bottom:20px;">
+        <div class="auth-label" style="margin-bottom:10px;">I am a…</div>
+        <div class="role-toggle">
+          <div class="role-option on" onclick="selectRole(this,'artist')">
+            <div class="role-icon" style="font-size:1.5rem;margin-bottom:6px;transition:color 0.15s;">🎤</div>
+            <div style="font-size:0.875rem;font-weight:700;">Artist</div>
+            <div class="mono-sm" style="color:var(--t4);margin-top:2px;">Rapper · Singer · Songwriter</div>
           </div>
-          <div class="type-tile" id="tile-producer" onclick="selectType('producer')">
-            <div style="font-size:1.5rem;margin-bottom:8px;">🎛️</div>
-            <div style="font-size:0.875rem;font-weight:700;margin-bottom:3px;">Producer</div>
-            <div style="font-size:0.75rem;color:var(--t3);">Beat Maker · Mixer · Engineer</div>
+          <div class="role-option" onclick="selectRole(this,'producer')">
+            <div class="role-icon" style="font-size:1.5rem;margin-bottom:6px;transition:color 0.15s;">🎧</div>
+            <div style="font-size:0.875rem;font-weight:700;">Producer</div>
+            <div class="mono-sm" style="color:var(--t4);margin-top:2px;">Beat Maker · Mixer · Engineer</div>
           </div>
         </div>
       </div>
 
-      <!-- Social sign-up -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-        <button class="social-btn" onclick="alert('Google sign-up — available at launch')">
-          <svg width="15" height="15" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
-          Google
-        </button>
-        <button class="social-btn" onclick="alert('Apple sign-up — available at launch')">
-          <i class="fab fa-apple" style="font-size:0.9375rem;"></i>
-          Apple
-        </button>
-      </div>
-
-      <div class="or-divider"><span class="or-label">or create with email</span></div>
-
-      <form onsubmit="handleSignup(event)">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
-          <div class="field">
-            <label class="field-label">First Name</label>
-            <input type="text" class="field-input" placeholder="First name" required>
+      <form onsubmit="event.preventDefault();window.location.href='/dashboard';">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="auth-field">
+            <label class="auth-label">Artist Name</label>
+            <input type="text" class="auth-input" placeholder="Stage name" required>
           </div>
-          <div class="field">
-            <label class="field-label">Stage Name</label>
-            <input type="text" class="field-input" placeholder="Artist name" required>
+          <div class="auth-field">
+            <label class="auth-label">Username</label>
+            <input type="text" class="auth-input" placeholder="@handle" required>
           </div>
         </div>
-        <div class="field mb-3">
-          <label class="field-label">Email</label>
-          <input type="email" class="field-input" placeholder="you@example.com" required>
+        <div class="auth-field">
+          <label class="auth-label">Email Address</label>
+          <input type="email" class="auth-input" placeholder="you@example.com" required>
         </div>
-        <div class="field mb-3">
-          <label class="field-label">Username</label>
-          <div style="position:relative;">
-            <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--t3);font-size:0.9375rem;line-height:1;">@</span>
-            <input type="text" class="field-input" placeholder="yourhandle" style="padding-left:30px;" required>
-          </div>
-        </div>
-        <div class="field mb-4">
-          <label class="field-label">Primary Genre</label>
-          <select class="field-select" required>
-            <option value="">Your main genre</option>
-            <option>Hip-Hop</option><option>Trap</option><option>R&B</option>
-            <option>Drill</option><option>Pop</option><option>Afrobeats</option>
-            <option>Soul</option><option>Indie Pop</option><option>Boom Bap</option>
-            <option>Reggaeton</option><option>Other</option>
-          </select>
-        </div>
-        <div class="field mb-5">
-          <label class="field-label">Password</label>
-          <div style="position:relative;">
-            <input type="password" class="field-input" placeholder="Min. 8 characters" id="signup-pass" required minlength="8" style="padding-right:44px;" oninput="checkPwdStrength(this.value)">
-            <button type="button" onclick="togglePwd2()" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--t3);cursor:pointer;font-size:0.875rem;padding:4px;">
-              <i class="fas fa-eye" id="eye2"></i>
-            </button>
-          </div>
-          <div style="margin-top:6px;display:flex;gap:3px;" id="pwd-strength">
-            <div style="flex:1;height:3px;border-radius:2px;background:var(--rim);" class="pwd-seg"></div>
-            <div style="flex:1;height:3px;border-radius:2px;background:var(--rim);" class="pwd-seg"></div>
-            <div style="flex:1;height:3px;border-radius:2px;background:var(--rim);" class="pwd-seg"></div>
-            <div style="flex:1;height:3px;border-radius:2px;background:var(--rim);" class="pwd-seg"></div>
-          </div>
+        <div class="auth-field">
+          <label class="auth-label">Password</label>
+          <input type="password" class="auth-input" placeholder="Min. 8 characters" required>
         </div>
 
-        <div style="margin-bottom:18px;font-size:0.78rem;color:var(--t4);line-height:1.6;">
-          By creating an account you agree to our
-          <a href="/terms" style="color:var(--uv-bright);text-decoration:none;">Terms of Service</a> and
-          <a href="/privacy" style="color:var(--uv-bright);text-decoration:none;">Privacy Policy</a>.
+        <div style="margin-bottom:20px;">
+          <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer;">
+            <input type="checkbox" required style="margin-top:2px;accent-color:var(--signal);width:15px;height:15px;flex-shrink:0;">
+            <span style="font-size:0.8125rem;color:var(--t3);line-height:1.5;">I agree to the <a href="/terms" style="color:var(--signal);">Terms of Service</a> and <a href="/privacy" style="color:var(--signal);">Privacy Policy</a></span>
+          </label>
         </div>
 
-        <button type="submit" class="btn btn-primary btn-lg w-full" style="justify-content:center;margin-bottom:14px;" id="signup-btn">
+        <button type="submit" class="btn btn-primary btn-lg btn-w">
           <i class="fas fa-microphone-alt" style="font-size:13px;"></i>
-          Create My Artist Profile
+          Create Account — It's Free
         </button>
-        <p style="text-align:center;font-size:0.8125rem;color:var(--t3);">
-          Already have an account? <a href="/login" style="color:var(--uv-bright);font-weight:600;text-decoration:none;">Sign in</a>
-        </p>
       </form>
     </div>
   </div>
 </div>
 
 <script>
-function selectType(type) {
-  document.getElementById('tile-artist').classList.toggle('selected', type === 'artist');
-  document.getElementById('tile-producer').classList.toggle('selected', type === 'producer');
-}
-function togglePwd2() {
-  const el = document.getElementById('signup-pass');
-  const ic = document.getElementById('eye2');
-  el.type = el.type === 'password' ? 'text' : 'password';
-  ic.className = el.type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
-}
-function checkPwdStrength(pwd) {
-  const segs = document.querySelectorAll('.pwd-seg');
-  const colors = ['var(--err)', 'var(--warn)', 'var(--uv-bright)', 'var(--ok)'];
-  const score = [pwd.length > 7, /[A-Z]/.test(pwd), /[0-9]/.test(pwd), /[^A-Za-z0-9]/.test(pwd)].filter(Boolean).length;
-  segs.forEach((s, i) => s.style.background = i < score ? colors[score - 1] : 'var(--rim)');
-}
-function handleSignup(e) {
-  e.preventDefault();
-  const btn = document.getElementById('signup-btn');
-  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating profile...';
-  btn.disabled = true;
-  setTimeout(() => window.location.href = '/dashboard', 1600);
+function selectRole(el, role) {
+  document.querySelectorAll('.role-option').forEach(r => r.classList.remove('on'));
+  el.classList.add('on');
 }
 </script>
-` + closeShell();
+${closeShell()}`;
 }
 
-// ─── FORGOT PASSWORD ─────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// FORGOT PASSWORD
+// ─────────────────────────────────────────────────────────────────────────────
 export function forgotPasswordPage(): string {
-  return shell('Reset Password', AUTH_STYLES) + publicNav() + `
+  return shell('Reset Password', AUTH_STYLES) + `
 <div class="auth-shell">
-  <div class="auth-editorial">
-    ${editorialPanel('Back in the<br>studio shortly.', 'We\'ll send a secure reset link to your inbox. Back in 60 seconds.')}
-  </div>
 
-  <div class="auth-form-panel">
-    <div class="auth-form-inner">
-      <div id="reset-form-state">
-        <div style="margin-bottom:32px;">
-          <div style="width:48px;height:48px;background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.25);border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;margin-bottom:20px;">
-            <i class="fas fa-key" style="color:var(--uv-bright);font-size:1.125rem;"></i>
-          </div>
-          <h1 style="font-size:1.5rem;letter-spacing:-0.02em;margin-bottom:6px;">Reset your password</h1>
-          <p class="body-sm">Enter your email and we'll send a reset link instantly.</p>
+  ${authLeft(
+    'Reset your<br>access',
+    'Enter your email and we\'ll send you a secure reset link.',
+  )}
+
+  <div class="auth-right">
+    <div class="auth-form-wrap">
+
+      <div style="margin-bottom:32px;">
+        <div style="width:48px;height:48px;background:var(--signal-dim);border:1px solid rgba(200,255,0,0.2);border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;margin-bottom:20px;">
+          <i class="fas fa-lock" style="color:var(--signal);font-size:1.25rem;"></i>
         </div>
-        <div class="field mb-5">
-          <label class="field-label">Email Address</label>
-          <input type="email" class="field-input" placeholder="you@example.com" id="reset-email">
+        <h1 style="font-family:var(--font-display);font-size:1.75rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:8px;">Forgot password?</h1>
+        <p class="body-sm" style="color:var(--t3);">No worries — enter your email below and we'll send a reset link.</p>
+      </div>
+
+      <form onsubmit="event.preventDefault();document.getElementById('forgot-success').style.display='block';this.style.display='none';">
+        <div class="auth-field">
+          <label class="auth-label">Email Address</label>
+          <input type="email" class="auth-input" placeholder="you@example.com" required>
         </div>
-        <button class="btn btn-primary btn-lg w-full" style="justify-content:center;margin-bottom:16px;" onclick="sendReset()">
+        <button type="submit" class="btn btn-primary btn-lg btn-w">
           Send Reset Link
+          <i class="fas fa-arrow-right" style="font-size:12px;"></i>
         </button>
-        <p style="text-align:center;font-size:0.8125rem;color:var(--t3);">
-          <a href="/login" style="color:var(--uv-bright);font-weight:600;text-decoration:none;">← Back to sign in</a>
-        </p>
+      </form>
+
+      <div id="forgot-success" style="display:none;padding:20px;background:rgba(45,202,114,0.08);border:1px solid rgba(45,202,114,0.2);border-radius:var(--r);text-align:center;margin-top:8px;">
+        <i class="fas fa-check-circle" style="color:var(--s-ok);font-size:1.5rem;margin-bottom:8px;display:block;"></i>
+        <div style="font-weight:700;margin-bottom:4px;">Check your inbox</div>
+        <p class="body-sm">We've sent a reset link to your email.</p>
       </div>
-      <div id="reset-success-state" style="display:none;text-align:center;">
-        <div style="width:64px;height:64px;background:var(--ok-dim);border:1px solid rgba(16,185,129,0.25);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:1.5rem;">
-          ✅
-        </div>
-        <h2 style="font-size:1.375rem;letter-spacing:-0.02em;margin-bottom:8px;">Check your inbox</h2>
-        <p class="body-sm" style="margin-bottom:28px;">A reset link has been sent to your email address.</p>
-        <a href="/login" class="btn btn-secondary btn-lg w-full" style="justify-content:center;">Back to Sign In</a>
+
+      <div style="margin-top:24px;text-align:center;">
+        <a href="/login" style="font-size:0.875rem;color:var(--t3);">
+          <i class="fas fa-arrow-left" style="font-size:11px;margin-right:6px;"></i>
+          Back to Sign In
+        </a>
       </div>
+
     </div>
   </div>
 </div>
-
-<script>
-function sendReset() {
-  const e = document.getElementById('reset-email').value;
-  if (!e) { alert('Please enter your email.'); return; }
-  document.getElementById('reset-form-state').style.display = 'none';
-  document.getElementById('reset-success-state').style.display = 'block';
-}
-</script>
-` + closeShell();
+${closeShell()}`;
 }
