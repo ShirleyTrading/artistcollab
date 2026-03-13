@@ -402,9 +402,9 @@ export const AC_SYSTEM = `
   }
   .btn-danger:hover { background: rgba(255,77,109,0.2); }
 
-  /* Sizes */
-  .btn-xs { padding: 5px 11px; font-size: 0.75rem; border-radius: var(--r-sm); min-height: 30px; }
-  .btn-sm { padding: 7px 15px; font-size: 0.8125rem; border-radius: var(--r-sm); min-height: 36px; }
+  /* Sizes — WCAG 2.1 AA: 44px minimum interactive touch target */
+  .btn-xs { padding: 7px 11px; font-size: 0.75rem; border-radius: var(--r-sm); min-height: 36px; }
+  .btn-sm { padding: 9px 15px; font-size: 0.8125rem; border-radius: var(--r-sm); min-height: 40px; }
   .btn-lg { padding: 13px 28px; font-size: 0.9375rem; border-radius: var(--r-md); min-height: 48px; }
   .btn-xl { padding: 16px 36px; font-size: 1rem; border-radius: var(--r-lg); min-height: 56px; }
   .btn-w  { width: 100%; justify-content: center; }
@@ -923,23 +923,37 @@ export const AC_SYSTEM = `
       z-index: 400;
       top: 56px;
       left: 0;
-      width: 240px;
+      width: 260px;
       height: calc(100vh - 56px);
-      box-shadow: 4px 0 24px rgba(0,0,0,0.5);
+      box-shadow: 4px 0 32px rgba(0,0,0,0.65);
+      /* Slide in from left */
+      transform: translateX(-100%);
+      transition: transform var(--t-base) var(--ease), display 0s;
     }
-    .app-sidebar.open { display: flex; }
+    .app-sidebar.open {
+      display: flex;
+      transform: translateX(0);
+      animation: slideIn 0.2s var(--ease) forwards;
+    }
     .footer-grid { grid-template-columns: 1fr 1fr; }
     .mob-hide { display:none !important; }
     .mob-show { display:flex !important; }
     /* Tables scroll on tablet */
     .tbl-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    /* Workspace: single column on tablet */
+    .ws-layout { grid-template-columns: 1fr !important; }
+    /* App page padding reduce */
+    .app-page { padding: 20px 16px !important; }
   }
   @media (max-width: 768px) {
     .nav-links { display:none; }
-    .nav { padding: 0 var(--sp-4); }
+    .nav { padding: 0 var(--sp-4); min-height: 56px; }
     /* Nav: ensure touch-friendly nav items */
-    .nav-mark { min-height: 44px; }
-    .btn-sm { min-height: 40px; }
+    .nav-mark { min-height: 48px; }
+    /* All buttons: 48px minimum touch target per WCAG */
+    .btn { min-height: 44px; }
+    .btn-sm { min-height: 44px; padding: 10px 16px; }
+    .btn-xs { min-height: 40px; padding: 8px 12px; }
     .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
     .footer-bottom { flex-direction: column; text-align: center; gap: 8px; }
     .container, .container-md, .container-sm { padding: 0 var(--sp-4); }
@@ -954,17 +968,59 @@ export const AC_SYSTEM = `
     .card { padding: var(--sp-4); }
     /* Footer links: bigger touch targets */
     .footer-link { padding: 7px 0; font-size: 0.9375rem; }
+    /* App page padding reduce */
+    .app-page { padding: 16px 14px !important; max-width: 100% !important; overflow-x: hidden !important; }
+    /* Dashboard stat tiles: 2 col */
+    .stat-tiles { grid-template-columns: repeat(2, 1fr) !important; }
+    .quick-grid  { grid-template-columns: repeat(2, 1fr) !important; }
+    /* Workspace panels */
+    .ws-layout { padding: 14px !important; gap: 14px !important; }
+    .ws-panel-head { padding: 12px 14px !important; flex-wrap: wrap; gap: 8px; }
+    /* Split sheet + transparency pages */
+    .ss-page { padding: 14px 16px !important; }
+    .td-page  { padding: 14px 16px !important; }
+    /* Project row — prevent overflow */
+    .proj-row { flex-wrap: wrap; }
+    /* Booking sidebar */
+    .booking-sidebar { position: static !important; }
+    /* Ensure no horizontal overflow anywhere */
+    body { overflow-x: hidden; }
   }
   @media (max-width: 480px) {
     .footer-grid { grid-template-columns: 1fr; }
     .footer { padding: 40px var(--sp-4) 24px; }
-    /* Sidebar wider on very small screens for easier use */
-    .app-sidebar { width: 85vw; max-width: 280px; }
+    /* Sidebar: wider on very small screens */
+    .app-sidebar { width: 88vw; max-width: 300px; }
     /* Sidebar nav items: bigger touch target */
-    .sb-nav li a, .sb-nav li button { padding: 11px 9px; min-height: 44px; }
-    /* Public nav drawer full-width on small screens */
+    .sb-nav li a, .sb-nav li button { padding: 11px 10px; min-height: 48px; font-size: 0.875rem; }
+    /* Public nav drawer: full width */
     .pub-nav-drawer { padding: 8px 12px 16px; }
     .pub-nav-drawer a { min-height: 52px; font-size: 1rem; }
+    /* Hero grid stacks on mobile */
+    .hero-inner { grid-template-columns: 1fr !important; gap: 32px !important; padding: 80px 16px 60px !important; }
+    .hero-right { display: none !important; }
+    /* Explore / Marketplace grids */
+    .artist-grid   { grid-template-columns: 1fr !important; }
+    .listing-grid  { grid-template-columns: 1fr !important; }
+    /* Dashboard stat tiles: single column */
+    .stat-tiles { grid-template-columns: 1fr !important; }
+    .quick-grid  { grid-template-columns: repeat(2, 1fr) !important; }
+    /* Marketplace card padding */
+    .app-page { padding: 12px !important; }
+    /* Avatar sizes on very small screens */
+    .av-3xl { width: 80px !important; height: 80px !important; }
+    .av-2xl { width: 68px !important; height: 68px !important; }
+    /* Compose quick-reply buttons: wrap nicely */
+    .compose-quickreplies { flex-wrap: wrap; gap: 6px; }
+    .compose-quickreplies button { flex: 0 1 auto; min-height: 40px; }
+    /* NDA / agreement page */
+    .ss-page { padding: 12px !important; }
+    .td-page  { padding: 12px !important; }
+    /* Transparency tiles: 2 col */
+    .td-tiles { grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
+    /* Prevent any text overflow */
+    * { max-width: 100%; }
+    img { max-width: 100%; height: auto; }
   }
   .mob-hide {}
   .mob-show { display:none; }
@@ -1235,6 +1291,12 @@ export const appSidebar = (active = '') => `
       <li><a href="/profile/me" class="${active === 'profile' ? 'on' : ''}"><span class="sb-icon"><i class="fas fa-user"></i></span>My Profile</a></li>
       <li><a href="/dashboard/listings" class="${active === 'listings' ? 'on' : ''}"><span class="sb-icon"><i class="fas fa-list-ul"></i></span>My Listings</a></li>
       <li><a href="/explore"><span class="sb-icon"><i class="fas fa-compass"></i></span>Find Artists</a></li>
+    </ul>
+    <div class="sb-section">Collab</div>
+    <ul class="sb-nav">
+      <li><a href="/split-sheets" class="${active === 'splits' ? 'on' : ''}"><span class="sb-icon"><i class="fas fa-chart-pie"></i></span>Split Sheets</a></li>
+      <li><a href="/dashboard/transparency" class="${active === 'transparency' ? 'on' : ''}"><span class="sb-icon"><i class="fas fa-shield-halved"></i></span>Transparency</a></li>
+      <li><a href="/nda" class="${active === 'nda' ? 'on' : ''}"><span class="sb-icon"><i class="fas fa-file-contract"></i></span>NDA & Agreements</a></li>
     </ul>
     <div class="sb-section">Account</div>
     <ul class="sb-nav">

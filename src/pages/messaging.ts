@@ -241,8 +241,8 @@ export function messagesPage(): string {
               <i class="fas fa-paper-plane" style="font-size:13px;"></i>
             </button>
           </div>
-          <div style="display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap;">
-            ${['Sounds good 👍','When can you start?','Sending the reference now','Let me know if you need changes'].map(q => `<button onclick="document.getElementById('compose-input').value='${q}';" style="padding:9px 14px;border-radius:var(--r-full);font-size:0.8125rem;background:var(--c-raised);border:1px solid var(--c-wire);color:var(--t3);cursor:pointer;transition:all 0.12s;font-family:var(--font-body);min-height:40px;line-height:1.2;" onmouseover="this.style.color='var(--signal)';this.style.borderColor='rgba(200,255,0,0.25)'" onmouseout="this.style.color='var(--t3)';this.style.borderColor='var(--c-wire)'">${q}</button>`).join('')}
+          <div class="compose-quickreplies" style="display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap;">
+            ${['Sounds good 👍','When can you start?','Sending the reference now','Let me know if you need changes'].map(q => `<button onclick="document.getElementById('compose-input').value='${q}';" style="padding:9px 14px;border-radius:var(--r-full);font-size:0.8125rem;background:var(--c-raised);border:1px solid var(--c-wire);color:var(--t3);cursor:pointer;transition:all 0.12s;font-family:var(--font-body);min-height:44px;line-height:1.2;white-space:nowrap;" onmouseover="this.style.color='var(--signal)';this.style.borderColor='rgba(200,255,0,0.25)'" onmouseout="this.style.color='var(--t3)';this.style.borderColor='var(--c-wire)'">${q}</button>`).join('')}
           </div>
         </div>
 
