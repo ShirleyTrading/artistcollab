@@ -1,192 +1,222 @@
-import { head, closeHTML } from '../layout';
+import { shell, closeShell, authedNav } from '../layout';
+import { users, listings, projects, formatPrice, statusColor, statusLabel } from '../data';
 
+// ─── Admin Panel ──────────────────────────────────────────────────────────────
 export function adminPage(): string {
-  return head('Admin Panel') + `
-<style>
-.admin-layout { display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; }
-.admin-sidebar { background: #0d0d14; border-right: 1px solid var(--border); padding: 0; }
-.admin-header { padding: 20px; border-bottom: 1px solid var(--border); }
-.admin-nav { list-style: none; padding: 12px; }
-.admin-nav li a { display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;font-size:13px;font-weight:500;color:var(--text2);transition:all 0.2s; }
-.admin-nav li a:hover, .admin-nav li a.active { color:white;background:rgba(124,58,237,0.2); }
-.admin-nav .nav-section { padding:10px 12px 4px;font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.1em;margin-top:8px; }
-.admin-main { padding: 32px; background: var(--bg); }
-</style>
+  const totalRevenue = projects.reduce((s, p) => s + p.platformFee, 0);
+  const activeUsers = users.filter(u => u.availability !== 'unavailable').length;
 
-<div class="admin-layout">
-  <!-- Admin Sidebar -->
-  <div class="admin-sidebar">
-    <div class="admin-header">
-      <div style="display:flex;align-items:center;gap:8px;">
-        <div style="width:32px;height:32px;background:linear-gradient(135deg,var(--red),#f97316);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;">⚡</div>
-        <div>
-          <div style="font-weight:700;font-size:13px;">Admin Panel</div>
-          <div style="font-size:11px;color:var(--text2);">Artist Collab</div>
-        </div>
-      </div>
+  return shell('Admin Panel', `
+    .admin-layout { display: grid; grid-template-columns: 220px 1fr; min-height: calc(100vh - 64px); }
+    .admin-sidebar { background: var(--ink); border-right: 1px solid var(--hairline); padding: 20px 0; }
+    .admin-main { background: var(--void); overflow-y: auto; }
+    .admin-content { padding: 36px 40px; max-width: 1300px; }
+    .admin-stat { background: var(--surface); border: 1px solid var(--hairline); border-radius: var(--r-lg); padding: 22px 24px; }
+    .admin-stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 32px; }
+    .admin-section { background: var(--surface); border: 1px solid var(--hairline); border-radius: var(--r-lg); overflow: hidden; margin-bottom: 24px; }
+    .admin-section-head { padding: 16px 20px; border-bottom: 1px solid var(--hairline); display: flex; align-items: center; justify-content: space-between; }
+    .admin-nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 16px; font-size: 0.8125rem; font-weight: 500; color: var(--t3); cursor: pointer; transition: all 0.15s; text-decoration: none; }
+    .admin-nav-item:hover { color: var(--t1); background: var(--muted-rim); }
+    .admin-nav-item.on { color: var(--t1); background: rgba(139,92,246,0.14); border-left: 2px solid var(--uv); }
+    .admin-nav-section { font-size: 0.69rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--t4); padding: 14px 16px 4px; }
+    .user-row { display: grid; grid-template-columns: 2.5fr 1fr 1fr 1fr 100px; align-items: center; gap: 12px; padding: 13px 20px; border-bottom: 1px solid rgba(255,255,255,0.04); transition: background 0.12s; }
+    .user-row:hover { background: rgba(255,255,255,0.02); }
+    .user-row-head { display: grid; grid-template-columns: 2.5fr 1fr 1fr 1fr 100px; gap: 12px; padding: 10px 20px; border-bottom: 1px solid var(--hairline); }
+    @media (max-width: 1100px) { .admin-layout { grid-template-columns: 1fr; } .admin-sidebar { display: none; } .admin-stats { grid-template-columns: repeat(2,1fr); } .admin-content { padding: 24px 16px; } .user-row, .user-row-head { grid-template-columns: 1fr; } }
+  `) + `
+<nav class="nav-shell">
+  <div class="nav-inner">
+    <a href="/" class="nav-wordmark">
+      <div class="nav-glyph">🎵</div>
+      <span>Artist Collab</span>
+    </a>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span class="badge badge-err">Admin Mode</span>
+      <a href="/dashboard" class="btn btn-secondary btn-sm">Exit Admin</a>
     </div>
-    <ul class="admin-nav">
-      <li><a href="/admin" class="active"><i class="fas fa-th-large" style="width:14px;"></i> Overview</a></li>
-      <li class="nav-section">Management</li>
-      <li><a href="/admin/users"><i class="fas fa-users" style="width:14px;"></i> Users</a></li>
-      <li><a href="/admin/listings"><i class="fas fa-list" style="width:14px;"></i> Listings</a></li>
-      <li><a href="/admin/orders"><i class="fas fa-shopping-bag" style="width:14px;"></i> Orders</a></li>
-      <li><a href="/admin/payments"><i class="fas fa-dollar-sign" style="width:14px;"></i> Payments</a></li>
-      <li class="nav-section">Moderation</li>
-      <li><a href="/admin/disputes"><i class="fas fa-exclamation-triangle" style="width:14px;"></i> Disputes</a></li>
-      <li><a href="/admin/verification"><i class="fas fa-check-circle" style="width:14px;"></i> Verification</a></li>
-      <li><a href="/admin/reports"><i class="fas fa-flag" style="width:14px;"></i> Reports</a></li>
-      <li class="nav-section">Platform</li>
-      <li><a href="/admin/featured"><i class="fas fa-star" style="width:14px;"></i> Featured Artists</a></li>
-      <li><a href="/admin/settings"><i class="fas fa-cog" style="width:14px;"></i> Settings</a></li>
-      <li style="margin-top:16px;padding:12px;"><a href="/" style="color:var(--text2);font-size:13px;"><i class="fas fa-arrow-left" style="margin-right:6px;"></i> Back to Platform</a></li>
-    </ul>
   </div>
-  
-  <!-- Admin Main -->
+</nav>
+<div class="admin-layout">
+  <!-- Sidebar -->
+  <div class="admin-sidebar">
+    <div class="admin-nav-section">Overview</div>
+    <a href="/admin" class="admin-nav-item on"><i class="fas fa-th-large" style="width:16px;"></i> Dashboard</a>
+    <a href="/admin/analytics" class="admin-nav-item"><i class="fas fa-chart-line" style="width:16px;"></i> Analytics</a>
+    <div class="admin-nav-section">Management</div>
+    <a href="/admin/users" class="admin-nav-item"><i class="fas fa-users" style="width:16px;"></i> Users</a>
+    <a href="/admin/listings" class="admin-nav-item"><i class="fas fa-list" style="width:16px;"></i> Listings</a>
+    <a href="/admin/orders" class="admin-nav-item"><i class="fas fa-shopping-bag" style="width:16px;"></i> Orders</a>
+    <a href="/admin/payments" class="admin-nav-item"><i class="fas fa-dollar-sign" style="width:16px;"></i> Payments</a>
+    <div class="admin-nav-section">System</div>
+    <a href="/admin/disputes" class="admin-nav-item"><i class="fas fa-flag" style="width:16px;"></i> Disputes <span class="notif" style="margin-left:auto;background:var(--err);">2</span></a>
+    <a href="/admin/reviews" class="admin-nav-item"><i class="fas fa-star" style="width:16px;"></i> Reviews</a>
+    <a href="/admin/settings" class="admin-nav-item"><i class="fas fa-sliders-h" style="width:16px;"></i> Settings</a>
+    <a href="/logout" class="admin-nav-item"><i class="fas fa-arrow-right-from-bracket" style="width:16px;"></i> Sign Out</a>
+  </div>
+
+  <!-- Main -->
   <div class="admin-main">
-    <div style="margin-bottom:32px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;">
-        <div>
-          <h1 style="font-size:1.8rem;margin-bottom:4px;">Platform Overview</h1>
-          <p style="color:var(--text2);font-size:14px;">Last updated: March 13, 2026 at 10:32 AM</p>
-        </div>
-        <div style="display:flex;gap:10px;">
-          <button class="btn btn-secondary btn-sm"><i class="fas fa-download"></i> Export Report</button>
-          <button class="btn btn-primary btn-sm"><i class="fas fa-sync"></i> Refresh</button>
-        </div>
+    <div class="admin-content">
+
+      <!-- Header -->
+      <div style="margin-bottom:28px;">
+        <div class="label" style="margin-bottom:6px;color:var(--err);">System Control</div>
+        <h1 style="font-size:clamp(1.4rem,2.5vw,1.875rem);letter-spacing:-0.025em;">Admin Dashboard</h1>
+        <p class="body-base" style="margin-top:6px;">Platform overview and management tools.</p>
       </div>
-    </div>
-    
-    <!-- Key Metrics -->
-    <div class="grid-4 mb-8">
-      ${[
-        { label: 'Total Users', value: '12,483', change: '+284 this week', icon: 'fas fa-users', color: 'var(--accent3)', bg: 'rgba(124,58,237,0.15)' },
-        { label: 'Active Projects', value: '1,847', change: '+63 today', icon: 'fas fa-layer-group', color: 'var(--blue)', bg: 'rgba(59,130,246,0.15)' },
-        { label: 'Total Revenue', value: '$284K', change: '+$12,400 this week', icon: 'fas fa-dollar-sign', color: 'var(--green)', bg: 'rgba(16,185,129,0.15)' },
-        { label: 'Pending Review', value: '23', change: '8 flagged, 5 disputes', icon: 'fas fa-flag', color: 'var(--gold)', bg: 'rgba(245,158,11,0.15)' },
-      ].map(s => `
-      <div class="stat-card" style="cursor:pointer;" onmouseover="this.style.borderColor='rgba(255,255,255,0.15)'" onmouseout="this.style.borderColor='var(--border)'">
-        <div style="display:flex;justify-content:space-between;margin-bottom:16px;">
-          <div class="stat-icon" style="background:${s.bg};"><i class="${s.icon}" style="color:${s.color};"></i></div>
-        </div>
-        <div class="stat-number" style="color:${s.color};">${s.value}</div>
-        <div class="stat-label">${s.label}</div>
-        <div style="font-size:12px;color:var(--text2);margin-top:4px;">${s.change}</div>
-      </div>`).join('')}
-    </div>
-    
-    <div class="grid-2 mb-6">
-      <!-- Recent Users -->
-      <div class="card">
-        <div style="padding:20px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
-          <h3 style="font-size:16px;">Recent Signups</h3>
-          <a href="/admin/users" class="btn btn-ghost btn-sm">View All</a>
-        </div>
-        <div style="padding:8px 0;">
-          ${[
-            { name: 'TRAP MELODY', type: 'Artist', location: 'Miami, FL', joined: '2 hours ago', status: 'active' },
-            { name: 'BASSLINE K', type: 'Producer', location: 'London, UK', joined: '5 hours ago', status: 'active' },
-            { name: 'VOCAL MAYA', type: 'Artist', location: 'Atlanta, GA', joined: '1 day ago', status: 'pending_verify' },
-            { name: 'SOUNDSCAPE', type: 'Producer', location: 'Toronto, CA', joined: '2 days ago', status: 'active' },
-            { name: 'R&B JAYE', type: 'Artist', location: 'LA, CA', joined: '3 days ago', status: 'flagged' },
-          ].map(u => `
-          <div style="display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid rgba(255,255,255,0.04);transition:background 0.15s;cursor:pointer;" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background=''">
-            <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent3));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:white;flex-shrink:0;">${u.name[0]}</div>
-            <div style="flex:1;min-width:0;">
-              <div style="font-weight:600;font-size:14px;">${u.name}</div>
-              <div style="font-size:12px;color:var(--text2);">${u.type} · ${u.location}</div>
+
+      <!-- System Alert -->
+      <div class="alert alert-warn" style="margin-bottom:24px;">
+        <i class="fas fa-triangle-exclamation" style="flex-shrink:0;"></i>
+        <div><strong>2 open disputes</strong> require your attention. Review and resolve within 24hrs to maintain trust scores.</div>
+      </div>
+
+      <!-- Stats -->
+      <div class="admin-stats">
+        ${[
+          { label: 'Total Users', val: users.length.toString(), sub: '+3 this week', color: 'var(--uv-bright)', icon: 'fa-users' },
+          { label: 'Active Listings', val: listings.filter(l => l.active).length.toString(), sub: '+2 today', color: 'var(--ok)', icon: 'fa-list' },
+          { label: 'Open Orders', val: projects.filter(p=>!['completed','cancelled'].includes(p.status)).length.toString(), sub: '5 active', color: 'var(--ember)', icon: 'fa-layer-group' },
+          { label: 'Platform Revenue', val: formatPrice(totalRevenue + 1240), sub: '+$240 today', color: 'var(--arc)', icon: 'fa-dollar-sign' },
+        ].map(s => `
+        <div class="admin-stat">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+            <div style="width:36px;height:36px;background:rgba(255,255,255,0.06);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;">
+              <i class="fas ${s.icon}" style="color:${s.color};font-size:0.875rem;"></i>
             </div>
-            <div style="text-align:right;">
-              <span class="badge ${u.status === 'active' ? 'badge-green' : u.status === 'flagged' ? 'badge-red' : 'badge-gold'}" style="font-size:10px;">${u.status === 'active' ? 'Active' : u.status === 'flagged' ? 'Flagged' : 'Pending'}</span>
-              <div style="font-size:11px;color:var(--text2);margin-top:3px;">${u.joined}</div>
-            </div>
-          </div>`).join('')}
+          </div>
+          <div style="font-size:1.75rem;font-weight:800;letter-spacing:-0.04em;color:${s.color};">${s.val}</div>
+          <div style="font-size:0.75rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--t4);margin-bottom:4px;">${s.label}</div>
+          <div style="font-size:0.75rem;color:var(--ok);display:flex;align-items:center;gap:3px;"><i class="fas fa-arrow-up" style="font-size:9px;"></i>${s.sub}</div>
+        </div>`).join('')}
+      </div>
+
+      <!-- Users Table -->
+      <div class="admin-section">
+        <div class="admin-section-head">
+          <h2 style="font-size:1rem;letter-spacing:-0.01em;">All Users (${users.length})</h2>
+          <div style="display:flex;gap:8px;">
+            <input class="field-input" placeholder="Search users…" style="font-size:0.8125rem;padding:7px 12px;width:180px;">
+            <button class="btn btn-primary btn-xs">+ Invite User</button>
+          </div>
         </div>
-      </div>
-      
-      <!-- Recent Orders -->
-      <div class="card">
-        <div style="padding:20px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
-          <h3 style="font-size:16px;">Recent Orders</h3>
-          <a href="/admin/orders" class="btn btn-ghost btn-sm">View All</a>
+        <div class="user-row-head">
+          <div class="label">User</div>
+          <div class="label">Type</div>
+          <div class="label">Status</div>
+          <div class="label">Rating</div>
+          <div class="label" style="text-align:right;">Actions</div>
         </div>
-        <div style="padding:8px 0;">
-          ${[
-            { title: 'Hook Feature', buyer: 'DRIP KAYO', seller: 'NOVA LEE', amount: '$900', status: 'in_progress' },
-            { title: 'Trap Beat Custom', buyer: 'CIPHER 7', seller: 'BEATSMITH', amount: '$350', status: 'delivered' },
-            { title: '16-Bar Verse', buyer: 'R&B JAYE', seller: 'XAVI', amount: '$600', status: 'completed' },
-            { title: 'Afrobeats Feature', buyer: 'BASSLINE K', seller: 'KALI ROSE', amount: '$750', status: 'pending' },
-            { title: 'Pop Hook Writing', buyer: 'TRAP MELODY', seller: 'MELODICA', amount: '$400', status: 'in_progress' },
-          ].map(o => `
-          <div style="display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid rgba(255,255,255,0.04);transition:background 0.15s;cursor:pointer;" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background=''">
-            <div style="flex:1;min-width:0;">
-              <div style="font-weight:600;font-size:14px;">${o.title}</div>
-              <div style="font-size:12px;color:var(--text2);">${o.buyer} → ${o.seller}</div>
+        ${users.map(user => `
+        <div class="user-row">
+          <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+            <img src="${user.profileImage}" class="av av-sm" style="border:1.5px solid rgba(255,255,255,0.06);" alt="${user.artistName}">
+            <div style="min-width:0;">
+              <div style="font-weight:700;font-size:0.875rem;display:flex;align-items:center;gap:6px;">
+                ${user.artistName}
+                ${user.verified ? `<span class="badge badge-uv" style="font-size:0.65rem;">Verified</span>` : ''}
+              </div>
+              <div style="font-size:0.75rem;color:var(--t4);">@${user.username} · ${user.location}</div>
             </div>
-            <div style="text-align:right;">
-              <div style="font-weight:700;font-size:14px;color:var(--accent3);">${o.amount}</div>
-              <span class="badge" style="font-size:10px;background:${o.status === 'completed' ? 'rgba(34,197,94,0.15)' : o.status === 'delivered' ? 'rgba(16,185,129,0.15)' : o.status === 'pending' ? 'rgba(245,158,11,0.15)' : 'rgba(99,102,241,0.15)'};color:${o.status === 'completed' ? '#86efac' : o.status === 'delivered' ? '#6ee7b7' : o.status === 'pending' ? '#fcd34d' : '#a5b4fc'};">
-                ${o.status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-              </span>
+          </div>
+          <div><span class="badge badge-muted" style="font-size:0.69rem;">${user.accountType}</span></div>
+          <div>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <div class="status-dot ${user.availability === 'available' ? 'status-online' : user.availability === 'busy' ? 'status-busy' : 'status-offline'}"></div>
+              <span style="font-size:0.78rem;text-transform:capitalize;">${user.availability}</span>
             </div>
-          </div>`).join('')}
-        </div>
-      </div>
-    </div>
-    
-    <!-- Verification Queue -->
-    <div class="card mb-6">
-      <div style="padding:20px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
-        <h3 style="font-size:16px;">Verification Queue</h3>
-        <span class="badge badge-gold">3 pending</span>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Artist</th><th>Type</th><th>Location</th><th>Monthly Listeners</th><th>Submitted</th><th>Actions</th></tr></thead>
-          <tbody>
-            ${[
-              { name: 'CIPHER 7', type: 'Artist', location: 'Chicago, IL', listeners: '67K', submitted: 'Mar 11' },
-              { name: 'DRIP KAYO', type: 'Artist', location: 'Houston, TX', listeners: '89K', submitted: 'Mar 12' },
-              { name: 'BASSLINE K', type: 'Producer', location: 'London, UK', listeners: '112K', submitted: 'Mar 13' },
-            ].map(a => `
-            <tr>
-              <td><div style="font-weight:600;">${a.name}</div></td>
-              <td><span class="badge badge-gray" style="font-size:11px;">${a.type}</span></td>
-              <td><span style="font-size:13px;color:var(--text2);">${a.location}</span></td>
-              <td><span style="font-weight:600;">${a.listeners}</span></td>
-              <td><span style="font-size:13px;color:var(--text2);">${a.submitted}</span></td>
-              <td>
-                <div style="display:flex;gap:8px;">
-                  <button class="btn btn-green btn-sm" onclick="alert('✅ ${a.name} verified!')"><i class="fas fa-check"></i> Approve</button>
-                  <button class="btn btn-secondary btn-sm" onclick="alert('Review more info for ${a.name}')"><i class="fas fa-eye"></i> Review</button>
-                  <button class="btn btn-secondary btn-sm" onclick="alert('${a.name} verification denied')"><i class="fas fa-times"></i> Deny</button>
-                </div>
-              </td>
-            </tr>`).join('')}
-          </tbody>
-        </table>
-      </div>
-    </div>
-    
-    <!-- Featured Artists Management -->
-    <div class="card">
-      <div style="padding:20px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
-        <h3 style="font-size:16px;">Featured Artists (Homepage)</h3>
-        <button class="btn btn-primary btn-sm" onclick="alert('Select artists to feature on the homepage')"><i class="fas fa-plus"></i> Add Featured</button>
-      </div>
-      <div style="padding:20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;">
-        ${['XAVI', 'NOVA LEE', 'BEATSMITH', 'KALI ROSE'].map(name => `
-        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center;">
-          <div style="font-weight:700;margin-bottom:4px;">${name}</div>
-          <span class="badge badge-gold" style="font-size:10px;"><i class="fas fa-star"></i> Featured</span>
-          <div style="margin-top:10px;">
-            <button class="btn btn-secondary btn-sm" style="width:100%" onclick="alert('Remove ${name} from featured')">Remove</button>
+          </div>
+          <div>
+            <div style="display:flex;align-items:center;gap:4px;font-size:0.8125rem;">
+              <i class="fas fa-star" style="color:var(--ember);font-size:10px;"></i>
+              <span style="font-weight:700;">${user.rating}</span>
+              <span style="color:var(--t4);">(${user.reviewCount})</span>
+            </div>
+          </div>
+          <div style="display:flex;gap:5px;justify-content:flex-end;">
+            <a href="/artist/${user.id}" class="btn btn-secondary btn-xs">View</a>
+            <button class="btn btn-ghost btn-xs" style="color:var(--err);" title="Suspend"><i class="fas fa-ban"></i></button>
           </div>
         </div>`).join('')}
       </div>
+
+      <!-- Recent Orders -->
+      <div class="admin-section">
+        <div class="admin-section-head">
+          <h2 style="font-size:1rem;letter-spacing:-0.01em;">Recent Orders (${projects.length})</h2>
+          <a href="/admin/orders" class="btn btn-ghost btn-xs" style="color:var(--uv-bright);">View All</a>
+        </div>
+        <table class="tbl" style="width:100%;">
+          <thead>
+            <tr>
+              <th>Project</th>
+              <th>Buyer</th>
+              <th>Seller</th>
+              <th>Value</th>
+              <th>Status</th>
+              <th>Payment</th>
+              <th style="text-align:right;">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${projects.map(p => {
+              const buyer = users.find(u => u.id === p.buyerId);
+              const seller = users.find(u => u.id === p.sellerId);
+              const sC = statusColor(p.status);
+              return `
+            <tr>
+              <td>
+                <div style="font-weight:700;font-size:0.875rem;">${p.title.slice(0,32)}…</div>
+                <div style="font-size:0.75rem;color:var(--t4);">${p.package} · ${p.dueDate}</div>
+              </td>
+              <td>
+                <div style="display:flex;align-items:center;gap:6px;">
+                  <img src="${buyer?.profileImage}" class="av av-xs" alt="${buyer?.artistName}">
+                  <span style="font-size:0.8125rem;font-weight:600;">${buyer?.artistName}</span>
+                </div>
+              </td>
+              <td>
+                <div style="display:flex;align-items:center;gap:6px;">
+                  <img src="${seller?.profileImage}" class="av av-xs" alt="${seller?.artistName}">
+                  <span style="font-size:0.8125rem;font-weight:600;">${seller?.artistName}</span>
+                </div>
+              </td>
+              <td style="font-weight:800;font-size:0.9375rem;">${formatPrice(p.orderTotal)}</td>
+              <td><span class="badge" style="background:${sC}22;color:${sC};border-color:${sC}44;">${statusLabel(p.status)}</span></td>
+              <td>
+                <span class="badge ${p.paymentStatus === 'held' ? 'badge-ember' : p.paymentStatus === 'released' ? 'badge-ok' : 'badge-err'}">
+                  ${p.paymentStatus}
+                </span>
+              </td>
+              <td style="text-align:right;">
+                <a href="/workspace/${p.id}" class="btn btn-secondary btn-xs">View</a>
+              </td>
+            </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Quick Admin Actions -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
+        ${[
+          { label: 'Review Disputes', sub: '2 open', color: 'var(--err)', icon: 'fa-flag', bg: 'rgba(244,63,94,0.1)' },
+          { label: 'Verify Users', sub: '4 pending', color: 'var(--uv-bright)', icon: 'fa-shield-check', bg: 'rgba(139,92,246,0.1)' },
+          { label: 'Export Report', sub: 'Monthly CSV', color: 'var(--ok)', icon: 'fa-download', bg: 'rgba(16,185,129,0.1)' },
+        ].map(a => `
+        <button onclick="alert('${a.label} — coming soon')" style="background:var(--surface);border:1px solid var(--hairline);border-radius:var(--r-lg);padding:20px;cursor:pointer;text-align:left;transition:all 0.18s;display:flex;align-items:center;gap:14px;" onmouseover="this.style.borderColor='${a.color}55'" onmouseout="this.style.borderColor='var(--hairline)'">
+          <div style="width:40px;height:40px;border-radius:var(--r);background:${a.bg};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <i class="fas ${a.icon}" style="color:${a.color};"></i>
+          </div>
+          <div>
+            <div style="font-weight:700;font-size:0.875rem;">${a.label}</div>
+            <div style="font-size:0.75rem;color:var(--t4);margin-top:2px;">${a.sub}</div>
+          </div>
+        </button>`).join('')}
+      </div>
+
     </div>
   </div>
 </div>
-` + closeHTML();
+` + closeShell();
 }

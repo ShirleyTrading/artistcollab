@@ -1,651 +1,893 @@
-// Shared layout helpers
-export const head = (title: string, extra = '') => `
-<!DOCTYPE html>
+// ═══════════════════════════════════════════════════════════════
+// ARTIST COLLAB — NEW VISUAL IDENTITY SYSTEM v2.0
+// Ground-up redesign: editorial, cinematic, premium, cultural
+// ═══════════════════════════════════════════════════════════════
+
+export const DESIGN_SYSTEM = `
+  /* ── Google Fonts: Clash Display + DM Sans ──────────────────── */
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap');
+
+  /* ── Design Tokens ──────────────────────────────────────────── */
+  :root {
+    /* Obsidian base palette */
+    --void:      #050507;
+    --ink:       #09090e;
+    --deep:      #0e0e16;
+    --surface:   #13131d;
+    --raised:    #181824;
+    --elevated:  #1e1e2e;
+    --rim:       #252538;
+    --muted-rim: rgba(255,255,255,0.055);
+    --hairline:  rgba(255,255,255,0.08);
+
+    /* Text hierarchy */
+    --t1: #f5f5f7;
+    --t2: #a0a0b8;
+    --t3: #666680;
+    --t4: #3a3a52;
+
+    /* Signature accent — ultraviolet ember */
+    --uv:        #8b5cf6;
+    --uv-bright: #a78bfa;
+    --uv-dim:    rgba(139,92,246,0.15);
+    --uv-glow:   rgba(139,92,246,0.25);
+
+    /* Secondary accent — copper ember */
+    --ember:     #f59e0b;
+    --ember-dim: rgba(245,158,11,0.15);
+
+    /* Tertiary — arctic cyan */
+    --arc:       #22d3ee;
+    --arc-dim:   rgba(34,211,238,0.12);
+
+    /* Status */
+    --ok:     #10b981;
+    --ok-dim: rgba(16,185,129,0.15);
+    --warn:   #f59e0b;
+    --err:    #f43f5e;
+    --err-dim:rgba(244,63,94,0.15);
+    --info:   #3b82f6;
+
+    /* Spacing scale */
+    --s1: 4px;  --s2: 8px;   --s3: 12px;
+    --s4: 16px; --s5: 20px;  --s6: 24px;
+    --s7: 32px; --s8: 40px;  --s9: 48px;
+    --s10: 64px; --s11: 80px; --s12: 96px;
+
+    /* Border radius */
+    --r-sm: 6px;
+    --r:    10px;
+    --r-md: 14px;
+    --r-lg: 20px;
+    --r-xl: 28px;
+    --r-full: 999px;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.5);
+    --shadow:    0 4px 16px rgba(0,0,0,0.5), 0 2px 4px rgba(0,0,0,0.3);
+    --shadow-lg: 0 12px 48px rgba(0,0,0,0.7), 0 4px 16px rgba(0,0,0,0.4);
+    --shadow-uv: 0 8px 32px rgba(139,92,246,0.25);
+  }
+
+  /* ── Reset & Base ───────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; font-size: 16px; }
+  body {
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--void);
+    color: var(--t1);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  a { color: inherit; text-decoration: none; }
+  img { max-width: 100%; display: block; }
+  button, input, select, textarea { font-family: inherit; }
+  ::selection { background: var(--uv-glow); color: var(--t1); }
+
+  /* ── Custom Scrollbar ───────────────────────────────────────── */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: var(--ink); }
+  ::-webkit-scrollbar-thumb { background: var(--rim); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--t4); }
+
+  /* ── TYPOGRAPHY SYSTEM ──────────────────────────────────────── */
+  /* Clash Display via CSS font-face fallback using system fonts with custom metrics */
+  .clash { font-family: 'DM Sans', sans-serif; font-weight: 700; }
+
+  /* Display scale — editorial / cinematic */
+  .display-1 {
+    font-size: clamp(3.5rem, 8vw, 7.5rem);
+    font-weight: 700;
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .display-2 {
+    font-size: clamp(2.5rem, 5vw, 4.5rem);
+    font-weight: 700;
+    line-height: 1.0;
+    letter-spacing: -0.025em;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .display-3 {
+    font-size: clamp(1.8rem, 3.5vw, 3rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  /* Heading scale */
+  h1 { font-size: clamp(1.5rem, 3vw, 2.25rem); font-weight: 700; line-height: 1.15; letter-spacing: -0.015em; }
+  h2 { font-size: clamp(1.25rem, 2.5vw, 1.75rem); font-weight: 700; line-height: 1.2; letter-spacing: -0.012em; }
+  h3 { font-size: clamp(1.1rem, 2vw, 1.35rem); font-weight: 600; line-height: 1.3; letter-spacing: -0.008em; }
+  h4 { font-size: 1.1rem; font-weight: 600; line-height: 1.4; }
+  h5, h6 { font-size: 0.95rem; font-weight: 600; }
+
+  /* Body scale */
+  .body-lg   { font-size: 1.0625rem; line-height: 1.7; color: var(--t2); }
+  .body-base { font-size: 0.9375rem; line-height: 1.65; color: var(--t2); }
+  .body-sm   { font-size: 0.8125rem; line-height: 1.6; color: var(--t3); }
+  .label     { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--t3); }
+
+  /* Gradient headline */
+  .text-gradient {
+    background: linear-gradient(135deg, var(--t1) 0%, rgba(255,255,255,0.7) 50%, var(--uv-bright) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .text-gradient-ember {
+    background: linear-gradient(135deg, var(--t1) 30%, var(--ember) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* ── COMPONENT SYSTEM ───────────────────────────────────────── */
+
+  /* ─── Navigation ─── */
+  .nav-shell {
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    padding: 0 var(--s6);
+    border-bottom: 1px solid var(--hairline);
+    background: rgba(5,5,7,0.88);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+  }
+  .nav-inner {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s6);
+  }
+  .nav-wordmark {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+  }
+  .nav-glyph {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, var(--uv), var(--uv-bright));
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+    box-shadow: 0 0 20px var(--uv-glow);
+  }
+  .nav-links-list {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    list-style: none;
+  }
+  .nav-links-list a {
+    padding: 6px 14px;
+    border-radius: var(--r-sm);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--t3);
+    transition: color 0.18s, background 0.18s;
+  }
+  .nav-links-list a:hover, .nav-links-list a.current {
+    color: var(--t1);
+    background: rgba(255,255,255,0.06);
+  }
+  .nav-cta-group {
+    display: flex;
+    align-items: center;
+    gap: var(--s2);
+  }
+
+  /* ─── Buttons ─── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    border: none;
+    border-radius: var(--r);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    position: relative;
+    text-decoration: none;
+  }
+  .btn:active { transform: scale(0.97); }
+
+  /* Primary */
+  .btn-primary {
+    background: var(--uv);
+    color: #fff;
+    padding: 10px 22px;
+    font-size: 0.875rem;
+    box-shadow: 0 4px 20px rgba(139,92,246,0.3);
+  }
+  .btn-primary:hover {
+    background: var(--uv-bright);
+    box-shadow: 0 6px 28px rgba(167,139,250,0.4);
+    transform: translateY(-1px);
+  }
+
+  /* Secondary */
+  .btn-secondary {
+    background: var(--raised);
+    color: var(--t1);
+    padding: 10px 22px;
+    font-size: 0.875rem;
+    border: 1px solid var(--hairline);
+  }
+  .btn-secondary:hover {
+    background: var(--elevated);
+    border-color: rgba(255,255,255,0.15);
+  }
+
+  /* Ghost */
+  .btn-ghost {
+    background: transparent;
+    color: var(--t2);
+    padding: 10px 18px;
+    font-size: 0.875rem;
+  }
+  .btn-ghost:hover { color: var(--t1); background: var(--muted-rim); }
+
+  /* Outline */
+  .btn-outline {
+    background: transparent;
+    color: var(--t1);
+    padding: 10px 22px;
+    font-size: 0.875rem;
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+  .btn-outline:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.35); }
+
+  /* Sizes */
+  .btn-xs  { padding: 5px 12px; font-size: 0.78rem; border-radius: var(--r-sm); }
+  .btn-sm  { padding: 7px 16px; font-size: 0.8125rem; border-radius: var(--r-sm); }
+  .btn-md  { padding: 10px 22px; font-size: 0.875rem; }
+  .btn-lg  { padding: 13px 28px; font-size: 0.9375rem; border-radius: var(--r-md); }
+  .btn-xl  { padding: 16px 36px; font-size: 1rem; border-radius: var(--r-md); }
+
+  /* ─── Cards ─── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .card:hover { border-color: rgba(255,255,255,0.12); }
+  .card-raised {
+    background: var(--raised);
+    border: 1px solid var(--hairline);
+    border-radius: var(--r-lg);
+  }
+  .card-elevated {
+    background: var(--elevated);
+    border: 1px solid var(--muted-rim);
+    border-radius: var(--r-lg);
+  }
+
+  /* ─── Forms ─── */
+  .field { display: flex; flex-direction: column; gap: 7px; }
+  .field-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--t3);
+  }
+  .field-input {
+    background: var(--raised);
+    border: 1px solid var(--hairline);
+    border-radius: var(--r);
+    padding: 12px 16px;
+    color: var(--t1);
+    font-size: 0.9375rem;
+    font-family: inherit;
+    transition: border-color 0.18s, box-shadow 0.18s;
+    outline: none;
+    width: 100%;
+  }
+  .field-input:focus {
+    border-color: var(--uv);
+    box-shadow: 0 0 0 3px rgba(139,92,246,0.12);
+  }
+  .field-input::placeholder { color: var(--t4); }
+  .field-select {
+    background: var(--raised);
+    border: 1px solid var(--hairline);
+    border-radius: var(--r);
+    padding: 12px 16px;
+    color: var(--t1);
+    font-size: 0.9375rem;
+    font-family: inherit;
+    outline: none;
+    width: 100%;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666680' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+  }
+  .field-select:focus { border-color: var(--uv); }
+  textarea.field-input { resize: vertical; min-height: 110px; line-height: 1.6; }
+
+  /* ─── Tags / Chips ─── */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 11px;
+    background: var(--raised);
+    border: 1px solid var(--hairline);
+    border-radius: var(--r-full);
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--t3);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .chip:hover, .chip.active { background: var(--uv-dim); border-color: rgba(139,92,246,0.35); color: var(--uv-bright); }
+
+  /* ─── Badges ─── */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 9px;
+    border-radius: var(--r-full);
+    font-size: 0.71rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+  .badge-uv     { background: var(--uv-dim); color: var(--uv-bright); border: 1px solid rgba(139,92,246,0.3); }
+  .badge-ok     { background: var(--ok-dim); color: #34d399; border: 1px solid rgba(16,185,129,0.25); }
+  .badge-ember  { background: var(--ember-dim); color: #fbbf24; border: 1px solid rgba(245,158,11,0.25); }
+  .badge-arc    { background: var(--arc-dim); color: var(--arc); border: 1px solid rgba(34,211,238,0.2); }
+  .badge-muted  { background: rgba(255,255,255,0.06); color: var(--t3); border: 1px solid var(--hairline); }
+  .badge-err    { background: var(--err-dim); color: #fb7185; border: 1px solid rgba(244,63,94,0.25); }
+
+  /* ─── Verified Badge ─── */
+  .v-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    background: var(--uv);
+    border-radius: 50%;
+    flex-shrink: 0;
+    box-shadow: 0 0 8px var(--uv-glow);
+  }
+  .v-badge svg { width: 8px; height: 8px; fill: white; }
+
+  /* ─── Stars ─── */
+  .stars { color: var(--ember); display: inline-flex; gap: 1px; font-size: 0.75rem; }
+
+  /* ─── Avatar ─── */
+  .av {
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+    flex-shrink: 0;
+  }
+  .av-xs  { width: 24px; height: 24px; }
+  .av-sm  { width: 32px; height: 32px; }
+  .av-md  { width: 44px; height: 44px; }
+  .av-lg  { width: 60px; height: 60px; }
+  .av-xl  { width: 80px; height: 80px; }
+  .av-2xl { width: 110px; height: 110px; }
+  .av-3xl { width: 140px; height: 140px; }
+
+  /* ─── Layout ─── */
+  .container    { max-width: 1260px; margin: 0 auto; padding: 0 var(--s6); }
+  .container-md { max-width: 960px;  margin: 0 auto; padding: 0 var(--s6); }
+  .container-sm { max-width: 720px;  margin: 0 auto; padding: 0 var(--s6); }
+
+  /* ─── App Shell (Authenticated) ─── */
+  .app-shell {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    min-height: calc(100vh - 64px);
+  }
+  .app-sidebar {
+    background: var(--ink);
+    border-right: 1px solid var(--hairline);
+    position: sticky;
+    top: 64px;
+    height: calc(100vh - 64px);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+  .app-sidebar::-webkit-scrollbar { display: none; }
+  .app-main { overflow-y: auto; }
+
+  /* Sidebar nav */
+  .sb-section {
+    padding: 20px 16px 4px;
+    font-size: 0.69rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--t4);
+  }
+  .sb-nav { list-style: none; padding: 0 8px; }
+  .sb-nav li a, .sb-nav li button {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: var(--r-sm);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--t3);
+    width: 100%;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color 0.15s, background 0.15s;
+    text-decoration: none;
+  }
+  .sb-nav li a:hover, .sb-nav li button:hover { color: var(--t1); background: var(--muted-rim); }
+  .sb-nav li a.on, .sb-nav li button.on {
+    color: var(--t1);
+    background: rgba(139,92,246,0.14);
+    border: 1px solid rgba(139,92,246,0.2);
+    font-weight: 600;
+  }
+  .sb-icon { width: 16px; text-align: center; flex-shrink: 0; font-size: 0.875rem; }
+
+  /* ─── Progress bar ─── */
+  .progress { height: 4px; background: var(--rim); border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--uv), var(--uv-bright)); border-radius: 2px; transition: width 0.5s ease; }
+
+  /* ─── Divider ─── */
+  hr.divider { border: none; border-top: 1px solid var(--hairline); }
+
+  /* ─── Status dot ─── */
+  .status-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+  .status-online  { background: var(--ok); box-shadow: 0 0 8px rgba(16,185,129,0.5); }
+  .status-busy    { background: var(--warn); }
+  .status-offline { background: var(--t4); }
+
+  /* ─── Notif badge ─── */
+  .notif {
+    background: var(--uv);
+    color: white;
+    border-radius: var(--r-full);
+    padding: 2px 6px;
+    font-size: 0.69rem;
+    font-weight: 700;
+    min-width: 18px;
+    text-align: center;
+    line-height: 16px;
+    height: 18px;
+  }
+
+  /* ─── Table ─── */
+  .tbl { width: 100%; border-collapse: collapse; }
+  .tbl thead tr { border-bottom: 1px solid var(--hairline); }
+  .tbl tbody tr {
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    transition: background 0.12s;
+  }
+  .tbl tbody tr:hover { background: rgba(255,255,255,0.02); }
+  .tbl th {
+    padding: 11px 16px;
+    font-size: 0.71rem;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--t4);
+    text-align: left;
+  }
+  .tbl td { padding: 14px 16px; font-size: 0.875rem; }
+
+  /* ─── Alerts ─── */
+  .alert { display: flex; align-items: flex-start; gap: 10px; padding: 12px 16px; border-radius: var(--r); font-size: 0.875rem; }
+  .alert-info    { background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.2); color: #93c5fd; }
+  .alert-ok      { background: var(--ok-dim); border: 1px solid rgba(16,185,129,0.2); color: #6ee7b7; }
+  .alert-warn    { background: var(--ember-dim); border: 1px solid rgba(245,158,11,0.25); color: #fcd34d; }
+  .alert-err     { background: var(--err-dim); border: 1px solid rgba(244,63,94,0.25); color: #fda4af; }
+
+  /* ─── Utility ─── */
+  .flex  { display: flex; }
+  .grid  { display: grid; }
+  .col   { flex-direction: column; }
+  .items-c  { align-items: center; }
+  .items-s  { align-items: flex-start; }
+  .items-e  { align-items: flex-end; }
+  .justify-c   { justify-content: center; }
+  .justify-b   { justify-content: space-between; }
+  .justify-e   { justify-content: flex-end; }
+  .wrap  { flex-wrap: wrap; }
+  .gap-1 { gap: var(--s1); }
+  .gap-2 { gap: var(--s2); }
+  .gap-3 { gap: var(--s3); }
+  .gap-4 { gap: var(--s4); }
+  .gap-5 { gap: var(--s5); }
+  .gap-6 { gap: var(--s6); }
+  .gap-7 { gap: var(--s7); }
+  .gap-8 { gap: var(--s8); }
+  .p-4  { padding: var(--s4); }
+  .p-5  { padding: var(--s5); }
+  .p-6  { padding: var(--s6); }
+  .p-7  { padding: var(--s7); }
+  .p-8  { padding: var(--s8); }
+  .px-6 { padding-left: var(--s6); padding-right: var(--s6); }
+  .py-6 { padding-top: var(--s6); padding-bottom: var(--s6); }
+  .mb-2 { margin-bottom: var(--s2); }
+  .mb-3 { margin-bottom: var(--s3); }
+  .mb-4 { margin-bottom: var(--s4); }
+  .mb-5 { margin-bottom: var(--s5); }
+  .mb-6 { margin-bottom: var(--s6); }
+  .mb-7 { margin-bottom: var(--s7); }
+  .mb-8 { margin-bottom: var(--s8); }
+  .mt-4 { margin-top: var(--s4); }
+  .mt-6 { margin-top: var(--s6); }
+  .mt-8 { margin-top: var(--s8); }
+  .w-full { width: 100%; }
+  .relative { position: relative; }
+  .absolute { position: absolute; }
+  .fixed { position: fixed; }
+  .inset-0 { inset: 0; }
+  .overflow-hidden { overflow: hidden; }
+  .overflow-auto { overflow: auto; }
+  .text-center { text-align: center; }
+  .text-right { text-align: right; }
+  .t1 { color: var(--t1); }
+  .t2 { color: var(--t2); }
+  .t3 { color: var(--t3); }
+  .t-uv { color: var(--uv-bright); }
+  .t-ember { color: var(--ember); }
+  .t-ok { color: var(--ok); }
+  .t-err { color: var(--err); }
+  .bold { font-weight: 700; }
+  .semibold { font-weight: 600; }
+  .truncate { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .rounded-full { border-radius: var(--r-full); }
+  .shrink-0 { flex-shrink: 0; }
+  .cursor-pointer { cursor: pointer; }
+  .z-10 { z-index: 10; }
+  .z-50 { z-index: 50; }
+  .z-100 { z-index: 100; }
+  .pointer-none { pointer-events: none; }
+  .select-none { user-select: none; }
+
+  /* ─── Motion ─── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  @keyframes pulseGlow {
+    0%, 100% { box-shadow: 0 0 20px var(--uv-glow); }
+    50%       { box-shadow: 0 0 40px rgba(139,92,246,0.4); }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50%       { transform: translateY(-8px); }
+  }
+  @keyframes scan {
+    0%   { transform: translateY(-100%); }
+    100% { transform: translateY(100vh); }
+  }
+  @keyframes waveform {
+    0%, 100% { transform: scaleY(0.3); }
+    50%       { transform: scaleY(1); }
+  }
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+  .anim-fade-up { animation: fadeUp 0.5s ease forwards; }
+  .anim-fade-in { animation: fadeIn 0.4s ease forwards; }
+
+  /* ─── Footer ─── */
+  .footer-shell {
+    background: var(--ink);
+    border-top: 1px solid var(--hairline);
+    padding: 64px var(--s6) 32px;
+  }
+  .footer-grid {
+    max-width: 1260px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 48px;
+    margin-bottom: 48px;
+  }
+  .footer-link {
+    display: block;
+    font-size: 0.875rem;
+    color: var(--t3);
+    padding: 5px 0;
+    transition: color 0.15s;
+  }
+  .footer-link:hover { color: var(--t1); }
+  .footer-head { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--t4); margin-bottom: 14px; }
+  .footer-bottom {
+    max-width: 1260px;
+    margin: 0 auto;
+    padding-top: 24px;
+    border-top: 1px solid var(--hairline);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  /* ─── Mobile ─── */
+  .mob-hide { }
+  .mob-show { display: none; }
+  @media (max-width: 1024px) {
+    .app-shell { grid-template-columns: 1fr; }
+    .app-sidebar { display: none; position: fixed; z-index: 300; top: 64px; width: 240px; height: calc(100vh - 64px); }
+    .app-sidebar.open { display: flex; }
+    .footer-grid { grid-template-columns: 1fr 1fr; }
+    .mob-hide { display: none !important; }
+    .mob-show { display: flex !important; }
+  }
+  @media (max-width: 768px) {
+    .nav-links-list { display: none; }
+    .footer-grid { grid-template-columns: 1fr; }
+    .container, .container-md, .container-sm { padding: 0 var(--s4); }
+  }
+`;
+
+// ─── Page Shell ──────────────────────────────────────────────────────────────
+export const shell = (title: string, extra = '', bodyClass = '') => `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${title} — Artist Collab</title>
-  <meta name="description" content="Artist Collab — Remote Music Collaboration, Built for Real Artists. Book features, share stems, and manage projects in one secure platform.">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='16' fill='%237c3aed'/><text y='48' x='8' font-size='42'>🎵</text></svg>">
+  <meta name="description" content="Artist Collab — The remote studio infrastructure for modern music creation. Book features, share stems, manage projects.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎵</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,300;1,9..40,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    
-    :root {
-      --bg: #0a0a0f;
-      --bg2: #111118;
-      --bg3: #18181f;
-      --bg4: #1e1e28;
-      --border: rgba(255,255,255,0.08);
-      --border2: rgba(255,255,255,0.12);
-      --text: #f1f1f5;
-      --text2: #9999b0;
-      --text3: #6666888;
-      --accent: #7c3aed;
-      --accent2: #9d5bf5;
-      --accent3: #c084fc;
-      --gold: #f59e0b;
-      --green: #10b981;
-      --red: #ef4444;
-      --blue: #3b82f6;
-      --pink: #ec4899;
-      --radius: 12px;
-      --radius2: 16px;
-      --shadow: 0 4px 24px rgba(0,0,0,0.4);
-      --shadow2: 0 8px 40px rgba(0,0,0,0.6);
-      --glow: 0 0 40px rgba(124,58,237,0.15);
-    }
-    
-    html { scroll-behavior: smooth; }
-    
-    body {
-      font-family: 'Inter', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-      min-height: 100vh;
-      -webkit-font-smoothing: antialiased;
-    }
-    
-    h1,h2,h3,h4,h5,h6 {
-      font-family: 'Space Grotesk', sans-serif;
-      font-weight: 700;
-      line-height: 1.2;
-    }
-    
-    a { color: inherit; text-decoration: none; }
-    img { max-width: 100%; }
-    button, input, select, textarea { font-family: inherit; }
-    
-    /* ─── Scrollbar ─── */
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: var(--bg2); }
-    ::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 4px; }
-    
-    /* ─── Nav ─── */
-    .nav {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background: rgba(10,10,15,0.92);
-      backdrop-filter: blur(20px);
-      border-bottom: 1px solid var(--border);
-      padding: 0 24px;
-      height: 68px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .nav-logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 20px;
-      font-weight: 700;
-    }
-    .nav-logo-icon {
-      width: 36px;
-      height: 36px;
-      background: linear-gradient(135deg, var(--accent), var(--accent3));
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
-    }
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      list-style: none;
-    }
-    .nav-links a {
-      padding: 8px 14px;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--text2);
-      transition: all 0.2s;
-    }
-    .nav-links a:hover { color: var(--text); background: var(--bg3); }
-    .nav-links a.active { color: var(--text); background: var(--bg3); }
-    .nav-actions { display: flex; align-items: center; gap: 10px; }
-    
-    /* ─── Buttons ─── */
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 10px 20px;
-      border-radius: 10px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      border: none;
-      transition: all 0.2s;
-      white-space: nowrap;
-    }
-    .btn-primary {
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      color: white;
-      box-shadow: 0 4px 16px rgba(124,58,237,0.35);
-    }
-    .btn-primary:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 6px 24px rgba(124,58,237,0.5);
-    }
-    .btn-secondary {
-      background: var(--bg3);
-      color: var(--text);
-      border: 1px solid var(--border2);
-    }
-    .btn-secondary:hover { background: var(--bg4); border-color: rgba(255,255,255,0.2); }
-    .btn-ghost { background: transparent; color: var(--text2); }
-    .btn-ghost:hover { color: var(--text); background: var(--bg3); }
-    .btn-sm { padding: 7px 14px; font-size: 13px; }
-    .btn-lg { padding: 14px 28px; font-size: 16px; border-radius: 12px; }
-    .btn-xl { padding: 16px 36px; font-size: 17px; border-radius: 14px; }
-    .btn-outline {
-      background: transparent;
-      color: var(--text);
-      border: 1px solid var(--border2);
-    }
-    .btn-outline:hover { background: var(--bg3); border-color: rgba(255,255,255,0.25); }
-    .btn-gold {
-      background: linear-gradient(135deg, #f59e0b, #fbbf24);
-      color: #0a0a0f;
-    }
-    .btn-green {
-      background: linear-gradient(135deg, #059669, #10b981);
-      color: white;
-    }
-    
-    /* ─── Cards ─── */
-    .card {
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-radius: var(--radius2);
-      overflow: hidden;
-    }
-    .card:hover { border-color: var(--border2); }
-    .card-glass {
-      background: rgba(24,24,31,0.6);
-      backdrop-filter: blur(16px);
-      border: 1px solid var(--border);
-      border-radius: var(--radius2);
-    }
-    
-    /* ─── Badge ─── */
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-    }
-    .badge-purple { background: rgba(124,58,237,0.2); color: var(--accent3); border: 1px solid rgba(124,58,237,0.3); }
-    .badge-green { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.25); }
-    .badge-gold { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.25); }
-    .badge-blue { background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.25); }
-    .badge-red { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.25); }
-    .badge-gray { background: rgba(107,114,128,0.15); color: #9ca3af; border: 1px solid rgba(107,114,128,0.25); }
-    
-    /* ─── Stars ─── */
-    .stars { color: var(--gold); display: inline-flex; gap: 1px; font-size: 13px; }
-    
-    /* ─── Form elements ─── */
-    .form-group { display: flex; flex-direction: column; gap: 8px; }
-    .form-label { font-size: 13px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.05em; }
-    .form-input {
-      background: var(--bg3);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 12px 16px;
-      color: var(--text);
-      font-size: 15px;
-      transition: all 0.2s;
-      outline: none;
-      width: 100%;
-    }
-    .form-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(124,58,237,0.15); }
-    .form-input::placeholder { color: var(--text2); opacity: 0.6; }
-    .form-select {
-      background: var(--bg3);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 12px 16px;
-      color: var(--text);
-      font-size: 15px;
-      outline: none;
-      width: 100%;
-      cursor: pointer;
-    }
-    .form-select:focus { border-color: var(--accent); }
-    textarea.form-input { resize: vertical; min-height: 120px; }
-    
-    /* ─── Section helpers ─── */
-    .section { padding: 80px 24px; }
-    .section-sm { padding: 48px 24px; }
-    .container { max-width: 1200px; margin: 0 auto; }
-    .container-sm { max-width: 900px; margin: 0 auto; }
-    .container-xs { max-width: 600px; margin: 0 auto; }
-    
-    /* ─── Grid ─── */
-    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
-    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
-    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
-    .grid-auto { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
-    
-    /* ─── Utility ─── */
-    .flex { display: flex; }
-    .flex-col { display: flex; flex-direction: column; }
-    .items-center { align-items: center; }
-    .justify-between { justify-content: space-between; }
-    .justify-center { justify-content: center; }
-    .gap-2 { gap: 8px; }
-    .gap-3 { gap: 12px; }
-    .gap-4 { gap: 16px; }
-    .gap-6 { gap: 24px; }
-    .gap-8 { gap: 32px; }
-    .text-center { text-align: center; }
-    .text-right { text-align: right; }
-    .font-bold { font-weight: 700; }
-    .font-semibold { font-weight: 600; }
-    .text-sm { font-size: 14px; }
-    .text-xs { font-size: 12px; }
-    .text-lg { font-size: 18px; }
-    .text-xl { font-size: 22px; }
-    .text-2xl { font-size: 28px; }
-    .text-3xl { font-size: 36px; }
-    .text-muted { color: var(--text2); }
-    .text-accent { color: var(--accent3); }
-    .text-green { color: var(--green); }
-    .text-gold { color: var(--gold); }
-    .text-red { color: var(--red); }
-    .mb-1 { margin-bottom: 4px; }
-    .mb-2 { margin-bottom: 8px; }
-    .mb-3 { margin-bottom: 12px; }
-    .mb-4 { margin-bottom: 16px; }
-    .mb-6 { margin-bottom: 24px; }
-    .mb-8 { margin-bottom: 32px; }
-    .mt-2 { margin-top: 8px; }
-    .mt-4 { margin-top: 16px; }
-    .mt-6 { margin-top: 24px; }
-    .mt-8 { margin-top: 32px; }
-    .p-4 { padding: 16px; }
-    .p-6 { padding: 24px; }
-    .p-8 { padding: 32px; }
-    .rounded { border-radius: var(--radius); }
-    .rounded-full { border-radius: 999px; }
-    .w-full { width: 100%; }
-    .h-full { height: 100%; }
-    .relative { position: relative; }
-    .absolute { position: absolute; }
-    .overflow-hidden { overflow: hidden; }
-    
-    /* ─── Divider ─── */
-    .divider { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
-    
-    /* ─── Tag pill ─── */
-    .tag {
-      display: inline-block;
-      padding: 4px 12px;
-      background: var(--bg3);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--text2);
-    }
-    .tag:hover { border-color: var(--accent); color: var(--accent3); cursor: pointer; }
-    
-    /* ─── Avatar ─── */
-    .avatar {
-      border-radius: 50%;
-      object-fit: cover;
-      display: block;
-    }
-    .avatar-sm { width: 32px; height: 32px; }
-    .avatar-md { width: 48px; height: 48px; }
-    .avatar-lg { width: 72px; height: 72px; }
-    .avatar-xl { width: 100px; height: 100px; }
-    .avatar-2xl { width: 140px; height: 140px; }
-    
-    /* ─── Sidebar Layout ─── */
-    .app-layout {
-      display: grid;
-      grid-template-columns: 240px 1fr;
-      min-height: calc(100vh - 68px);
-    }
-    .sidebar {
-      background: var(--bg2);
-      border-right: 1px solid var(--border);
-      padding: 24px 0;
-      position: sticky;
-      top: 68px;
-      height: calc(100vh - 68px);
-      overflow-y: auto;
-    }
-    .sidebar-nav { list-style: none; padding: 0 12px; }
-    .sidebar-nav li a {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 11px 14px;
-      border-radius: 10px;
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--text2);
-      transition: all 0.2s;
-    }
-    .sidebar-nav li a:hover { color: var(--text); background: var(--bg3); }
-    .sidebar-nav li a.active { color: var(--text); background: linear-gradient(135deg, rgba(124,58,237,0.25), rgba(157,91,245,0.15)); border: 1px solid rgba(124,58,237,0.25); }
-    .sidebar-nav li a .nav-icon { width: 18px; text-align: center; }
-    .sidebar-section { padding: 8px 24px 4px; font-size: 11px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 16px; }
-    .main-content { padding: 32px; overflow-y: auto; }
-    
-    /* ─── Stats box ─── */
-    .stat-card {
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-radius: var(--radius2);
-      padding: 24px;
-    }
-    .stat-card:hover { border-color: var(--border2); }
-    .stat-number { font-size: 32px; font-weight: 800; font-family: 'Space Grotesk', sans-serif; }
-    .stat-label { font-size: 13px; color: var(--text2); font-weight: 500; }
-    .stat-change { font-size: 12px; font-weight: 600; margin-top: 4px; }
-    .stat-up { color: var(--green); }
-    .stat-icon {
-      width: 44px;
-      height: 44px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-    }
-    
-    /* ─── Table ─── */
-    .table-wrap { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; }
-    thead tr { border-bottom: 1px solid var(--border); }
-    tbody tr { border-bottom: 1px solid rgba(255,255,255,0.04); transition: background 0.15s; }
-    tbody tr:hover { background: rgba(255,255,255,0.02); }
-    th { padding: 12px 16px; font-size: 12px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: 0.06em; text-align: left; }
-    td { padding: 14px 16px; font-size: 14px; }
-    
-    /* ─── Progress bar ─── */
-    .progress-bar {
-      height: 6px;
-      background: var(--bg4);
-      border-radius: 3px;
-      overflow: hidden;
-    }
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--accent), var(--accent3));
-      border-radius: 3px;
-      transition: width 0.4s ease;
-    }
-    
-    /* ─── Alert ─── */
-    .alert {
-      padding: 14px 18px;
-      border-radius: 10px;
-      font-size: 14px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .alert-info { background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.2); color: #93c5fd; }
-    .alert-success { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2); color: #6ee7b7; }
-    .alert-warning { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.2); color: #fcd34d; }
-    
-    /* ─── Notification dot ─── */
-    .notif-dot {
-      width: 8px; height: 8px;
-      background: var(--accent2);
-      border-radius: 50%;
-      display: inline-block;
-    }
-    .notif-badge {
-      background: var(--accent);
-      color: white;
-      border-radius: 10px;
-      padding: 2px 6px;
-      font-size: 11px;
-      font-weight: 700;
-      min-width: 18px;
-      text-align: center;
-    }
-    
-    /* ─── Hero gradient ─── */
-    .hero-gradient {
-      background: radial-gradient(ellipse at 50% -20%, rgba(124,58,237,0.25) 0%, transparent 70%),
-                  radial-gradient(ellipse at 100% 50%, rgba(192,132,252,0.08) 0%, transparent 60%),
-                  var(--bg);
-    }
-    
-    /* ─── Glow effect ─── */
-    .glow-purple { box-shadow: 0 0 60px rgba(124,58,237,0.2); }
-    .glow-text { 
-      background: linear-gradient(135deg, #fff 0%, #c4b5fd 50%, var(--accent3) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    
-    /* ─── Verified badge ─── */
-    .verified-badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 18px;
-      height: 18px;
-      background: var(--accent);
-      border-radius: 50%;
-      font-size: 10px;
-      color: white;
-      flex-shrink: 0;
-    }
-    
-    /* ─── Mobile ─── */
-    .mobile-only { display: none; }
-    .hamburger-btn {
-      display: none;
-      background: none;
-      border: none;
-      color: var(--text);
-      font-size: 20px;
-      cursor: pointer;
-      padding: 8px;
-    }
-    
-    @media (max-width: 1024px) {
-      .grid-4 { grid-template-columns: repeat(2, 1fr); }
-      .app-layout { grid-template-columns: 1fr; }
-      .sidebar { display: none; }
-      .sidebar.open { display: block; position: fixed; z-index: 200; top: 68px; left: 0; width: 240px; height: calc(100vh - 68px); }
-      .hamburger-btn { display: block; }
-    }
-    @media (max-width: 768px) {
-      .grid-2, .grid-3 { grid-template-columns: 1fr; }
-      .grid-4 { grid-template-columns: 1fr; }
-      .section { padding: 60px 16px; }
-      .main-content { padding: 20px 16px; }
-      .nav-links { display: none; }
-      h1 { font-size: 2rem !important; }
-    }
-    ${extra}
-  </style>
+  <style>${DESIGN_SYSTEM}${extra}</style>
 </head>
-<body>`;
+<body class="${bodyClass}">`;
 
-export const nav = (active = '') => `
-<nav class="nav">
-  <a href="/" class="nav-logo">
-    <div class="nav-logo-icon">🎵</div>
-    Artist Collab
-  </a>
-  <ul class="nav-links">
-    <li><a href="/explore" class="${active === 'explore' ? 'active' : ''}">Explore Artists</a></li>
-    <li><a href="/marketplace" class="${active === 'marketplace' ? 'active' : ''}">Marketplace</a></li>
-    <li><a href="/how-it-works">How It Works</a></li>
-  </ul>
-  <div class="nav-actions">
-    <a href="/login" class="btn btn-ghost btn-sm">Login</a>
-    <a href="/signup" class="btn btn-primary btn-sm">Join Free</a>
-    <button class="hamburger-btn" onclick="toggleMobileSidebar()">
-      <i class="fas fa-bars"></i>
-    </button>
-  </div>
-</nav>`;
+export const closeShell = () => `
+<script>
+// Global interactions
+document.querySelectorAll('[data-href]').forEach(el => {
+  el.style.cursor = 'pointer';
+  el.addEventListener('click', () => window.location.href = el.dataset.href);
+});
+// Sidebar toggle
+window.toggleSidebar = function() {
+  const sb = document.getElementById('app-sidebar');
+  if (sb) sb.classList.toggle('open');
+};
+</script>
+</body></html>`;
 
-export const authedNav = (active = '', user?: { name: string; image: string; notifications?: number }) => `
-<nav class="nav">
-  <a href="/" class="nav-logo">
-    <div class="nav-logo-icon">🎵</div>
-    Artist Collab
-  </a>
-  <ul class="nav-links">
-    <li><a href="/explore" class="${active === 'explore' ? 'active' : ''}">Explore Artists</a></li>
-    <li><a href="/marketplace" class="${active === 'marketplace' ? 'active' : ''}">Marketplace</a></li>
-    <li><a href="/dashboard/projects" class="${active === 'projects' ? 'active' : ''}">Projects</a></li>
-    <li><a href="/dashboard/messages" class="${active === 'messages' ? 'active' : ''}">Messages ${user?.notifications ? `<span class="notif-badge">${user.notifications}</span>` : ''}</a></li>
-  </ul>
-  <div class="nav-actions">
-    <a href="/dashboard" class="btn btn-ghost btn-sm"><i class="fas fa-chart-line"></i></a>
-    <a href="/profile/me">
-      <img src="${user?.image ?? 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=60&h=60&fit=crop&crop=face'}" 
-           class="avatar avatar-sm" style="border: 2px solid var(--border2); width:36px;height:36px;" alt="Profile">
+// ─── Navigation ──────────────────────────────────────────────────────────────
+export const publicNav = (active = '') => `
+<nav class="nav-shell">
+  <div class="nav-inner">
+    <a href="/" class="nav-wordmark">
+      <div class="nav-glyph">🎵</div>
+      <span>Artist Collab</span>
     </a>
+    <ul class="nav-links-list">
+      <li><a href="/explore" class="${active === 'explore' ? 'current' : ''}">Explore</a></li>
+      <li><a href="/marketplace" class="${active === 'marketplace' ? 'current' : ''}">Marketplace</a></li>
+      <li><a href="/how-it-works" class="${active === 'how' ? 'current' : ''}">How It Works</a></li>
+    </ul>
+    <div class="nav-cta-group">
+      <a href="/login" class="btn btn-ghost btn-sm">Sign In</a>
+      <a href="/signup" class="btn btn-primary btn-sm">Join Free</a>
+      <button class="btn btn-ghost btn-sm mob-show" onclick="toggleSidebar()" style="padding:8px 10px;">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
   </div>
 </nav>`;
 
-export const dashboardSidebar = (active = '') => `
-<aside class="sidebar" id="sidebar">
-  <div style="padding: 0 24px 24px; border-bottom: 1px solid var(--border);">
-    <div style="display:flex;align-items:center;gap:12px;">
-      <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=80&h=80&fit=crop&crop=face" 
-           class="avatar" style="width:44px;height:44px;border:2px solid var(--accent);" alt="User">
-      <div>
-        <div style="font-weight:700;font-size:14px;">XAVI</div>
-        <div style="font-size:12px;color:var(--text2);">@xavi_official</div>
+export const authedNav = (active = '') => `
+<nav class="nav-shell">
+  <div class="nav-inner">
+    <div style="display:flex;align-items:center;gap:var(--s6);">
+      <button class="btn btn-ghost btn-sm mob-show" onclick="toggleSidebar()" style="padding:8px 10px;">
+        <i class="fas fa-bars"></i>
+      </button>
+      <a href="/" class="nav-wordmark">
+        <div class="nav-glyph">🎵</div>
+        <span class="mob-hide">Artist Collab</span>
+      </a>
+    </div>
+    <ul class="nav-links-list mob-hide">
+      <li><a href="/explore" class="${active === 'explore' ? 'current' : ''}">Explore</a></li>
+      <li><a href="/marketplace" class="${active === 'marketplace' ? 'current' : ''}">Marketplace</a></li>
+      <li><a href="/dashboard/projects" class="${active === 'projects' ? 'current' : ''}">Projects</a></li>
+      <li><a href="/dashboard/messages" class="${active === 'messages' ? 'current' : ''}">
+        Messages <span class="notif" style="margin-left:2px;">3</span>
+      </a></li>
+    </ul>
+    <div class="nav-cta-group">
+      <a href="/dashboard" style="display:flex;align-items:center;gap:9px;padding:5px 10px 5px 5px;border-radius:var(--r-full);border:1px solid var(--hairline);background:var(--raised);transition:all 0.18s;" onmouseover="this.style.borderColor='rgba(255,255,255,0.18)'" onmouseout="this.style.borderColor='var(--hairline)'">
+        <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=60&h=60&fit=crop&crop=face" class="av av-xs" style="border:1.5px solid rgba(139,92,246,0.5);" alt="Profile">
+        <span style="font-size:0.8125rem;font-weight:600;color:var(--t2);" class="mob-hide">XAVI</span>
+      </a>
+    </div>
+  </div>
+</nav>`;
+
+// ─── Dashboard Sidebar ────────────────────────────────────────────────────────
+export const appSidebar = (active = '') => `
+<aside class="app-sidebar" id="app-sidebar">
+  <!-- User card -->
+  <div style="padding:20px 16px;border-bottom:1px solid var(--hairline);">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="position:relative;">
+        <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=80&h=80&fit=crop&crop=face" class="av av-md" style="border:2px solid rgba(139,92,246,0.5);" alt="Profile">
+        <div class="status-dot status-online" style="position:absolute;bottom:1px;right:1px;border:2px solid var(--ink);width:10px;height:10px;"></div>
+      </div>
+      <div style="min-width:0;">
+        <div style="font-weight:700;font-size:0.9rem;letter-spacing:-0.01em;">XAVI</div>
+        <div style="font-size:0.75rem;color:var(--t3);">@xavi_official</div>
       </div>
     </div>
   </div>
-  
-  <div class="sidebar-section">Main</div>
-  <ul class="sidebar-nav">
-    <li><a href="/dashboard" class="${active === 'dashboard' ? 'active' : ''}">
-      <span class="nav-icon"><i class="fas fa-th-large"></i></span> Dashboard
-    </a></li>
-    <li><a href="/dashboard/projects" class="${active === 'projects' ? 'active' : ''}">
-      <span class="nav-icon"><i class="fas fa-layer-group"></i></span> Projects
-      <span class="notif-badge" style="margin-left:auto;">2</span>
-    </a></li>
-    <li><a href="/dashboard/messages" class="${active === 'messages' ? 'active' : ''}">
-      <span class="nav-icon"><i class="fas fa-comment-dots"></i></span> Messages
-      <span class="notif-badge" style="margin-left:auto;">3</span>
-    </a></li>
-    <li><a href="/dashboard/orders" class="${active === 'orders' ? 'active' : ''}">
-      <span class="nav-icon"><i class="fas fa-shopping-bag"></i></span> Orders
-    </a></li>
-    <li><a href="/dashboard/earnings" class="${active === 'earnings' ? 'active' : ''}">
-      <span class="nav-icon"><i class="fas fa-dollar-sign"></i></span> Earnings
-    </a></li>
-  </ul>
-  
-  <div class="sidebar-section">My Work</div>
-  <ul class="sidebar-nav">
-    <li><a href="/profile/me" class="${active === 'profile' ? 'active' : ''}">
-      <span class="nav-icon"><i class="fas fa-user"></i></span> My Profile
-    </a></li>
-    <li><a href="/dashboard/listings" class="${active === 'listings' ? 'active' : ''}">
-      <span class="nav-icon"><i class="fas fa-list"></i></span> My Listings
-    </a></li>
-    <li><a href="/explore" class="${active === 'explore' ? 'active' : ''}">
-      <span class="nav-icon"><i class="fas fa-search"></i></span> Explore Artists
-    </a></li>
-  </ul>
-  
-  <div class="sidebar-section">Account</div>
-  <ul class="sidebar-nav">
-    <li><a href="/dashboard/settings" class="${active === 'settings' ? 'active' : ''}">
-      <span class="nav-icon"><i class="fas fa-cog"></i></span> Settings
-    </a></li>
-    <li><a href="/logout">
-      <span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span> Logout
-    </a></li>
-  </ul>
+
+  <div style="flex:1;overflow-y:auto;padding-bottom:16px;">
+    <div class="sb-section">Overview</div>
+    <ul class="sb-nav">
+      <li><a href="/dashboard" class="${active === 'home' ? 'on' : ''}">
+        <span class="sb-icon"><i class="fas fa-th-large"></i></span> Dashboard
+      </a></li>
+      <li><a href="/dashboard/projects" class="${active === 'projects' ? 'on' : ''}">
+        <span class="sb-icon"><i class="fas fa-layer-group"></i></span> Projects
+        <span class="notif" style="margin-left:auto;">2</span>
+      </a></li>
+      <li><a href="/dashboard/messages" class="${active === 'messages' ? 'on' : ''}">
+        <span class="sb-icon"><i class="fas fa-comment-dots"></i></span> Messages
+        <span class="notif" style="margin-left:auto;">3</span>
+      </a></li>
+      <li><a href="/dashboard/orders" class="${active === 'orders' ? 'on' : ''}">
+        <span class="sb-icon"><i class="fas fa-shopping-bag"></i></span> Orders
+      </a></li>
+      <li><a href="/dashboard/earnings" class="${active === 'earnings' ? 'on' : ''}">
+        <span class="sb-icon"><i class="fas fa-dollar-sign"></i></span> Earnings
+      </a></li>
+    </ul>
+
+    <div class="sb-section">Studio</div>
+    <ul class="sb-nav">
+      <li><a href="/profile/me" class="${active === 'profile' ? 'on' : ''}">
+        <span class="sb-icon"><i class="fas fa-user"></i></span> My Profile
+      </a></li>
+      <li><a href="/dashboard/listings" class="${active === 'listings' ? 'on' : ''}">
+        <span class="sb-icon"><i class="fas fa-list-ul"></i></span> My Listings
+      </a></li>
+      <li><a href="/explore">
+        <span class="sb-icon"><i class="fas fa-search"></i></span> Find Artists
+      </a></li>
+    </ul>
+
+    <div class="sb-section">Account</div>
+    <ul class="sb-nav">
+      <li><a href="/dashboard/settings" class="${active === 'settings' ? 'on' : ''}">
+        <span class="sb-icon"><i class="fas fa-sliders-h"></i></span> Settings
+      </a></li>
+      <li><a href="/logout">
+        <span class="sb-icon"><i class="fas fa-arrow-right-from-bracket"></i></span> Sign Out
+      </a></li>
+    </ul>
+  </div>
 </aside>`;
 
-export const footer = () => `
-<footer style="background: var(--bg2); border-top: 1px solid var(--border); padding: 60px 24px 32px;">
-  <div class="container">
-    <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;margin-bottom:48px;">
-      <div>
-        <div class="nav-logo mb-4" style="font-size:22px;">
-          <div class="nav-logo-icon">🎵</div>
-          Artist Collab
-        </div>
-        <p style="font-size:15px;color:var(--text2);line-height:1.7;max-width:300px;">
-          The remote studio for independent artists. Collaborate anywhere. Create together.
-        </p>
-        <div style="display:flex;gap:12px;margin-top:20px;">
-          <a href="#" style="width:36px;height:36px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text2);font-size:14px;transition:all 0.2s;" onmouseover="this.style.color='white';this.style.borderColor='rgba(255,255,255,0.2)'" onmouseout="this.style.color='var(--text2)';this.style.borderColor='var(--border)'"><i class="fab fa-instagram"></i></a>
-          <a href="#" style="width:36px;height:36px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text2);font-size:14px;transition:all 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='var(--text2)'"><i class="fab fa-twitter"></i></a>
-          <a href="#" style="width:36px;height:36px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text2);font-size:14px;transition:all 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='var(--text2)'"><i class="fab fa-tiktok"></i></a>
-          <a href="#" style="width:36px;height:36px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text2);font-size:14px;transition:all 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='var(--text2)'"><i class="fab fa-youtube"></i></a>
-        </div>
+// ─── Footer ──────────────────────────────────────────────────────────────────
+export const siteFooter = () => `
+<footer class="footer-shell">
+  <div class="footer-grid">
+    <div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+        <div class="nav-glyph">🎵</div>
+        <span style="font-size:1rem;font-weight:700;letter-spacing:-0.02em;">Artist Collab</span>
       </div>
-      <div>
-        <h4 style="font-size:13px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:16px;">Platform</h4>
-        <div style="display:flex;flex-direction:column;gap:10px;">
-          <a href="/explore" style="font-size:14px;color:var(--text2);transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='var(--text2)'">Explore Artists</a>
-          <a href="/marketplace" style="font-size:14px;color:var(--text2);transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='var(--text2)'">Marketplace</a>
-          <a href="/how-it-works" style="font-size:14px;color:var(--text2);transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='var(--text2)'">How It Works</a>
-          <a href="/signup" style="font-size:14px;color:var(--text2);transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='var(--text2)'">Join as Artist</a>
-          <a href="/pricing" style="font-size:14px;color:var(--text2);transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='var(--text2)'">Pricing</a>
-        </div>
-      </div>
-      <div>
-        <h4 style="font-size:13px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:16px;">Support</h4>
-        <div style="display:flex;flex-direction:column;gap:10px;">
-          <a href="/contact" style="font-size:14px;color:var(--text2);transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='var(--text2)'">Contact Us</a>
-          <a href="/help" style="font-size:14px;color:var(--text2);transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='var(--text2)'">Help Center</a>
-          <a href="#" style="font-size:14px;color:var(--text2);transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='var(--text2)'">For Producers</a>
-          <a href="#" style="font-size:14px;color:var(--text2);transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='var(--text2)'">Trust & Safety</a>
-        </div>
-      </div>
-      <div>
-        <h4 style="font-size:13px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:16px;">Legal</h4>
-        <div style="display:flex;flex-direction:column;gap:10px;">
-          <a href="/terms" style="font-size:14px;color:var(--text2);transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='var(--text2)'">Terms of Service</a>
-          <a href="/privacy" style="font-size:14px;color:var(--text2);transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='var(--text2)'">Privacy Policy</a>
-          <a href="#" style="font-size:14px;color:var(--text2);transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='var(--text2)'">Cookie Policy</a>
-        </div>
+      <p style="font-size:0.875rem;color:var(--t3);line-height:1.7;max-width:280px;">
+        The remote studio infrastructure for modern music creation. Where artists build records before the world hears them.
+      </p>
+      <div style="display:flex;gap:8px;margin-top:20px;">
+        ${[
+          ['fab fa-instagram','#'],
+          ['fab fa-twitter','#'],
+          ['fab fa-tiktok','#'],
+          ['fab fa-spotify','#'],
+          ['fab fa-youtube','#'],
+        ].map(([ic, href]) => `
+        <a href="${href}" style="width:34px;height:34px;background:var(--raised);border:1px solid var(--hairline);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;color:var(--t3);font-size:0.8125rem;transition:all 0.15s;" onmouseover="this.style.color='var(--t1)';this.style.borderColor='rgba(255,255,255,0.18)'" onmouseout="this.style.color='var(--t3)';this.style.borderColor='var(--hairline)'">
+          <i class="${ic}"></i>
+        </a>`).join('')}
       </div>
     </div>
-    <div style="border-top: 1px solid var(--border); padding-top: 24px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
-      <p style="font-size:13px;color:var(--text2);">© 2026 Artist Collab. All rights reserved. artistcollab.studio</p>
-      <p style="font-size:13px;color:var(--text2);">Made for real artists. 🎵</p>
+    <div>
+      <div class="footer-head">Platform</div>
+      <a href="/explore" class="footer-link">Explore Artists</a>
+      <a href="/marketplace" class="footer-link">Marketplace</a>
+      <a href="/how-it-works" class="footer-link">How It Works</a>
+      <a href="/signup" class="footer-link">Join as Artist</a>
+    </div>
+    <div>
+      <div class="footer-head">Support</div>
+      <a href="/contact" class="footer-link">Contact Us</a>
+      <a href="/help" class="footer-link">Help Center</a>
+      <a href="#" class="footer-link">Trust & Safety</a>
+      <a href="#" class="footer-link">For Producers</a>
+    </div>
+    <div>
+      <div class="footer-head">Legal</div>
+      <a href="/terms" class="footer-link">Terms of Service</a>
+      <a href="/privacy" class="footer-link">Privacy Policy</a>
+      <a href="#" class="footer-link">Cookie Settings</a>
     </div>
   </div>
-</footer>
-<script>
-function toggleMobileSidebar() {
-  const s = document.getElementById('sidebar');
-  if(s) s.classList.toggle('open');
-}
-</script>`;
+  <div class="footer-bottom">
+    <span style="font-size:0.8125rem;color:var(--t4);">© 2026 Artist Collab · artistcollab.studio</span>
+    <span style="font-size:0.8125rem;color:var(--t4);">Built for artists, by people who get it.</span>
+  </div>
+</footer>`;
 
-export const closeHTML = () => `</body></html>`;
+// ─── Compatibility Aliases (for pages using old API) ─────────────────────────
+export const head = (title: string, extra = '') => shell(title, extra);
+export const nav = (active = '') => publicNav(active);
+export const footer = () => siteFooter();
+export const closeHTML = () => closeShell();
