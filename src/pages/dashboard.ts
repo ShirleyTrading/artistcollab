@@ -5,7 +5,7 @@ const demoUser = users[0];
 
 // ─── Shared dashboard wrapper styles ─────────────────────────────────────────
 const DASH_STYLES = `
-  .app-page { padding: 32px 36px; max-width: 1200px; }
+  .app-page { padding: 28px 32px; max-width: 1200px; }
 
   /* Section label */
   .sec-label {
@@ -131,11 +131,44 @@ const DASH_STYLES = `
   .earn-bar { flex: 1; border-radius: 2px 2px 0 0; min-width: 0; transition: opacity var(--t-fast); }
   .earn-bar:hover { opacity: 0.8; }
 
-  @media (max-width: 1024px) { .stat-tiles { grid-template-columns: repeat(2, 1fr); } }
+  /* Dashboard two-col layout */
+  .dash-two-col { display: grid; grid-template-columns: 1fr 320px; gap: 24px; margin-bottom: 28px; }
+
+  /* Settings two-col layout */
+  .settings-layout { display: grid; grid-template-columns: 220px 1fr; gap: 24px; align-items: start; }
+  .settings-nav { background: var(--c-panel); border: 1px solid var(--c-wire); border-radius: var(--r-lg); overflow: hidden; position: sticky; top: 80px; }
+  .settings-nav-mobile { display: none; margin-bottom: 16px; }
+
+  /* Form grid */
+  .form-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+  @media (max-width: 1100px) {
+    .stat-tiles { grid-template-columns: repeat(2, 1fr); }
+    .dash-two-col { grid-template-columns: 1fr; }
+  }
   @media (max-width: 768px) {
-    .app-page { padding: 20px 16px; }
-    .stat-tiles { grid-template-columns: 1fr 1fr; }
-    .quick-grid { grid-template-columns: repeat(2, 1fr); }
+    .app-page { padding: 16px; }
+    .stat-tiles { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .stat-tile { padding: 16px; }
+    .stat-tile-val { font-size: 1.5rem; }
+    .quick-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .quick-btn { padding: 16px 10px; }
+    .proj-row { gap: 10px; padding: 12px; }
+    .settings-layout { grid-template-columns: 1fr; }
+    .settings-nav { display: none; }
+    .settings-nav-mobile { display: flex; overflow-x: auto; gap: 6px; padding-bottom: 4px; }
+    .form-2col { grid-template-columns: 1fr; }
+    .dash-two-col { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 480px) {
+    .stat-tiles { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .stat-tile { padding: 14px; }
+    .stat-tile-val { font-size: 1.25rem; }
+    .stat-tile-lbl { font-size: 0.55rem; }
+    .quick-grid { grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .quick-btn { padding: 12px 8px; gap: 6px; }
+    .quick-btn span { font-size: 0.7rem; }
+    .quick-icon { font-size: 1rem; }
   }
 `;
 
@@ -187,7 +220,7 @@ export function dashboardPage(): string {
       </div>
 
       <!-- Two columns: projects + activity -->
-      <div style="display:grid;grid-template-columns:1fr 320px;gap:24px;margin-bottom:28px;">
+      <div class="dash-two-col">
 
         <!-- Active projects -->
         <div>
@@ -404,7 +437,7 @@ export function earningsPage(): string {
       <h1 style="font-family:var(--font-display);font-size:1.5rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:24px;">Earnings</h1>
 
       <!-- Stat row -->
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:32px;">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:32px;" class="stat-tiles">
         ${[
           { label:'Total Earned', val:`$${total.toLocaleString()}`, color:'var(--s-ok)', icon:'fa-dollar-sign' },
           { label:'This Month',   val:'$4,820',                    color:'var(--signal)', icon:'fa-arrow-trend-up' },
@@ -599,10 +632,23 @@ export function settingsPage(): string {
 
       <h1 style="font-family:var(--font-display);font-size:1.5rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:28px;">Settings</h1>
 
-      <div style="display:grid;grid-template-columns:240px 1fr;gap:24px;align-items:start;">
+      <!-- Settings: mobile nav pills + desktop sidebar -->
+      <div class="settings-nav-mobile">
+        ${[
+          { id:'profile', icon:'fa-user', label:'Profile' },
+          { id:'notifications', icon:'fa-bell', label:'Notifs' },
+          { id:'payout', icon:'fa-dollar-sign', label:'Payout' },
+          { id:'danger', icon:'fa-triangle-exclamation', label:'Danger', danger:true },
+        ].map(item => `
+        <a href="#${item.id}" style="flex-shrink:0;padding:7px 12px;background:var(--c-raised);border:1px solid var(--c-wire);border-radius:var(--r);font-size:0.75rem;font-weight:600;color:${item.danger ? 'var(--channel)' : 'var(--t3)'};text-decoration:none;display:flex;align-items:center;gap:6px;">
+          <i class="fas ${item.icon}" style="font-size:10px;"></i>${item.label}
+        </a>`).join('')}
+      </div>
 
-        <!-- Settings nav -->
-        <div style="background:var(--c-panel);border:1px solid var(--c-wire);border-radius:var(--r-lg);overflow:hidden;position:sticky;top:80px;">
+      <div class="settings-layout">
+
+        <!-- Settings nav (desktop) -->
+        <div class="settings-nav">
           ${[
             { id:'profile', icon:'fa-user', label:'Profile' },
             { id:'account', icon:'fa-at', label:'Account' },
@@ -630,7 +676,7 @@ export function settingsPage(): string {
             </div>
             <div style="padding:24px;">
               <!-- Avatar -->
-              <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px;padding-bottom:24px;border-bottom:1px solid var(--c-wire);">
+              <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px;padding-bottom:24px;border-bottom:1px solid var(--c-wire);flex-wrap:wrap;">
                 <div style="position:relative;">
                   <img src="${demoUser.profileImage}" class="av av-xl" style="border:2px solid var(--c-rim);" alt="${demoUser.artistName}">
                   <button style="position:absolute;bottom:0;right:0;width:24px;height:24px;background:var(--signal);border-radius:50%;border:2px solid var(--c-panel);display:flex;align-items:center;justify-content:center;cursor:pointer;" onclick="alert('Upload photo coming soon')">
@@ -645,7 +691,7 @@ export function settingsPage(): string {
               </div>
 
               <div style="display:grid;gap:16px;">
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                <div class="form-2col">
                   <div class="field">
                     <label class="field-label">Artist Name</label>
                     <input class="field-input" value="${demoUser.artistName}">
@@ -659,7 +705,7 @@ export function settingsPage(): string {
                   <label class="field-label">Bio</label>
                   <textarea class="field-input" rows="4">${demoUser.bio}</textarea>
                 </div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                <div class="form-2col">
                   <div class="field">
                     <label class="field-label">Location</label>
                     <input class="field-input" value="${demoUser.location}">
@@ -746,7 +792,7 @@ export function settingsPage(): string {
           </div>
 
         </div>
-      </div>
+      </div><!-- end settings-layout -->
     </div>
   </main>
 </div>

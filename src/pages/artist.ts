@@ -207,8 +207,19 @@ ${siteFooter()}${closeShell()}`;
     .booking-sidebar { position: static; }
   }
   @media (max-width: 768px) {
-    .artist-cover-band { height: 200px; }
-    .artist-profile-inner { flex-wrap: wrap; }
+    .artist-cover-band { height: 180px; }
+    .artist-profile-inner { flex-wrap: wrap; margin-top: -36px; }
+    .artist-stats-row { overflow-x: auto; scrollbar-width: none; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; }
+    .artist-stat { min-width: 80px; padding: 14px 12px; }
+    .artist-profile-inner .btn-primary, .artist-profile-inner .btn-secondary { padding: 8px 14px; font-size: 0.8125rem; }
+  }
+  @media (max-width: 480px) {
+    .artist-cover-band { height: 160px; }
+    .artist-profile-inner { gap: 12px; padding: 0 0 20px; }
+    .artist-profile-inner > div:first-child img { width: 72px; height: 72px; }
+    .artist-profile-strip { padding: 0 14px; }
+    .artist-stats-row .artist-stat { min-width: 70px; padding: 12px 10px; }
+    .profile-layout { padding: 0 0 60px; }
   }
 
 `) + publicNav('explore') + `
@@ -301,7 +312,7 @@ ${siteFooter()}${closeShell()}`;
 </div>
 
 <!-- ══ CONTENT ══ -->
-<div style="max-width:1280px;margin:0 auto;padding:36px 24px 80px;">
+<div style="max-width:1280px;margin:0 auto;padding:28px 24px 80px;" class="artist-content">
   <div class="profile-layout">
 
     <!-- Left: tabbed content -->

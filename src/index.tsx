@@ -26,7 +26,15 @@ function workspacePage(project: any): string {
   const wh = [0.3,0.6,0.9,0.8,1.0,0.85,0.6,0.4,0.7,0.9,0.8,0.6,0.4,0.7,0.5,0.8,0.9,0.65,0.5,0.75];
 
   return shell(project.title, `
-  .ws-layout { display: grid; grid-template-columns: 1fr 300px; gap: 20px; padding: 28px; max-width: 1200px; margin: 0 auto; align-items: start; }
+  .ws-layout {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 20px;
+    padding: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+    align-items: start;
+  }
   .ws-panel { background: var(--c-panel); border: 1px solid var(--c-wire); border-radius: var(--r-lg); overflow: hidden; }
   .ws-panel-head { padding: 14px 18px; border-bottom: 1px solid var(--c-wire); display: flex; align-items: center; justify-content: space-between; background: var(--c-raised); }
   .file-row { display: flex; align-items: center; gap: 10px; padding: 11px 14px; border-bottom: 1px solid var(--c-wire); transition: background var(--t-fast); }
@@ -34,7 +42,15 @@ function workspacePage(project: any): string {
   .msg-bubble { padding: 10px 13px; border-radius: 12px 12px 12px 3px; font-size: 0.875rem; line-height: 1.5; max-width: 80%; }
   .msg-bubble.mine { border-radius: 12px 12px 3px 12px; background: var(--signal); color: #000; font-weight: 500; }
   .msg-bubble.them { background: var(--c-raised); border: 1px solid var(--c-wire); }
-  @media (max-width: 1024px) { .ws-layout { grid-template-columns: 1fr; } }
+  .btn-w { width: 100%; justify-content: center; }
+  @media (max-width: 1024px) {
+    .ws-layout { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 768px) {
+    .ws-layout { padding: 14px; gap: 14px; }
+    .ws-panel-head { padding: 12px 14px; }
+    .file-row { padding: 10px 12px; }
+  }
 `) + authedNav('projects') + `
 
 <div class="app-shell">

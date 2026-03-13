@@ -168,8 +168,13 @@ export function marketplacePage(): string {
     .featured-listing-right { border-left: none; border-top: 1px solid var(--c-wire); }
   }
   @media (max-width: 768px) {
+    .listing-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .cat-tabs { padding: 0 12px; }
+    .mkt-header { padding: 36px 16px 28px; }
+  }
+  @media (max-width: 480px) {
     .listing-grid { grid-template-columns: 1fr; }
-    .cat-tabs { padding: 0 16px; }
+    .featured-listing-left { padding: 24px 20px; }
   }
 
 `) + publicNav('marketplace') + `

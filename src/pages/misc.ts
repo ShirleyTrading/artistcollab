@@ -64,9 +64,14 @@ export function howItWorksPage(): string {
     position: relative; overflow: hidden;
   }
   @media (max-width: 900px) {
-    .hiw-step { grid-template-columns: 1fr; gap: 40px; padding: 60px 24px; }
+    .hiw-step { grid-template-columns: 1fr; gap: 32px; padding: 52px 20px; }
     .hiw-step.flip { direction: ltr; }
-    .hiw-hero { padding: 72px 24px 56px; }
+    .hiw-hero { padding: 64px 20px 48px; }
+  }
+  @media (max-width: 600px) {
+    .hiw-hero { padding: 48px 16px 40px; }
+    .hiw-step { padding: 40px 16px; }
+    .step-visual { aspect-ratio: 5/3; }
   }
 `) + publicNav('how') + `
 
@@ -203,12 +208,13 @@ ${siteFooter()}${closeShell()}`;
 // ─── Terms ────────────────────────────────────────────────────────────────────
 export function termsPage(): string {
   return shell('Terms of Service', `
-  .legal-page { padding: 80px 24px; max-width: 760px; margin: 0 auto; }
+  .legal-page { padding: 60px 24px; max-width: 760px; margin: 0 auto; }
   .legal-section { margin-bottom: 36px; }
   .legal-section h2 { font-size: 1.125rem; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 12px; }
   .legal-section p, .legal-section li { font-size: 0.9375rem; color: var(--t3); line-height: 1.8; margin-bottom: 10px; }
   .legal-section ul { padding-left: 20px; }
   .legal-section a { color: var(--signal); }
+  @media (max-width: 600px) { .legal-page { padding: 40px 16px; } }
 `) + publicNav() + `
 <div style="background:var(--c-base);border-bottom:1px solid var(--c-wire);padding:52px 24px 44px;text-align:center;">
   <span class="badge badge-muted" style="margin-bottom:16px;">Legal</span>
@@ -231,12 +237,13 @@ ${siteFooter()}${closeShell()}`;
 // ─── Privacy ──────────────────────────────────────────────────────────────────
 export function privacyPage(): string {
   return shell('Privacy Policy', `
-  .legal-page { padding: 80px 24px; max-width: 760px; margin: 0 auto; }
+  .legal-page { padding: 60px 24px; max-width: 760px; margin: 0 auto; }
   .legal-section { margin-bottom: 36px; }
   .legal-section h2 { font-size: 1.125rem; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 12px; }
   .legal-section p, .legal-section li { font-size: 0.9375rem; color: var(--t3); line-height: 1.8; margin-bottom: 10px; }
   .legal-section ul { padding-left: 20px; }
   .legal-section a { color: var(--signal); }
+  @media (max-width: 600px) { .legal-page { padding: 40px 16px; } }
 `) + publicNav() + `
 <div style="background:var(--c-base);border-bottom:1px solid var(--c-wire);padding:52px 24px 44px;text-align:center;">
   <span class="badge badge-muted" style="margin-bottom:16px;">Legal</span>
@@ -256,9 +263,10 @@ ${siteFooter()}${closeShell()}`;
 // ─── Contact ──────────────────────────────────────────────────────────────────
 export function contactPage(): string {
   return shell('Contact', `
-  .contact-page { padding: 80px 24px; }
+  .contact-page { padding: 60px 24px; }
   .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; max-width: 1000px; margin: 0 auto; align-items: start; }
   @media (max-width: 800px) { .contact-grid { grid-template-columns: 1fr; gap: 40px; } }
+  @media (max-width: 600px) { .contact-page { padding: 40px 16px; } }
 `) + publicNav() + `
 
 <div style="background:var(--c-base);border-bottom:1px solid var(--c-wire);padding:56px 24px 48px;text-align:center;">

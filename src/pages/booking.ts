@@ -15,7 +15,7 @@ export function bookingPage(artistId: string, listingId?: string): string {
   const platformFee = Math.round(basePrice * 0.1);
 
   return shell(`Book ${artist.artistName}`, `
-  .book-page { padding: 48px 24px; max-width: 1060px; margin: 0 auto; }
+  .book-page { padding: 36px 24px; max-width: 1060px; margin: 0 auto; }
   .book-grid { display: grid; grid-template-columns: 1fr 340px; gap: 28px; align-items: start; }
 
   .book-step {
@@ -71,9 +71,16 @@ export function bookingPage(artistId: string, listingId?: string): string {
     font-size: 0.875rem;
   }
   .order-line:last-child { border-bottom: none; }
+  .pkg-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
   @media (max-width: 900px) {
     .book-grid { grid-template-columns: 1fr; }
     .order-card { position: static; }
+  }
+  @media (max-width: 600px) {
+    .book-page { padding: 20px 14px; }
+    .book-step { padding: 20px 16px; }
+    .pkg-grid { grid-template-columns: 1fr; }
+    .order-card { padding: 18px 16px; }
   }
 `) + publicNav() + `
 

@@ -113,8 +113,19 @@ export function messagesPage(): string {
   }
 
   @media (max-width: 900px) {
-    .msg-layout { grid-template-columns: 1fr; }
-    .conv-list { display: none; }
+    .msg-layout { grid-template-columns: 1fr; height: auto; min-height: calc(100vh - 56px); }
+    .conv-list { display: flex; border-right: none; border-bottom: 1px solid var(--c-wire); height: auto; max-height: 280px; }
+    .chat-area { height: calc(100vh - 56px - 280px); min-height: 420px; }
+    .bubble { max-width: 85%; }
+    .chat-messages { padding: 16px; }
+    .compose-row .btn-ghost { display: none; }
+  }
+  @media (max-width: 600px) {
+    .conv-list { max-height: 240px; }
+    .chat-area { min-height: 380px; }
+    .chat-head { padding: 10px 14px; }
+    .chat-compose { padding: 10px 12px; }
+    .compose-row .btn-ghost.mob-hide { display: none; }
   }
 `) + authedNav('messages') + `
 

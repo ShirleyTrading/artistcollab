@@ -862,20 +862,56 @@ export const AC_SYSTEM = `
   /* ══════════════════════════════════════════════════════════════════════
      RESPONSIVE
      ══════════════════════════════════════════════════════════════════════ */
+
+  /* Mobile sidebar overlay */
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 399;
+    backdrop-filter: blur(2px);
+  }
+  .sidebar-overlay.open { display: block; }
+
   @media (max-width: 1024px) {
     .app-shell { grid-template-columns: 1fr; }
-    .app-sidebar { display:none; position:fixed; z-index:400; top:56px; width:220px; height:calc(100vh - 56px); }
-    .app-sidebar.open { display:flex; }
+    .app-sidebar {
+      display: none;
+      position: fixed;
+      z-index: 400;
+      top: 56px;
+      left: 0;
+      width: 240px;
+      height: calc(100vh - 56px);
+      box-shadow: 4px 0 24px rgba(0,0,0,0.5);
+    }
+    .app-sidebar.open { display: flex; }
     .footer-grid { grid-template-columns: 1fr 1fr; }
     .mob-hide { display:none !important; }
     .mob-show { display:flex !important; }
+    /* Tables scroll on tablet */
+    .tbl-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
   }
   @media (max-width: 768px) {
     .nav-links { display:none; }
-    .footer-grid { grid-template-columns: 1fr; }
+    .nav { padding: 0 var(--sp-4); }
+    .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+    .footer-bottom { flex-direction: column; text-align: center; gap: 8px; }
     .container, .container-md, .container-sm { padding: 0 var(--sp-4); }
     .sec-pad { padding: var(--sp-10) var(--sp-4); }
     .sec-pad-sm { padding: var(--sp-8) var(--sp-4); }
+    /* Tables scroll on mobile */
+    .tbl-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .tbl { min-width: 560px; }
+    /* Buttons full-width on mobile when stacked */
+    .btn-stack-mobile { width: 100%; justify-content: center; }
+    /* Cards readable on mobile */
+    .card { padding: var(--sp-4); }
+  }
+  @media (max-width: 480px) {
+    .footer-grid { grid-template-columns: 1fr; }
+    .footer { padding: 40px var(--sp-4) 24px; }
   }
   .mob-hide {}
   .mob-show { display:none; }
@@ -942,8 +978,16 @@ document.querySelectorAll('[data-href]').forEach(el => {
 });
 window.toggleSidebar = function() {
   const sb = document.getElementById('app-sidebar');
+  const ov = document.getElementById('sidebar-overlay');
   if (sb) sb.classList.toggle('open');
+  if (ov) ov.classList.toggle('open');
 };
+// Close sidebar when clicking overlay
+const ov = document.getElementById('sidebar-overlay');
+if (ov) ov.addEventListener('click', () => {
+  document.getElementById('app-sidebar')?.classList.remove('open');
+  ov.classList.remove('open');
+});
 </script>
 </body></html>`;
 
@@ -1004,6 +1048,7 @@ export const authedNav = (active = '') => `
 
 // ─── App Sidebar ──────────────────────────────────────────────────────────────
 export const appSidebar = (active = '') => `
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
 <aside class="app-sidebar" id="app-sidebar">
   <div class="sb-user">
     <div style="position:relative;">
