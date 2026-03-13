@@ -19,7 +19,8 @@ import {
   splitSheetPage, splitSheetsListPage,
   ndaPage, agreementPage,
 } from './pages/splitsheet'
-import { workspacePage, transparencyDashboardPage } from './pages/workspace'
+import { workspacePage } from './pages/workspace'
+import { transparencyPage } from './pages/transparency'
 
 // ─── Layout helpers (for inline listingDetailPage) ────────────────────────────
 import { shell, closeShell, authedNav } from './layout'
@@ -183,8 +184,8 @@ app.get('/agreement/:projectId', (c) => {
 })
 
 // ─── Transparency Dashboard ───────────────────────────────────────────────────
-app.get('/transparency',           (c) => c.html(transparencyDashboardPage()))
-app.get('/dashboard/transparency', (c) => c.html(transparencyDashboardPage()))
+app.get('/transparency',           (c) => c.html(transparencyPage()))
+app.get('/dashboard/transparency', (c) => c.html(transparencyPage()))
 
 // ─── Admin ───────────────────────────────────────────────────────────────────
 app.get('/admin',   (c) => c.html(adminPage()))

@@ -1,191 +1,167 @@
-# Artist Collab — Remote Music Collaboration Platform
-
-**Platform Name:** Artist Collab  
-**Domain:** artistcollab.studio  
-**Tagline:** Collaborate Anywhere. Create Together.
-
----
+# Artist Collab — AC/1
 
 ## Project Overview
+- **Name**: Artist Collab
+- **Goal**: A trusted, transparent platform for fair collaboration among artists — connecting vocalists, producers, songwriters, and feature artists with iron-clad legal and payment protection.
+- **Design System**: AC/1 — "The Session" (obsidian dark, DAW-inspired, signal green accent)
 
-Artist Collab is a professional remote music collaboration marketplace and workspace where independent artists, singers, rappers, songwriters, and producers can discover each other, book paid features, securely exchange stems, communicate inside private project rooms, and manage collaboration delivery from start to finish.
-
----
-
-## Live URLs (Development)
-
-- **Homepage:** `http://localhost:3000/`
-- **Explore Artists:** `http://localhost:3000/explore`
-- **Feature Marketplace:** `http://localhost:3000/marketplace`
-- **Artist Profile (XAVI):** `http://localhost:3000/artist/u1`
-- **Service Listing:** `http://localhost:3000/listing/l1`
-- **Booking Flow:** `http://localhost:3000/booking/u1`
-- **Dashboard:** `http://localhost:3000/dashboard`
-- **Project Workspace:** `http://localhost:3000/workspace/p1`
-- **Messages:** `http://localhost:3000/dashboard/messages`
-- **Earnings:** `http://localhost:3000/dashboard/earnings`
-- **Admin Panel:** `http://localhost:3000/admin`
-- **Login:** `http://localhost:3000/login`
-- **Sign Up:** `http://localhost:3000/signup`
+## Live URL (Sandbox)
+- **Dev Server**: https://3000-i2srrgbgb2n1nsa45e1mz-3844e1b6.sandbox.novita.ai
 
 ---
 
-## Completed Features (MVP)
+## Completed Features
 
-### ✅ Landing Page
-- Full homepage with hero, how-it-works, featured artists, marketplace preview, testimonials, CTA banner, and footer
-- Premium dark-mode design with purple gradient brand aesthetic
+### Core Platform
+- ✅ **Home Page** — Hero, value props, social proof, CTA
+- ✅ **Explore / Artist Discovery** — Search, genre filters, artist cards with stats
+- ✅ **Marketplace** — Browse all services, filter by category / collab type
+- ✅ **Booking Flow** — Per-listing package selection, collab-type picker (Pay-for-Hire vs Ownership Split), escrow initiation
+- ✅ **Order Confirmation** — Post-booking confirmation with next steps
 
-### ✅ Authentication
-- Login page with demo credentials (xavi@demo.com / demo123)
-- Sign up page with account type selection (Artist vs Producer)
-- Forgot password flow with confirmation
+### Artist Profiles (Enhanced)
+- ✅ **Streaming Links** — Spotify, Apple Music, SoundCloud, YouTube, TikTok, Instagram, Twitter
+- ✅ **PRO Affiliation** — ASCAP / BMI / SESAC / GMR / SOCAN / PRS / GEMA / SACEM / APRA with IPI/CAE number display
+- ✅ **Management Contact** — Name, email, company (conditionally shown)
+- ✅ **Collaboration Preferences** — Feature rate, split minimum %, preferred collab types, genre preferences, custom notes
+- ✅ **About / Listings / Reviews / Music tabs**
+- ✅ **Booking sidebar** with availability, rates, CTA
 
-### ✅ Artist Profiles
-- Full public profile with cover image, profile photo, verified badge
-- Bio, genre, tags, social links, monthly listeners
-- Stats bar (rating, completed projects, response time, availability)
-- Service listings with package cards
-- Review system with category breakdown
-- Featured songs section
+### Dashboard (Authenticated)
+- ✅ **Overview** — Stats tiles, recent projects, quick actions
+- ✅ **Projects** — Project list with status, escrow, collab type
+- ✅ **Messages** — Conversation list + chat view
+- ✅ **Orders** — Order history, status tracking
+- ✅ **Earnings** — Payout history, pending escrow
+- ✅ **My Listings** — Manage service listings
+- ✅ **Settings** — Profile, PRO info, notifications
 
-### ✅ Artist Discovery / Search
-- Grid browse with real-time client-side filtering
-- Filters: genre, account type, price range, verified only, live sessions
-- Sort: top rated, price, listeners, reviews
-- Artist cards with availability status
+### Digital Split Sheet System
+- ✅ **Split Sheet Page** (`/split-sheet/:id`) — Song title, master ownership %, publishing ownership %, visual bar charts
+- ✅ **Collaborators & Approvals** — Per-collaborator approval status (Approved / Pending / Rejected) with PRO affiliation + IPI number
+- ✅ **Release Gate** — LOCKED (blocked) or OPEN (all approved) — cannot export/release until all parties sign off
+- ✅ **Split Sheet List** (`/split-sheets`, `/dashboard/split-sheets`) — All sheets for the user, mini-bar previews
+- ✅ **Print / Export** — Button triggers `window.print()`
 
-### ✅ Feature Marketplace
-- Service listing browse with category pills and filters
-- Detailed listing pages with 3-tier package cards (Basic/Standard/Premium)
-- Add-ons section, file format display, order stats
+### Collaboration Approval Before Release
+- ✅ Workspace shows **Release Gate** banner — locked until all `releaseApprovals` are `true`
+- ✅ **Approve Release** button in workspace header
+- ✅ Split sheet `releasable` flag gates the "Proceed to Release" CTA
 
-### ✅ Booking / Order Flow
-- Full booking form (package selection, project notes, reference upload)
-- Payment form UI with Stripe-styled inputs
-- Live order summary with platform fee calculation (10%)
-- Order confirmation page with next-step guidance
+### Project Collaboration Workspace
+- ✅ **Stem Vault** tab — Upload / view / download stems, BPM + key display, per-stem approval, track type badges (vox, beat, instrument, mix, master)
+- ✅ **Lyrics / Co-write** tab — Collaborative lyrics editor, version history, PDF export
+- ✅ **Chat** tab — Real-time-style project messaging, Enter-to-send
+- ✅ **Files** tab — Project file management with upload
+- ✅ **Activity** tab — Full timestamped project timeline
+- ✅ **Right sidebar** — Escrow status, split sheet widget, agreement widget, project details
 
-### ✅ Project Workspace
-- Private collaboration room per project
-- Order summary + escrow payment status
-- Interactive project timeline with step progress
-- Stem Locker with drag-and-drop file upload
-- In-workspace messaging with real-time message sending
-- Activity feed with timestamped events
-- Deliver/Accept/Revision action buttons
+### Two Collaboration Options
+- ✅ **Pay-for-Hire** — Flat fee, buyer retains full ownership, no split sheet required
+- ✅ **Ownership / Royalty Split** — Triggers split sheet creation, publishing + master percentages negotiated upfront
+- ✅ Collab type shown on: booking page, workspace, project list, transparency dashboard
 
-### ✅ Messaging System
-- Conversation list sidebar
-- Direct message interface with typing indicators
-- Unread notification badges
-- Project-linked conversation context
+### Escrow Payment Protection
+- ✅ Payment status: **held / released / refunded** tracked per project
+- ✅ Workspace escrow widget shows held amount, fee, payout
+- ✅ "Approve Delivery" releases escrow; "Request Revision" blocks release
+- ✅ Transparency dashboard shows total in-escrow and total paid out
 
-### ✅ User Dashboard
-- Stats overview (active projects, earnings, ratings)
-- Active projects list with quick-open workspace links
-- Quick action cards
-- Profile completion tracker
+### NDA & Platform Agreement
+- ✅ **NDA page** (`/nda`) — Full AMNDAA v2.1 legal text, E-SIGN Act checkbox, electronic signature
+- ✅ **Platform Agreement** — Co-signed with NDA in single flow
+- ✅ **PRO Affiliation block** — Update PRO + IPI from same page
+- ✅ Signed status shown in workspace Agreement widget and Transparency dashboard
 
-### ✅ Admin Panel
-- Platform overview with key metrics
-- Recent signups and recent orders
-- Verification queue with approve/deny actions
-- Featured artist management
+### Transparency Dashboard
+- ✅ **Summary tiles** — In Escrow, Total Paid Out, Split Projects, Release Gate Open
+- ✅ **Per-project accordion** — Click to expand: Master Ownership %, Publishing %, Collaborator Approvals, Release Approvals, Payment & Legal
+- ✅ **Split Sheet Summary table** — My % on each sheet, status, release gate
+- ✅ **Legal & IP Protection Status** — Platform NDA, Platform Agreement, PRO Affiliation cards
 
-### ✅ Additional Pages
-- My Listings (with create listing modal)
-- My Orders (with role-based view)
-- Earnings (with visual chart and transaction history)
-- Settings (profile + collaboration settings)
-- How It Works (full walkthrough)
-- Terms of Service, Privacy Policy, Contact
+### Legal & Admin
+- ✅ **Agreement Page** (`/agreement/:projectId`) — Signatories, NDA status, terms, linked split sheet
+- ✅ **Terms of Service**, **Privacy Policy**, **Contact**
+- ✅ **How It Works** — 4-step explainer
+- ✅ **Admin Panel**
 
 ---
 
-## Demo Data
+## Page / Route Map
 
-**Artists:**
-- `u1` XAVI — Hip-Hop/Trap, Atlanta, GA (★4.9, Verified, 284K listeners)
-- `u2` NOVA LEE — R&B/Soul, LA, CA (★5.0, Verified, 512K listeners)
-- `u3` BEATSMITH — Trap Producer, NYC (★4.8, Verified, 98K listeners)
-- `u4` KALI ROSE — Afrobeats/Pop, London (★4.7, Verified, 1.2M listeners)
-- `u5` CIPHER 7 — Conscious Hip-Hop, Chicago (★4.6, 67K listeners)
-- `u6` MELODICA — Pop/Indie, Nashville (★4.9, Verified, 340K listeners)
-- `u7` SOULWAV — Neo-Soul Producer, Detroit (★4.8, Verified, 145K listeners)
-- `u8` DRIP KAYO — Drill, Houston (★4.5, 89K listeners)
+| Route | Page |
+|---|---|
+| `/` | Home |
+| `/explore` | Artist Discovery |
+| `/marketplace` | Service Marketplace |
+| `/artist/:id` | Artist Profile |
+| `/listing/:id` | Listing Detail |
+| `/booking/:artistId` | Booking |
+| `/order-confirmation` | Post-booking |
+| `/dashboard` | Overview Dashboard |
+| `/dashboard/projects` | Projects |
+| `/dashboard/messages` | Messages |
+| `/dashboard/orders` | Orders |
+| `/dashboard/earnings` | Earnings |
+| `/dashboard/listings` | My Listings |
+| `/dashboard/settings` | Settings |
+| `/workspace/:projectId` | Collaboration Workspace |
+| `/split-sheet/:id` | Split Sheet |
+| `/split-sheets` | My Split Sheets |
+| `/nda` | NDA & Platform Agreement |
+| `/agreement/:projectId` | Collaboration Agreement |
+| `/transparency` | Transparency Dashboard |
+| `/how-it-works` | How It Works |
+| `/terms` | Terms of Service |
+| `/privacy` | Privacy Policy |
+| `/contact` | Contact |
+| `/admin` | Admin Panel |
 
-**Service Listings:** 5 listings across Feature Verse, Hook/Chorus, Custom Beat, Songwriter categories
+---
 
-**Projects:** 3 sample projects (In Progress, Delivered, Completed)
+## Data Architecture
+
+### Storage
+- **Runtime data**: In-memory TypeScript arrays (demo/prototype)
+- **For production**: Replace with Cloudflare D1 (SQLite) for all models
+
+### Core Models
+| Model | Key Fields |
+|---|---|
+| `User` | artistName, proAffiliation, proIpiNumber, managementContact, collabPreferences, ndaStatus |
+| `Listing` | collabTypes (pay_for_hire / ownership_split), packages, fileFormats |
+| `Project` | collabType, paymentStatus (held/released/refunded), releaseApprovals, stems, lyrics |
+| `SplitSheet` | masterOwnership[], publishingOwnership[], collaborators[], releasable |
+| `CollaborationAgreement` | signatories[], ndaRequired, ndaSignedByAll, status |
+| `NdaRecord` | userId, projectId, signedAt, version |
+| `Review` | professionalism, deliveryTime, quality, communication |
 
 ---
 
 ## Tech Stack
-
-- **Framework:** Hono v4 (TypeScript)
-- **Runtime:** Cloudflare Pages / Workers
-- **Build:** Vite + @hono/vite-build
-- **Frontend:** Pure HTML/CSS with Inter + Space Grotesk fonts, Font Awesome icons
-- **Data:** In-memory seed data (ready for Supabase/D1 migration)
-- **Dev Server:** wrangler pages dev via PM2
-
----
-
-## Architecture
-
-```
-src/
-├── index.tsx          # Main Hono router (30+ routes)
-├── layout.ts          # Shared HTML layout, nav, sidebar, footer
-├── data.ts            # TypeScript seed data + helper functions
-└── pages/
-    ├── home.ts        # Landing page
-    ├── explore.ts     # Artist discovery with client-side filtering
-    ├── artist.ts      # Artist profile pages
-    ├── marketplace.ts # Service marketplace + listing detail
-    ├── auth.ts        # Login, signup, forgot password
-    ├── dashboard.ts   # Dashboard, projects list, workspace
-    ├── messaging.ts   # Messages, earnings, listings, orders
-    ├── booking.ts     # Booking flow + order confirmation
-    ├── admin.ts       # Admin panel
-    └── misc.ts        # How it works, terms, privacy, contact, settings
-```
-
----
-
-## Phase 2 Roadmap (Planned)
-
-- [ ] Supabase/D1 database integration (real persistence)
-- [ ] Stripe payment processing (real escrow)
-- [ ] Supabase Auth (real authentication)
-- [ ] Supabase Storage (real file uploads)
-- [ ] Email notifications (project updates, bookings)
-- [ ] Live virtual studio rooms (WebRTC)
-- [ ] AI artist matching
-- [ ] Split sheet generator
-- [ ] Publishing metadata export
-- [ ] Label / A&R scout tools
-- [ ] Collaboration analytics
-- [ ] Mobile app
+- **Runtime**: Hono on Cloudflare Workers
+- **Build**: Vite + `@hono/vite-cloudflare-pages`
+- **Frontend**: Server-side rendered HTML + Tailwind-like utility CSS (AC/1 design system)
+- **Fonts**: Syne (display), Inter (body), JetBrains Mono (data)
+- **Icons**: FontAwesome 6
 
 ---
 
 ## Deployment
-
-**Platform:** Cloudflare Pages  
-**Status:** 🔧 Development (localhost:3000)  
-**Production Deploy:** `npm run deploy`
-
-```bash
-# Development
-npm run build
-pm2 start ecosystem.config.cjs
-
-# Production  
-npm run build && wrangler pages deploy dist --project-name artist-collab
-```
+- **Platform**: Cloudflare Pages
+- **Status**: ✅ Dev server active
+- **Build**: `npm run build` → `dist/_worker.js` (430 KB)
+- **Last Build**: 2026-03-13
 
 ---
 
-**Built for real artists. 🎵 artistcollab.studio**
+## Outstanding / Future Work
+- [ ] Real-time messaging via Cloudflare Durable Objects
+- [ ] File upload to Cloudflare R2
+- [ ] D1 database integration (replace in-memory data)
+- [ ] Stripe escrow integration
+- [ ] Email notifications (SendGrid / Resend)
+- [ ] User authentication (JWT or Cloudflare Access)
+- [ ] Split sheet PDF generation (server-side)
+- [ ] ISRC/UPC code registration integration
+- [ ] Mobile PWA / push notifications
