@@ -442,3 +442,52 @@ export function forgotPasswordPage(): string {
 </div>
 ${closeShell()}`;
 }
+
+// ─── Logout Page ──────────────────────────────────────────────────────────────
+export function logoutPage(): string {
+  return shell('Signed Out', '') + `
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="/" class="nav-mark">
+      <div class="nav-logo">
+        <span class="nav-logo-text">AC</span>
+        <div class="nav-logo-node"></div>
+      </div>
+      <span>Artist Collab</span>
+    </a>
+  </div>
+</nav>
+<div style="min-height:80vh;display:flex;align-items:center;justify-content:center;padding:60px 24px;">
+  <div style="max-width:480px;width:100%;text-align:center;">
+
+    <!-- Signal icon -->
+    <div style="width:72px;height:72px;background:var(--c-raised);border:1px solid var(--c-wire);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 28px;">
+      <i class="fas fa-arrow-right-from-bracket" style="color:var(--t3);font-size:1.5rem;"></i>
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:12px;">
+      <div style="height:1px;width:24px;background:var(--c-rim);"></div>
+      <span style="font-family:var(--font-mono);font-size:0.65rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--t4);">Session Ended</span>
+      <div style="height:1px;width:24px;background:var(--c-rim);"></div>
+    </div>
+
+    <h1 style="font-family:var(--font-display);font-size:2rem;font-weight:800;letter-spacing:-0.03em;margin-bottom:12px;">You're signed out.</h1>
+    <p style="font-size:0.9375rem;color:var(--t3);line-height:1.7;margin-bottom:36px;">
+      Your session has been cleared. See you next time in the studio.
+    </p>
+
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+      <a href="/login" class="btn btn-primary btn-lg">
+        <i class="fas fa-arrow-right-to-bracket" style="font-size:13px;"></i>
+        Sign Back In
+      </a>
+      <a href="/" class="btn btn-secondary btn-lg">
+        <i class="fas fa-house" style="font-size:13px;"></i>
+        Go Home
+      </a>
+    </div>
+
+  </div>
+</div>
+${closeShell()}`;
+}

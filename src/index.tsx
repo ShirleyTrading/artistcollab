@@ -6,7 +6,7 @@ import { homePage }            from './pages/home'
 import { explorePage }         from './pages/explore'
 import { artistPage }          from './pages/artist'
 import { marketplacePage }     from './pages/marketplace'
-import { loginPage, signupPage, forgotPasswordPage } from './pages/auth'
+import { loginPage, signupPage, forgotPasswordPage, logoutPage } from './pages/auth'
 import {
   dashboardPage, projectsPage, earningsPage,
   listingsPage, ordersPage, settingsPage,
@@ -22,8 +22,8 @@ import {
 import { workspacePage } from './pages/workspace'
 import { transparencyPage } from './pages/transparency'
 
-// ─── Layout helpers (for inline listingDetailPage) ────────────────────────────
-import { shell, closeShell, authedNav } from './layout'
+// ─── Layout helpers ───────────────────────────────────────────────────────────
+import { shell, closeShell, authedNav, publicNav, siteFooter } from './layout'
 import { statusColor, statusLabel, formatPrice } from './data'
 
 // ─── Listing detail page (PGES-compliant) ────────────────────────────────────
@@ -72,11 +72,39 @@ const app = new Hono()
 // PGES: Security-first — applied to every response
 app.use('*', async (c, next) => {
   await next();
+  const ct = c.res.headers.get('Content-Type') ?? '';
+  const isHtml = ct.includes('text/html');
+
+  // Universal security headers
   c.res.headers.set('X-Content-Type-Options',    'nosniff');
   c.res.headers.set('X-Frame-Options',           'DENY');
   c.res.headers.set('X-XSS-Protection',          '1; mode=block');
   c.res.headers.set('Referrer-Policy',           'strict-origin-when-cross-origin');
   c.res.headers.set('Permissions-Policy',        'camera=(), microphone=(), geolocation=()');
+  c.res.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
+
+  // CSP — allows Google Fonts, FA CDN, Unsplash images, inline styles (design system)
+  if (isHtml) {
+    c.res.headers.set(
+      'Content-Security-Policy',
+      [
+        "default-src 'self'",
+        "script-src 'self' 'unsafe-inline'",              // inline scripts in pages
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com",
+        "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com",
+        "img-src 'self' data: https://images.unsplash.com https://i.pravatar.cc",
+        "connect-src 'self'",
+        "frame-ancestors 'none'",
+        "base-uri 'self'",
+        "form-action 'self'",
+      ].join('; ')
+    );
+  }
+
+  // Cache-Control: HTML never cached (SSR); in production static assets get long TTL via CF edge
+  if (isHtml) {
+    c.res.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+  }
 });
 
 // ─── Public Pages ─────────────────────────────────────────────────────────────
@@ -92,7 +120,7 @@ app.get('/contact',      (c) => c.html(contactPage()))
 app.get('/login',           (c) => c.html(loginPage()))
 app.get('/signup',          (c) => c.html(signupPage()))
 app.get('/forgot-password', (c) => c.html(forgotPasswordPage()))
-app.get('/logout',          (c) => c.redirect('/login'))
+app.get('/logout',          (c) => c.html(logoutPage()))
 
 // ─── Artist Profiles ─────────────────────────────────────────────────────────
 // PGES: Sanitize input ID
@@ -111,11 +139,18 @@ app.get('/listing/:id', (c) => {
   const listing = getListingById(id)
   if (!listing) {
     return c.html(
-      `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>404 — Artist Collab</title></head>
-       <body style="background:#030305;color:#F0F0F4;font-family:system-ui;display:flex;align-items:center;justify-content:center;min-height:100vh;text-align:center;">
-         <div><h1 style="color:#C8FF00;font-size:6rem;margin:0;">404</h1><p>Listing not found.</p>
-         <a href="/marketplace" style="color:#C8FF00;">Browse Marketplace →</a></div>
-       </body></html>`, 404
+      shell('Listing Not Found', '') + publicNav() + `
+      <div style="min-height:80vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:40px 24px;">
+        <div>
+          <h1 style="font-family:var(--font-display);font-size:clamp(5rem,15vw,9rem);font-weight:800;color:var(--signal);letter-spacing:-0.04em;line-height:1;margin:0 0 16px;">404</h1>
+          <p style="color:var(--t3);margin:0 0 32px;font-size:1.0625rem;">This listing doesn't exist or has been removed.</p>
+          <a href="/marketplace" class="btn btn-primary btn-lg">
+            <i class="fas fa-store" style="font-size:13px;"></i>
+            Browse Marketplace
+          </a>
+        </div>
+      </div>
+      ` + siteFooter() + closeShell(), 404
     )
   }
   return c.html(listingDetailPage(listing))

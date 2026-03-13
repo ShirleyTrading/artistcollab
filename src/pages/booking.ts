@@ -4,7 +4,7 @@ import { users, listings, getUserById, getListingById, formatPrice } from '../da
 // ─── Booking Page ─────────────────────────────────────────────────────────────
 export function bookingPage(artistId: string, listingId?: string): string {
   const artist = getUserById(artistId);
-  if (!artist) return shell('Not Found','') + publicNav() + '<div style="padding:80px 24px;text-align:center;"><h1>Artist not found</h1></div>' + closeShell();
+  if (!artist) return shell('Not Found','') + authedNav() + '<div style="padding:80px 24px;text-align:center;"><h1>Artist not found</h1></div>' + closeShell();
 
   const listing = listingId ? getListingById(listingId) : listings.find(l => l.userId === artistId);
   const pkgs = listing?.packages ?? [
@@ -82,7 +82,7 @@ export function bookingPage(artistId: string, listingId?: string): string {
     .pkg-grid { grid-template-columns: 1fr; }
     .order-card { padding: 18px 16px; }
   }
-`) + publicNav() + `
+`) + authedNav('marketplace') + `
 
 <div class="book-page">
 
@@ -245,10 +245,12 @@ ${siteFooter()}
 function selectPkg(el, price, fee, name) {
   document.querySelectorAll('.pkg-card').forEach(c => c.classList.remove('on'));
   el.classList.add('on');
+  var feeAmt = Math.round(price * 0.1);
+  var total = price + feeAmt;
   document.getElementById('pkg-name-display').textContent = name + ' Package';
-  document.getElementById('pkg-price-display').textContent = '$' + price;
-  document.getElementById('fee-display').textContent = '$' + Math.round(price * 0.1);
-  document.getElementById('total-display').textContent = '$' + (price + Math.round(price * 0.1));
+  document.getElementById('pkg-price-display').textContent = '$' + price.toLocaleString();
+  document.getElementById('fee-display').textContent = '$' + feeAmt.toLocaleString();
+  document.getElementById('total-display').textContent = '$' + total.toLocaleString();
 }
 </script>
 ${closeShell()}`;
@@ -256,7 +258,7 @@ ${closeShell()}`;
 
 // ─── Order Confirmation ───────────────────────────────────────────────────────
 export function orderConfirmationPage(): string {
-  return shell('Order Confirmed', '') + publicNav() + `
+  return shell('Order Confirmed', '') + authedNav() + `
 <div style="min-height:80vh;display:flex;align-items:center;justify-content:center;padding:60px 24px;">
   <div style="max-width:560px;width:100%;text-align:center;">
 
@@ -291,7 +293,7 @@ export function orderConfirmationPage(): string {
     </div>
 
     <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
-      <a href="/workspace/p1" class="btn btn-primary btn-lg">
+      <a href="/workspace/p2" class="btn btn-primary btn-lg">
         <i class="fas fa-layer-group" style="font-size:13px;"></i>
         Open Workspace
       </a>
