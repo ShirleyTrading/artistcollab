@@ -5,7 +5,7 @@ const demoUser = users[0];
 
 // ─── Shared dashboard wrapper styles ─────────────────────────────────────────
 const DASH_STYLES = `
-  .app-page { padding: 28px 32px; max-width: 1200px; }
+  .app-page { padding: 28px 32px; max-width: 1200px; overflow-x: hidden; }
 
   /* Section label */
   .sec-label {
@@ -84,6 +84,9 @@ const DASH_STYLES = `
     border: 1px solid var(--c-wire);
     cursor: pointer;
     transition: border-color var(--t-fast), background var(--t-fast);
+    /* Prevent row content from overflowing on mobile */
+    min-width: 0;
+    overflow: hidden;
   }
   .proj-row:hover { border-color: rgba(255,255,255,0.1); background: var(--c-lift); }
 
@@ -154,11 +157,17 @@ const DASH_STYLES = `
     .quick-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
     .quick-btn { padding: 16px 10px; }
     .proj-row { gap: 10px; padding: 12px; }
+    /* On mobile: hide the badge/price block or shrink it */
+    .proj-row-meta { max-width: 90px; }
     .settings-layout { grid-template-columns: 1fr; }
     .settings-nav { display: none; }
     .settings-nav-mobile { display: flex; overflow-x: auto; gap: 6px; padding-bottom: 4px; }
+    /* Settings nav buttons: bigger touch target */
+    .settings-nav-mobile a { min-height: 44px; padding: 10px 16px !important; font-size: 0.875rem !important; }
     .form-2col { grid-template-columns: 1fr; }
     .dash-two-col { grid-template-columns: 1fr; }
+    /* View All / Details links: bigger touch target */
+    .btn-xs { min-height: 36px; padding: 8px 12px; }
   }
   @media (max-width: 480px) {
     .stat-tiles { grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -169,6 +178,8 @@ const DASH_STYLES = `
     .quick-btn { padding: 12px 8px; gap: 6px; }
     .quick-btn span { font-size: 0.7rem; }
     .quick-icon { font-size: 1rem; }
+    /* On very small screens, keep 2-col quick-grid instead of 4-col */
+    .quick-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
   }
 `;
 
@@ -243,13 +254,13 @@ export function dashboardPage(): string {
               <img src="${counterpart?.profileImage}" class="av av-sm" style="border:1.5px solid var(--c-rim);flex-shrink:0;" alt="${counterpart?.artistName}">
               <div style="flex:1;min-width:0;">
                 <div style="font-size:0.875rem;font-weight:700;letter-spacing:-0.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.title}</div>
-                <div style="font-size:0.75rem;color:var(--t4);margin-top:2px;">${counterpart?.artistName} · ${p.selectedPackage || p.package || "Standard"}</div>
+                <div style="font-size:0.75rem;color:var(--t4);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${counterpart?.artistName} · ${p.selectedPackage || p.package || "Standard"}</div>
                 <div style="margin-top:8px;height:3px;background:var(--c-rim);border-radius:2px;overflow:hidden;">
                   <div style="height:100%;width:${prog}%;background:${sc};border-radius:2px;transition:width 0.6s ease;"></div>
                 </div>
               </div>
-              <div style="text-align:right;flex-shrink:0;">
-                <span class="badge" style="background:${sc}18;color:${sc};border:1px solid ${sc}33;font-family:var(--font-mono);">${sl}</span>
+              <div class="proj-row-meta" style="text-align:right;flex-shrink:0;max-width:110px;">
+                <span class="badge" style="background:${sc}18;color:${sc};border:1px solid ${sc}33;font-family:var(--font-mono);white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis;">${sl}</span>
                 <div class="mono-sm" style="color:var(--t4);margin-top:6px;">${formatPrice(p.orderTotal)}</div>
               </div>
             </div>`;}).join('')}
@@ -633,15 +644,15 @@ export function settingsPage(): string {
       <h1 style="font-family:var(--font-display);font-size:1.5rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:28px;">Settings</h1>
 
       <!-- Settings: mobile nav pills + desktop sidebar -->
-      <div class="settings-nav-mobile">
+      <div class="settings-nav-mobile" style="overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;">
         ${[
           { id:'profile', icon:'fa-user', label:'Profile' },
           { id:'notifications', icon:'fa-bell', label:'Notifs' },
           { id:'payout', icon:'fa-dollar-sign', label:'Payout' },
           { id:'danger', icon:'fa-triangle-exclamation', label:'Danger', danger:true },
         ].map(item => `
-        <a href="#${item.id}" style="flex-shrink:0;padding:7px 12px;background:var(--c-raised);border:1px solid var(--c-wire);border-radius:var(--r);font-size:0.75rem;font-weight:600;color:${item.danger ? 'var(--channel)' : 'var(--t3)'};text-decoration:none;display:flex;align-items:center;gap:6px;">
-          <i class="fas ${item.icon}" style="font-size:10px;"></i>${item.label}
+        <a href="#${item.id}" style="flex-shrink:0;padding:10px 16px;background:var(--c-raised);border:1px solid var(--c-wire);border-radius:var(--r);font-size:0.875rem;font-weight:600;color:${item.danger ? 'var(--channel)' : 'var(--t3)'};text-decoration:none;display:flex;align-items:center;gap:6px;min-height:44px;white-space:nowrap;">
+          <i class="fas ${item.icon}" style="font-size:12px;"></i>${item.label}
         </a>`).join('')}
       </div>
 
@@ -744,9 +755,12 @@ export function settingsPage(): string {
                   <div style="font-size:0.875rem;font-weight:600;margin-bottom:2px;">${n.label}</div>
                   <div class="body-sm">${n.sub}</div>
                 </div>
-                <button onclick="this.dataset.on=this.dataset.on==='1'?'0':'1';this.style.background=this.dataset.on==='1'?'var(--signal)':'var(--c-rim)';" data-on="${n.on ? '1' : '0'}" style="width:40px;height:22px;border-radius:11px;border:none;cursor:pointer;transition:background 0.2s;background:${n.on ? 'var(--signal)' : 'var(--c-rim)'};position:relative;flex-shrink:0;">
-                  <div style="width:16px;height:16px;border-radius:50%;background:#fff;position:absolute;top:3px;${n.on ? 'right:3px;' : 'left:3px;'}transition:all 0.2s;"></div>
-                </button>
+                <!-- Toggle: tap target wraps the visual toggle -->
+                <label style="display:flex;align-items:center;cursor:pointer;padding:8px 0;flex-shrink:0;">
+                  <button onclick="this.dataset.on=this.dataset.on==='1'?'0':'1';this.style.background=this.dataset.on==='1'?'var(--signal)':'var(--c-rim)';" data-on="${n.on ? '1' : '0'}" style="width:40px;height:22px;border-radius:11px;border:none;cursor:pointer;transition:background 0.2s;background:${n.on ? 'var(--signal)' : 'var(--c-rim)'};position:relative;flex-shrink:0;">
+                    <div style="width:16px;height:16px;border-radius:50%;background:#fff;position:absolute;top:3px;${n.on ? 'right:3px;' : 'left:3px;'}transition:all 0.2s;"></div>
+                  </button>
+                </label>
               </div>`).join('')}
             </div>
           </div>

@@ -776,42 +776,53 @@ export const reviews: Review[] = [
 ];
 
 // ─── Helper functions ─────────────────────────────────────────────────────────
+// PGES: All helpers are pure, deterministic, and defensively typed.
+// They never throw — callers must check for undefined/empty returns.
 
 export function getUserById(id: string): User | undefined {
+  if (!id || typeof id !== 'string') return undefined;
   return users.find(u => u.id === id);
 }
 
 export function getListingById(id: string): Listing | undefined {
+  if (!id || typeof id !== 'string') return undefined;
   return listings.find(l => l.id === id);
 }
 
 export function getProjectById(id: string): Project | undefined {
+  if (!id || typeof id !== 'string') return undefined;
   return projects.find(p => p.id === id);
 }
 
 export function getListingsByUser(userId: string): Listing[] {
+  if (!userId || typeof userId !== 'string') return [];
   return listings.filter(l => l.userId === userId);
 }
 
 export function getProjectsByUser(userId: string): Project[] {
+  if (!userId || typeof userId !== 'string') return [];
   return projects.filter(p => p.buyerId === userId || p.sellerId === userId);
 }
 
 export function getReviewsByUser(userId: string): Review[] {
+  if (!userId || typeof userId !== 'string') return [];
   return reviews.filter(r => r.revieweeId === userId);
 }
 
 export function formatPrice(price: number): string {
-  return `$${price.toLocaleString()}`;
+  if (typeof price !== 'number' || isNaN(price)) return '$0';
+  return `$${Math.max(0, price).toLocaleString()}`;
 }
 
 export function formatListeners(n: number): string {
+  if (typeof n !== 'number' || isNaN(n) || n < 0) return '0';
   if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
   if (n >= 1000) return `${(n / 1000).toFixed(0)}K`;
   return `${n}`;
 }
 
 export function statusColor(status: string): string {
+  if (!status || typeof status !== 'string') return '#6b7280';
   const map: Record<string, string> = {
     pending: '#f59e0b',
     in_progress: '#6366f1',
@@ -825,6 +836,7 @@ export function statusColor(status: string): string {
 }
 
 export function statusLabel(status: string): string {
+  if (!status || typeof status !== 'string') return 'Unknown';
   const map: Record<string, string> = {
     pending: 'Pending',
     in_progress: 'In Progress',

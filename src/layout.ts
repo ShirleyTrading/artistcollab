@@ -403,10 +403,10 @@ export const AC_SYSTEM = `
   .btn-danger:hover { background: rgba(255,77,109,0.2); }
 
   /* Sizes */
-  .btn-xs { padding: 5px 11px; font-size: 0.75rem; border-radius: var(--r-sm); }
-  .btn-sm { padding: 7px 15px; font-size: 0.8125rem; border-radius: var(--r-sm); }
-  .btn-lg { padding: 13px 28px; font-size: 0.9375rem; border-radius: var(--r-md); }
-  .btn-xl { padding: 16px 36px; font-size: 1rem; border-radius: var(--r-lg); }
+  .btn-xs { padding: 5px 11px; font-size: 0.75rem; border-radius: var(--r-sm); min-height: 30px; }
+  .btn-sm { padding: 7px 15px; font-size: 0.8125rem; border-radius: var(--r-sm); min-height: 36px; }
+  .btn-lg { padding: 13px 28px; font-size: 0.9375rem; border-radius: var(--r-md); min-height: 48px; }
+  .btn-xl { padding: 16px 36px; font-size: 1rem; border-radius: var(--r-lg); min-height: 56px; }
   .btn-w  { width: 100%; justify-content: center; }
 
   /* ══════════════════════════════════════════════════════════════════════
@@ -558,6 +558,9 @@ export const AC_SYSTEM = `
     height: 56px;
     display: flex; align-items: center;
     padding: 0 24px;
+    /* Prevent content from going under notch on iOS */
+    padding-left: max(24px, env(safe-area-inset-left));
+    padding-right: max(24px, env(safe-area-inset-right));
     background: rgba(3,3,5,0.9);
     backdrop-filter: blur(20px) saturate(160%);
     -webkit-backdrop-filter: blur(20px) saturate(160%);
@@ -602,9 +605,10 @@ export const AC_SYSTEM = `
   /* Nav links */
   .nav-links { display: flex; align-items: center; gap: 2px; list-style: none; }
   .nav-links a {
-    padding: 5px 12px; border-radius: var(--r-sm);
+    padding: 8px 12px; border-radius: var(--r-sm);
     font-size: 0.875rem; font-weight: 500; color: var(--t3);
     transition: color var(--t-fast), background var(--t-fast);
+    min-height: 40px; display: flex; align-items: center;
   }
   .nav-links a:hover { color: var(--t1); background: var(--c-ghost); }
   .nav-links a.active { color: var(--t1); }
@@ -618,6 +622,7 @@ export const AC_SYSTEM = `
     border-radius: var(--r-full);
     cursor: pointer; text-decoration: none;
     transition: border-color var(--t-fast);
+    min-height: 40px;
   }
   .nav-user:hover { border-color: rgba(255,255,255,0.14); }
 
@@ -641,7 +646,7 @@ export const AC_SYSTEM = `
     scrollbar-width: none; -ms-overflow-style: none;
   }
   .app-sidebar::-webkit-scrollbar { display: none; }
-  .app-main { overflow: auto; }
+  .app-main { overflow-x: hidden; overflow-y: auto; min-width: 0; }
 
   /* Sidebar sections */
   .sb-section {
@@ -871,8 +876,44 @@ export const AC_SYSTEM = `
     background: rgba(0,0,0,0.6);
     z-index: 399;
     backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
   }
   .sidebar-overlay.open { display: block; }
+
+  /* Public mobile nav drawer */
+  .pub-nav-drawer {
+    display: none;
+    position: fixed;
+    top: 56px; left: 0; right: 0;
+    background: rgba(7,7,11,0.98);
+    backdrop-filter: blur(24px) saturate(160%);
+    -webkit-backdrop-filter: blur(24px) saturate(160%);
+    border-bottom: 1px solid var(--c-wire);
+    z-index: 298;
+    padding: 12px 16px 20px;
+    flex-direction: column;
+    gap: 4px;
+    animation: slideIn 0.2s var(--ease) forwards;
+  }
+  .pub-nav-drawer.open { display: flex; }
+  .pub-nav-drawer a {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 14px;
+    font-size: 0.9375rem; font-weight: 500; color: var(--t2);
+    border-radius: var(--r);
+    transition: color var(--t-fast), background var(--t-fast);
+    min-height: 48px;
+    text-decoration: none;
+  }
+  .pub-nav-drawer a:hover, .pub-nav-drawer a.active { color: var(--t1); background: var(--c-ghost); }
+  .pub-nav-drawer .drawer-divider {
+    height: 1px; background: var(--c-wire);
+    margin: 8px 0;
+  }
+  .pub-nav-drawer .drawer-ctas {
+    display: flex; flex-direction: column; gap: 8px;
+    padding-top: 4px;
+  }
 
   @media (max-width: 1024px) {
     .app-shell { grid-template-columns: 1fr; }
@@ -896,6 +937,9 @@ export const AC_SYSTEM = `
   @media (max-width: 768px) {
     .nav-links { display:none; }
     .nav { padding: 0 var(--sp-4); }
+    /* Nav: ensure touch-friendly nav items */
+    .nav-mark { min-height: 44px; }
+    .btn-sm { min-height: 40px; }
     .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
     .footer-bottom { flex-direction: column; text-align: center; gap: 8px; }
     .container, .container-md, .container-sm { padding: 0 var(--sp-4); }
@@ -908,10 +952,19 @@ export const AC_SYSTEM = `
     .btn-stack-mobile { width: 100%; justify-content: center; }
     /* Cards readable on mobile */
     .card { padding: var(--sp-4); }
+    /* Footer links: bigger touch targets */
+    .footer-link { padding: 7px 0; font-size: 0.9375rem; }
   }
   @media (max-width: 480px) {
     .footer-grid { grid-template-columns: 1fr; }
     .footer { padding: 40px var(--sp-4) 24px; }
+    /* Sidebar wider on very small screens for easier use */
+    .app-sidebar { width: 85vw; max-width: 280px; }
+    /* Sidebar nav items: bigger touch target */
+    .sb-nav li a, .sb-nav li button { padding: 11px 9px; min-height: 44px; }
+    /* Public nav drawer full-width on small screens */
+    .pub-nav-drawer { padding: 8px 12px 16px; }
+    .pub-nav-drawer a { min-height: 52px; font-size: 1rem; }
   }
   .mob-hide {}
   .mob-show { display:none; }
@@ -972,27 +1025,126 @@ export const shell = (title: string, extra = '') => `<!DOCTYPE html>
 
 export const closeShell = () => `
 <script>
-document.querySelectorAll('[data-href]').forEach(el => {
+// ── Data-href navigation ─────────────────────────────────────────────────────
+document.querySelectorAll('[data-href]').forEach(function(el) {
   el.style.cursor = 'pointer';
-  el.addEventListener('click', () => window.location.href = el.dataset.href);
+  el.addEventListener('click', function() {
+    var href = el.getAttribute('data-href');
+    if (href) window.location.href = href;
+  });
 });
+
+// ── Authenticated app sidebar (drawer) ───────────────────────────────────────
 window.toggleSidebar = function() {
-  const sb = document.getElementById('app-sidebar');
-  const ov = document.getElementById('sidebar-overlay');
-  if (sb) sb.classList.toggle('open');
+  var sb = document.getElementById('app-sidebar');
+  var ov = document.getElementById('sidebar-overlay');
+  if (!sb) return;
+  var isOpen = sb.classList.contains('open');
+  sb.classList.toggle('open');
   if (ov) ov.classList.toggle('open');
 };
-// Close sidebar when clicking overlay
-const ov = document.getElementById('sidebar-overlay');
-if (ov) ov.addEventListener('click', () => {
-  document.getElementById('app-sidebar')?.classList.remove('open');
-  ov.classList.remove('open');
+var appOv = document.getElementById('sidebar-overlay');
+if (appOv) appOv.addEventListener('click', function() {
+  var sb = document.getElementById('app-sidebar');
+  if (sb) sb.classList.remove('open');
+  appOv.classList.remove('open');
+});
+
+// ── Public nav hamburger (mobile drawer) ─────────────────────────────────────
+window.togglePubNav = function() {
+  var drawer = document.getElementById('pub-nav-drawer');
+  var overlay = document.getElementById('pub-nav-overlay');
+  var hamburger = document.getElementById('pub-hamburger');
+  if (!drawer) return;
+  var isOpen = drawer.classList.contains('open');
+  if (isOpen) {
+    drawer.classList.remove('open');
+    drawer.setAttribute('aria-hidden', 'true');
+    if (overlay) overlay.classList.remove('open');
+    if (hamburger) {
+      hamburger.setAttribute('aria-expanded', 'false');
+      var icon = hamburger.querySelector('i');
+      if (icon) { icon.className = 'fas fa-bars'; icon.style.fontSize = '1.125rem'; }
+    }
+  } else {
+    drawer.classList.add('open');
+    drawer.setAttribute('aria-hidden', 'false');
+    if (overlay) overlay.classList.add('open');
+    if (hamburger) {
+      hamburger.setAttribute('aria-expanded', 'true');
+      var icon = hamburger.querySelector('i');
+      if (icon) { icon.className = 'fas fa-xmark'; icon.style.fontSize = '1.25rem'; }
+    }
+    // Focus first link in drawer for accessibility
+    var firstLink = drawer.querySelector('a[href]');
+    if (firstLink) setTimeout(function() { firstLink.focus(); }, 50);
+  }
+};
+window.closePubNav = function() {
+  var drawer = document.getElementById('pub-nav-drawer');
+  var overlay = document.getElementById('pub-nav-overlay');
+  var hamburger = document.getElementById('pub-hamburger');
+  if (drawer) { drawer.classList.remove('open'); drawer.setAttribute('aria-hidden', 'true'); }
+  if (overlay) overlay.classList.remove('open');
+  if (hamburger) {
+    hamburger.setAttribute('aria-expanded', 'false');
+    var icon = hamburger.querySelector('i');
+    if (icon) { icon.className = 'fas fa-bars'; icon.style.fontSize = '1.125rem'; }
+  }
+};
+// Close public nav drawer when a link inside is clicked
+var pubDrawer = document.getElementById('pub-nav-drawer');
+if (pubDrawer) {
+  var drawerLinks = pubDrawer.querySelectorAll('a[href]');
+  for (var i = 0; i < drawerLinks.length; i++) {
+    drawerLinks[i].addEventListener('click', function() {
+      window.closePubNav && window.closePubNav();
+    });
+  }
+}
+// Close on Escape key (universal)
+document.addEventListener('keydown', function(e) {
+  if (e.key !== 'Escape') return;
+  var sb = document.getElementById('app-sidebar');
+  var appOverlay = document.getElementById('sidebar-overlay');
+  if (sb && sb.classList.contains('open')) {
+    sb.classList.remove('open');
+    if (appOverlay) appOverlay.classList.remove('open');
+  }
+  window.closePubNav && window.closePubNav();
 });
 </script>
 </body></html>`;
 
 // ─── Navigation ───────────────────────────────────────────────────────────────
 export const publicNav = (active = '') => `
+<!-- Public mobile nav drawer (hidden until hamburger clicked) -->
+<div class="pub-nav-drawer" id="pub-nav-drawer" role="dialog" aria-label="Mobile navigation menu" aria-hidden="true">
+  <a href="/explore" class="${active === 'explore' ? 'active' : ''}">
+    <i class="fas fa-compass" style="width:18px;text-align:center;color:var(--t4);font-size:0.875rem;"></i>
+    Explore
+  </a>
+  <a href="/marketplace" class="${active === 'marketplace' ? 'active' : ''}">
+    <i class="fas fa-store" style="width:18px;text-align:center;color:var(--t4);font-size:0.875rem;"></i>
+    Marketplace
+  </a>
+  <a href="/how-it-works" class="${active === 'how' ? 'active' : ''}">
+    <i class="fas fa-circle-question" style="width:18px;text-align:center;color:var(--t4);font-size:0.875rem;"></i>
+    How It Works
+  </a>
+  <div class="drawer-divider"></div>
+  <div class="drawer-ctas">
+    <a href="/login" class="btn btn-secondary btn-w" style="min-height:48px;justify-content:center;font-size:0.9375rem;">
+      <i class="fas fa-arrow-right-to-bracket" style="font-size:13px;"></i>
+      Sign In
+    </a>
+    <a href="/signup" class="btn btn-primary btn-w" style="min-height:48px;justify-content:center;font-size:0.9375rem;">
+      <i class="fas fa-microphone-alt" style="font-size:13px;"></i>
+      Get Started
+    </a>
+  </div>
+</div>
+<div class="sidebar-overlay" id="pub-nav-overlay" onclick="closePubNav()" style="z-index:297;" aria-hidden="true"></div>
 <nav class="nav">
   <div class="nav-inner">
     <a href="/" class="nav-mark">
@@ -1009,8 +1161,16 @@ export const publicNav = (active = '') => `
     </ul>
     <div class="nav-cta">
       <a href="/login" class="btn btn-ghost btn-sm mob-hide">Sign in</a>
-      <a href="/signup" class="btn btn-primary btn-sm">Get started</a>
-      <button class="btn btn-ghost btn-sm mob-show" onclick="toggleSidebar()" style="padding:6px 10px;"><i class="fas fa-bars"></i></button>
+      <a href="/signup" class="btn btn-primary btn-sm" style="min-height:40px;">Get started</a>
+      <button
+        class="btn btn-ghost mob-show"
+        id="pub-hamburger"
+        onclick="togglePubNav()"
+        aria-label="Open navigation menu"
+        aria-expanded="false"
+        aria-controls="pub-nav-drawer"
+        style="padding:0;width:44px;height:44px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0;"
+      ><i class="fas fa-bars" style="font-size:1.125rem;pointer-events:none;"></i></button>
     </div>
   </div>
 </nav>`;
@@ -1019,7 +1179,7 @@ export const authedNav = (active = '') => `
 <nav class="nav">
   <div class="nav-inner">
     <div style="display:flex;align-items:center;gap:20px;">
-      <button class="btn btn-ghost btn-sm mob-show" onclick="toggleSidebar()" style="padding:6px 10px;"><i class="fas fa-bars"></i></button>
+      <button class="btn btn-ghost mob-show" onclick="toggleSidebar()" style="padding:0;width:44px;height:44px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;"><i class="fas fa-bars" style="font-size:1.125rem;"></i></button>
       <a href="/dashboard" class="nav-mark">
         <div class="nav-logo">
           <span class="nav-logo-text">AC</span>
@@ -1107,7 +1267,7 @@ export const siteFooter = () => `
       </p>
       <div style="display:flex;gap:6px;">
         ${[['fab fa-instagram','#'],['fab fa-twitter','#'],['fab fa-tiktok','#'],['fab fa-spotify','#']].map(([ic]) => `
-        <a href="#" style="width:32px;height:32px;background:var(--c-raised);border:1px solid var(--c-wire);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;color:var(--t4);font-size:0.8125rem;transition:all var(--t-fast);" onmouseover="this.style.color='var(--t1)';this.style.borderColor='rgba(255,255,255,0.12)'" onmouseout="this.style.color='var(--t4)';this.style.borderColor='var(--c-wire)'">
+        <a href="#" style="width:40px;height:40px;background:var(--c-raised);border:1px solid var(--c-wire);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;color:var(--t4);font-size:0.875rem;transition:all var(--t-fast);" onmouseover="this.style.color='var(--t1)';this.style.borderColor='rgba(255,255,255,0.12)'" onmouseout="this.style.color='var(--t4)';this.style.borderColor='var(--c-wire)'">
           <i class="${ic}"></i>
         </a>`).join('')}
       </div>

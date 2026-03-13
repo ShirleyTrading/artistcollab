@@ -16,12 +16,24 @@ import { shell, closeShell, authedNav, appSidebar } from './layout'
 import { statusColor, statusLabel, formatPrice } from './data'
 
 function workspacePage(project: any): string {
+  // PGES: Defensive — ensure demo user always exists
   const demoUser = users[0];
-  const counterpart = getUserById(project.buyerId === demoUser.id ? project.sellerId : project.buyerId)!;
-  const sc = statusColor(project.status);
-  const sl = statusLabel(project.status);
+  if (!demoUser) return shell('Error', '') + '<div style="padding:40px;color:#F0F0F4;">Configuration error: no users defined.</div>' + closeShell();
+
+  // PGES: Defensive counterpart lookup with graceful fallback
+  const counterpartId = project.buyerId === demoUser.id ? project.sellerId : project.buyerId;
+  const counterpart = getUserById(counterpartId) ?? {
+    id: counterpartId ?? 'unknown',
+    artistName: 'Collaborator',
+    username: 'collaborator',
+    profileImage: 'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=60&h=60&fit=crop',
+    profileImage2: '',
+  } as any;
+
+  const sc = statusColor(project.status ?? '');
+  const sl = statusLabel(project.status ?? '');
   const progressMap: Record<string,number> = { pending:10, in_progress:45, awaiting_delivery:70, delivered:85, revision_requested:60, completed:100, cancelled:0 };
-  const prog = progressMap[project.status] || 20;
+  const prog = progressMap[project.status as string] ?? 20;
 
   const wh = [0.3,0.6,0.9,0.8,1.0,0.85,0.6,0.4,0.7,0.9,0.8,0.6,0.4,0.7,0.5,0.8,0.9,0.65,0.5,0.75];
 
@@ -97,9 +109,9 @@ function workspacePage(project: any): string {
 
             <div style="display:flex;gap:16px;flex-wrap:wrap;">
               ${[
-                {icon:'fa-box', label:'Package', val:project.selectedPackage || project.package || 'Standard'},
-                {icon:'fa-calendar', label:'Due', val:project.dueDate},
-                {icon:'fa-dollar-sign', label:'Order total', val:formatPrice(project.orderTotal)},
+                {icon:'fa-box', label:'Package', val:(project.selectedPackage ?? project.package ?? 'Standard') as string},
+                {icon:'fa-calendar', label:'Due', val:(project.dueDate ?? 'TBD') as string},
+                {icon:'fa-dollar-sign', label:'Order total', val:formatPrice(project.orderTotal ?? 0)},
               ].map(s => `
               <div style="display:flex;align-items:center;gap:6px;font-size:0.8125rem;color:var(--t3);">
                 <i class="fas ${s.icon}" style="color:var(--t4);font-size:11px;width:14px;text-align:center;"></i>
@@ -123,24 +135,27 @@ function workspacePage(project: any): string {
           </div>
           <div>
             ${(project.files?.length ? project.files : [
-              {id:'f1', name:'golden_hook_v2.wav', type:'audio', size:'8.1 MB', uploadedAt:'Jul 14', version:'v2', uploadedBy: project.sellerId},
-              {id:'f2', name:'reference_beat.mp3',  type:'audio', size:'5.2 MB', uploadedAt:'Jul 12', version:'v1', uploadedBy: project.buyerId},
-              {id:'f3', name:'stems_full_pack.zip', type:'file',  size:'42 MB', uploadedAt:'Jul 14', version:'v1', uploadedBy: project.sellerId},
+              {id:'f1', name:'golden_hook_v2.wav', type:'audio', size:'8.1 MB', uploadedAt:'Jul 14', version:'v2', uploadedBy: project.sellerId ?? ''},
+              {id:'f2', name:'reference_beat.mp3',  type:'audio', size:'5.2 MB', uploadedAt:'Jul 12', version:'v1', uploadedBy: project.buyerId ?? ''},
+              {id:'f3', name:'stems_full_pack.zip', type:'file',  size:'42 MB', uploadedAt:'Jul 14', version:'v1', uploadedBy: project.sellerId ?? ''},
             ]).map((f: any) => {
-              const isAudio = f.type === 'audio' || f.name?.endsWith('.wav') || f.name?.endsWith('.mp3');
-              const uploader = getUserById(f.uploadedBy);
+              const isAudio = f.type === 'audio' || f.name?.endsWith?.('.wav') || f.name?.endsWith?.('.mp3');
+              const uploader = getUserById(f.uploadedBy ?? '');
+              const uploaderName = uploader?.artistName ?? 'Unknown';
+              const versionStr = typeof f.version === 'number' ? 'V' + f.version : String(f.version || 'V1').toUpperCase();
+              const safeName = String(f.name ?? 'file').replace(/'/g, "\\'");
               return `
             <div class="file-row">
               <div style="width:36px;height:36px;background:${isAudio ? 'var(--signal-dim)' : 'rgba(0,194,255,0.08)'};border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                 <i class="fas ${isAudio ? 'fa-music' : 'fa-file-zipper'}" style="color:${isAudio ? 'var(--signal)' : 'var(--patch)'};font-size:13px;"></i>
               </div>
               <div style="flex:1;min-width:0;">
-                <div style="font-size:0.875rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${f.name}</div>
-                <div class="mono-sm" style="color:var(--t4);">${f.size} · ${f.uploadedAt} · ${uploader?.artistName || 'Unknown'} · ${f.version}</div>
+                <div style="font-size:0.875rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${f.name ?? 'Unknown file'}</div>
+                <div class="mono-sm" style="color:var(--t4);">${f.size ?? '?'} · ${f.uploadedAt ?? ''} · ${uploaderName} · ${f.version ?? 'v1'}</div>
               </div>
               <div style="display:flex;gap:6px;flex-shrink:0;">
-                <span class="badge badge-muted">${typeof f.version === 'number' ? 'V' + f.version : (f.version || 'V1').toString().toUpperCase()}</span>
-                <button class="btn btn-ghost btn-xs" style="padding:5px 8px;color:var(--t3);" onclick="alert('Download: ${f.name}')">
+                <span class="badge badge-muted">${versionStr}</span>
+                <button class="btn btn-ghost btn-xs" style="padding:5px 8px;color:var(--t3);" onclick="alert('Download: ${safeName}')">
                   <i class="fas fa-download" style="font-size:11px;"></i>
                 </button>
               </div>
@@ -158,20 +173,22 @@ function workspacePage(project: any): string {
           </div>
           <div style="padding:16px;display:flex;flex-direction:column;gap:12px;max-height:320px;overflow-y:auto;">
             ${(project.messages?.length ? project.messages.slice(-4) : [
-              {senderId: project.sellerId, content:"Hey! Just listened to the reference — this is exactly my lane.", timestamp:'10:22 AM'},
-              {senderId: project.buyerId,  content:"I want something raw but polished. Think late-night energy.", timestamp:'10:25 AM'},
-              {senderId: project.sellerId, content:"I got you. Expect the first take in 2 days.", timestamp:'10:33 AM'},
+              {senderId: project.sellerId ?? '', content:"Hey! Just listened to the reference — this is exactly my lane.", timestamp:'10:22 AM'},
+              {senderId: project.buyerId ?? '',  content:"I want something raw but polished. Think late-night energy.", timestamp:'10:25 AM'},
+              {senderId: project.sellerId ?? '', content:"I got you. Expect the first take in 2 days.", timestamp:'10:33 AM'},
             ]).map((msg: any) => {
-              const sender = getUserById(msg.senderId);
+              const sender = getUserById(msg.senderId ?? '');
               const isMe = msg.senderId === demoUser.id;
+              const senderName = sender?.artistName ?? 'Unknown';
+              const senderImg = sender?.profileImage ?? 'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=40&h=40&fit=crop';
               return `
             <div style="display:flex;flex-direction:column;align-items:${isMe ? 'flex-end' : 'flex-start'};">
               ${!isMe ? `<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
-                <img src="${sender?.profileImage}" class="av av-xs" style="border:1px solid var(--c-rim);" alt="${sender?.artistName}">
-                <span style="font-size:0.69rem;color:var(--t4);">${sender?.artistName}</span>
+                <img src="${senderImg}" class="av av-xs" style="border:1px solid var(--c-rim);" alt="${senderName}">
+                <span style="font-size:0.69rem;color:var(--t4);">${senderName}</span>
               </div>` : ''}
-              <div class="msg-bubble ${isMe ? 'mine' : 'them'}">${msg.content}</div>
-              <div class="mono-sm" style="color:var(--t4);margin-top:3px;">${msg.timestamp}</div>
+              <div class="msg-bubble ${isMe ? 'mine' : 'them'}">${msg.content ?? ''}</div>
+              <div class="mono-sm" style="color:var(--t4);margin-top:3px;">${msg.timestamp ?? ''}</div>
             </div>`;}).join('')}
           </div>
           <div style="padding:12px;border-top:1px solid var(--c-wire);display:flex;gap:8px;">
@@ -218,11 +235,11 @@ function workspacePage(project: any): string {
           </div>
           <div style="padding:12px 16px;">
             ${[
-              {label:'Order ID', val:`#${project.id.toUpperCase()}`},
-              {label:'Package', val:project.selectedPackage},
-              {label:'Due date', val:project.dueDate},
-              {label:'Platform fee', val:formatPrice(project.platformFee)},
-              {label:'Payout', val:formatPrice(project.payoutAmount)},
+              {label:'Order ID', val:`#${String(project.id ?? 'N/A').toUpperCase()}`},
+              {label:'Package', val:project.selectedPackage ?? project.package ?? 'Standard'},
+              {label:'Due date', val:project.dueDate ?? 'TBD'},
+              {label:'Platform fee', val:formatPrice(project.platformFee ?? 0)},
+              {label:'Payout', val:formatPrice(project.payoutAmount ?? 0)},
             ].map(d => `
             <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--c-wire);font-size:0.8125rem;">
               <span style="color:var(--t4);">${d.label}</span>
@@ -267,15 +284,20 @@ ${closeShell()}`;
 }
 
 // ─── Listing detail page (simple redirect to marketplace) ────────────────────
+// PGES: Defensive checks on listing fields
 function listingDetailPage(listing: any): string {
-  return shell('Listing', '') + authedNav() + `
+  if (!listing) return shell('Error', '') + '<div style="padding:40px;color:#F0F0F4;">Listing not found.</div>' + closeShell();
+  const title = String(listing.title ?? 'Listing');
+  const description = String(listing.description ?? '');
+  const artistUrl = `/booking/${String(listing.userId ?? '')}?listing=${String(listing.id ?? '')}`;
+  return shell(title, '') + authedNav() + `
 <div style="max-width:900px;margin:0 auto;padding:48px 24px;">
   <div style="margin-bottom:24px;">
     <a href="/marketplace" style="font-size:0.8125rem;color:var(--t3);display:flex;align-items:center;gap:6px;"><i class="fas fa-arrow-left" style="font-size:11px;"></i> Back to Marketplace</a>
   </div>
-  <h1 style="font-family:var(--font-display);font-size:1.75rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:8px;">${listing.title}</h1>
-  <p style="font-size:0.9375rem;color:var(--t3);margin-bottom:24px;">${listing.description}</p>
-  <a href="/booking/${listing.userId}?listing=${listing.id}" class="btn btn-primary btn-lg">
+  <h1 style="font-family:var(--font-display);font-size:1.75rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:8px;">${title}</h1>
+  <p style="font-size:0.9375rem;color:var(--t3);margin-bottom:24px;">${description}</p>
+  <a href="${artistUrl}" class="btn btn-primary btn-lg">
     <i class="fas fa-microphone-alt" style="font-size:13px;"></i>
     Book this service
   </a>
@@ -284,6 +306,18 @@ ${closeShell()}`;
 }
 
 const app = new Hono()
+
+// ─── Security Headers Middleware ──────────────────────────────────────────────
+// PGES: Security-first — apply to every response
+app.use('*', async (c, next) => {
+  await next();
+  // Content Security Policy: prevent XSS
+  c.res.headers.set('X-Content-Type-Options', 'nosniff');
+  c.res.headers.set('X-Frame-Options', 'DENY');
+  c.res.headers.set('X-XSS-Protection', '1; mode=block');
+  c.res.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  c.res.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+});
 
 // ─── Public Pages ─────────────────────────────────────────────────────────────
 app.get('/', (c) => c.html(homePage()))
@@ -301,25 +335,41 @@ app.get('/forgot-password', (c) => c.html(forgotPasswordPage()))
 app.get('/logout', (c) => c.redirect('/login'))
 
 // ─── Artist Profiles ─────────────────────────────────────────────────────────
+// PGES: Sanitize input ID — only allow alphanumeric and hyphens/underscores
 app.get('/artist/:id', (c) => {
-  const id = c.req.param('id')
+  const rawId = c.req.param('id') ?? '';
+  // Defensive: strip any characters that shouldn't be in an ID
+  const id = rawId.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 32);
+  if (!id) return c.redirect('/explore');
   return c.html(artistPage(id))
 })
 
 // ─── Listings ─────────────────────────────────────────────────────────────────
+// PGES: Sanitize listing ID, return 404 if not found
 app.get('/listing/:id', (c) => {
-  const listing = getListingById(c.req.param('id'))
-  if (!listing) return c.html('Listing not found', 404)
+  const rawId = c.req.param('id') ?? '';
+  const id = rawId.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 32);
+  if (!id) return c.redirect('/marketplace');
+  const listing = getListingById(id)
+  if (!listing) {
+    return c.html(`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>404 — Artist Collab</title></head><body style="background:#030305;color:#F0F0F4;font-family:system-ui;display:flex;align-items:center;justify-content:center;min-height:100vh;text-align:center;"><div><h1 style="color:#C8FF00;font-size:6rem;margin:0;">404</h1><p>Listing not found.</p><a href="/marketplace" style="color:#C8FF00;">Browse Marketplace →</a></div></body></html>`, 404)
+  }
   return c.html(listingDetailPage(listing))
 })
 
 // ─── Booking ─────────────────────────────────────────────────────────────────
+// PGES: Sanitize all route params and query params
 app.get('/booking/:artistId', (c) => {
-  const listingId = c.req.query('listing')
-  return c.html(bookingPage(c.req.param('artistId'), listingId))
+  const rawArtistId = c.req.param('artistId') ?? '';
+  const artistId = rawArtistId.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 32);
+  if (!artistId) return c.redirect('/marketplace');
+  const rawListingId = c.req.query('listing') ?? '';
+  const listingId = rawListingId.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 32) || undefined;
+  return c.html(bookingPage(artistId, listingId))
 })
 app.get('/booking', (c) => {
-  const listingId = c.req.query('listing')
+  const rawListingId = c.req.query('listing') ?? '';
+  const listingId = rawListingId.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 32) || undefined;
   const listing = listingId ? getListingById(listingId) : listings[0]
   if (!listing) return c.redirect('/marketplace')
   return c.html(bookingPage(listing.userId, listingId))
@@ -339,8 +389,12 @@ app.get('/dashboard/settings', (c) => c.html(settingsPage()))
 app.get('/profile/me', (c) => c.html(artistPage(users[0].id)))
 
 // Workspace
+// PGES: Sanitize project ID, defensive fallback to projects page
 app.get('/workspace/:id', (c) => {
-  const project = getProjectById(c.req.param('id'))
+  const rawId = c.req.param('id') ?? '';
+  const id = rawId.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 32);
+  if (!id) return c.redirect('/dashboard/projects')
+  const project = getProjectById(id)
   if (!project) return c.redirect('/dashboard/projects')
   return c.html(workspacePage(project))
 })

@@ -195,7 +195,7 @@ export function messagesPage(): string {
         <div style="padding:10px 20px;background:var(--c-base);border-bottom:1px solid var(--c-wire);display:flex;align-items:center;gap:10px;">
           <div class="node node-signal" style="animation:pulse 2s infinite;"></div>
           <span style="font-family:var(--font-mono);font-size:0.65rem;color:var(--t4);">PROJECT: Hook Feature · Standard Package · In Progress</span>
-          <a href="/workspace/p1" style="margin-left:auto;font-family:var(--font-mono);font-size:0.65rem;color:var(--signal);font-weight:600;">View <i class="fas fa-arrow-right" style="font-size:9px;"></i></a>
+          <a href="/workspace/p1" style="margin-left:auto;font-family:var(--font-mono);font-size:0.65rem;color:var(--signal);font-weight:600;padding:6px 10px;min-height:36px;display:inline-flex;align-items:center;gap:4px;border-radius:var(--r-sm);">View <i class="fas fa-arrow-right" style="font-size:9px;"></i></a>
         </div>
 
         <!-- Messages -->
@@ -242,7 +242,7 @@ export function messagesPage(): string {
             </button>
           </div>
           <div style="display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap;">
-            ${['Sounds good 👍','When can you start?','Sending the reference now','Let me know if you need changes'].map(q => `<button onclick="document.getElementById('compose-input').value='${q}';" style="padding:4px 10px;border-radius:var(--r-full);font-size:0.71rem;background:var(--c-raised);border:1px solid var(--c-wire);color:var(--t3);cursor:pointer;transition:all 0.12s;font-family:var(--font-body);" onmouseover="this.style.color='var(--signal)';this.style.borderColor='rgba(200,255,0,0.25)'" onmouseout="this.style.color='var(--t3)';this.style.borderColor='var(--c-wire)'">${q}</button>`).join('')}
+            ${['Sounds good 👍','When can you start?','Sending the reference now','Let me know if you need changes'].map(q => `<button onclick="document.getElementById('compose-input').value='${q}';" style="padding:9px 14px;border-radius:var(--r-full);font-size:0.8125rem;background:var(--c-raised);border:1px solid var(--c-wire);color:var(--t3);cursor:pointer;transition:all 0.12s;font-family:var(--font-body);min-height:40px;line-height:1.2;" onmouseover="this.style.color='var(--signal)';this.style.borderColor='rgba(200,255,0,0.25)'" onmouseout="this.style.color='var(--t3)';this.style.borderColor='var(--c-wire)'">${q}</button>`).join('')}
           </div>
         </div>
 

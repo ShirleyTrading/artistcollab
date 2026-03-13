@@ -55,6 +55,7 @@ export function homePage(): string {
     bottom: -80px; left: 8%;
     filter: blur(80px);
     pointer-events: none;
+    overflow: hidden;
   }
 
   /* Traveling scan dot on horizontal path */
@@ -449,7 +450,7 @@ export function homePage(): string {
     .hero-inner { padding: 72px 16px 48px; }
     .hero-headline { font-size: clamp(2.6rem, 11vw, 3.8rem); }
     .hero-ctas { flex-direction: column; gap: 10px; }
-    .hero-ctas .btn { width: 100%; justify-content: center; }
+    .hero-ctas .btn { width: 100%; justify-content: center; min-height: 52px; font-size: 1rem; }
     .hero-proof { gap: 10px; }
     .hero-proof-divider { display: none; }
     .stats-bar-inner { grid-template-columns: repeat(2, 1fr); }
@@ -458,11 +459,15 @@ export function homePage(): string {
     .section { padding: 56px 16px; }
     .section-sm { padding: 40px 16px; }
     .cta-band { padding: 56px 16px; }
+    .cta-band .hero-ctas { flex-direction: column; gap: 10px; }
+    .cta-band .hero-ctas .btn { width: 100%; justify-content: center; min-height: 52px; }
     .feat-grid { grid-template-columns: 1fr; }
     .artist-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
     .quote-grid { gap: 12px; }
     .step-card { padding: 24px 20px; }
     .stat-val { font-size: 1.75rem; }
+    .hero-glow-1 { width: 300px; height: 300px; }
+    .hero-glow-2 { width: 300px; height: 300px; left: -20px; }
   }
   @media (max-width: 480px) {
     .artist-grid { grid-template-columns: 1fr; }

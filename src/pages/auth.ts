@@ -143,6 +143,17 @@ const AUTH_STYLES = `
     .auth-shell { grid-template-columns: 1fr; }
     .auth-left { display: none; }
   }
+  @media (max-width: 480px) {
+    .auth-right { padding: 32px 20px; }
+    .auth-form-wrap { max-width: 100%; }
+    /* Bigger touch targets for auth links */
+    .auth-switch-link { display: inline-block; padding: 8px 0; }
+    .auth-input { padding: 14px 14px; font-size: 1rem; }
+    .role-option { padding: 16px; }
+    .social-btn { padding: 14px; min-height: 52px; font-size: 1rem; }
+    /* Stack name/username fields vertically */
+    .auth-name-grid { grid-template-columns: 1fr !important; }
+  }
 `;
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -231,7 +242,7 @@ export function loginPage(): string {
       <!-- Header -->
       <div style="margin-bottom:32px;">
         <h1 style="font-family:var(--font-display);font-size:1.75rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:8px;">Welcome back</h1>
-        <p class="body-sm">Don't have an account? <a href="/signup" style="color:var(--signal);font-weight:600;">Join Artist Collab</a></p>
+        <p class="body-sm">Don't have an account? <a href="/signup" style="color:var(--signal);font-weight:600;" class="auth-switch-link">Join Artist Collab</a></p>
       </div>
 
       <!-- Social auth -->
@@ -255,7 +266,7 @@ export function loginPage(): string {
         <div class="auth-field">
           <div style="display:flex;align-items:center;justify-content:space-between;">
             <label class="auth-label">Password</label>
-            <a href="/forgot-password" style="font-size:0.75rem;color:var(--t3);transition:color 0.15s;" onmouseover="this.style.color='var(--t1)'" onmouseout="this.style.color='var(--t3)'">Forgot password?</a>
+            <a href="/forgot-password" style="font-size:0.8125rem;color:var(--t3);transition:color 0.15s;padding:4px 0;" onmouseover="this.style.color='var(--t1)'" onmouseout="this.style.color='var(--t3)'">Forgot password?</a>
           </div>
           <input type="password" class="auth-input" placeholder="••••••••" value="demo1234" required>
         </div>
@@ -306,7 +317,7 @@ export function signupPage(): string {
 
       <div style="margin-bottom:28px;">
         <h1 style="font-family:var(--font-display);font-size:1.75rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:8px;">Create your account</h1>
-        <p class="body-sm">Already have an account? <a href="/login" style="color:var(--signal);font-weight:600;">Sign in</a></p>
+        <p class="body-sm">Already have an account? <a href="/login" style="color:var(--signal);font-weight:600;" class="auth-switch-link">Sign in</a></p>
       </div>
 
       <!-- Social auth -->
@@ -335,7 +346,7 @@ export function signupPage(): string {
       </div>
 
       <form onsubmit="event.preventDefault();window.location.href='/dashboard';">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;" class="auth-name-grid">
           <div class="auth-field">
             <label class="auth-label">Artist Name</label>
             <input type="text" class="auth-input" placeholder="Stage name" required>
@@ -356,8 +367,8 @@ export function signupPage(): string {
 
         <div style="margin-bottom:20px;">
           <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer;">
-            <input type="checkbox" required style="margin-top:2px;accent-color:var(--signal);width:15px;height:15px;flex-shrink:0;">
-            <span style="font-size:0.8125rem;color:var(--t3);line-height:1.5;">I agree to the <a href="/terms" style="color:var(--signal);">Terms of Service</a> and <a href="/privacy" style="color:var(--signal);">Privacy Policy</a></span>
+            <input type="checkbox" required style="margin-top:3px;accent-color:var(--signal);width:18px;height:18px;flex-shrink:0;">
+            <span style="font-size:0.875rem;color:var(--t3);line-height:1.6;">I agree to the <a href="/terms" style="color:var(--signal);padding:2px 0;display:inline-block;">Terms of Service</a> and <a href="/privacy" style="color:var(--signal);padding:2px 0;display:inline-block;">Privacy Policy</a></span>
           </label>
         </div>
 

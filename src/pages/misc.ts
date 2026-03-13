@@ -51,10 +51,15 @@ export function howItWorksPage(): string {
     display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;
     max-width: 1100px; margin: 0 auto; padding: 80px 24px;
     border-bottom: 1px solid var(--c-wire);
+    overflow: hidden;
   }
   .hiw-step:last-child { border-bottom: none; }
   .hiw-step.flip { direction: rtl; }
   .hiw-step.flip > * { direction: ltr; }
+  /* Ensure all content inside steps is strictly contained */
+  .hiw-step, .hiw-step * { box-sizing: border-box; max-width: 100%; word-break: break-word; }
+  /* Prevent any span/text from escaping the container */
+  .hiw-step span, .hiw-step p, .hiw-step h2, .hiw-step div { overflow-wrap: break-word; }
   .step-visual {
     background: var(--c-panel);
     border: 1px solid var(--c-wire);
@@ -64,9 +69,14 @@ export function howItWorksPage(): string {
     position: relative; overflow: hidden;
   }
   @media (max-width: 900px) {
-    .hiw-step { grid-template-columns: 1fr; gap: 32px; padding: 52px 20px; }
+    .hiw-step { grid-template-columns: 1fr; gap: 32px; padding: 52px 20px; direction: ltr; }
     .hiw-step.flip { direction: ltr; }
+    .hiw-step.flip > * { direction: ltr; }
     .hiw-hero { padding: 64px 20px 48px; }
+    /* Remove br on mobile to prevent overflow */
+    .hiw-hero-title br { display: none; }
+    .hiw-hero-ctas { flex-direction: column; gap: 10px; }
+    .hiw-hero-ctas .btn { width: 100%; justify-content: center; min-height: 52px; }
   }
   @media (max-width: 600px) {
     .hiw-hero { padding: 48px 16px 40px; }
@@ -85,9 +95,9 @@ export function howItWorksPage(): string {
       <span style="font-family:var(--font-mono);font-size:0.65rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--signal);">The Signal Path</span>
       <div style="height:1px;width:24px;background:var(--signal);"></div>
     </div>
-    <h1 class="d1" style="margin-bottom:20px;">Music collaboration,<br><span style="color:var(--t3);">structured.</span></h1>
+    <h1 class="d1 hiw-hero-title" style="margin-bottom:20px;overflow:hidden;word-break:break-word;">Music collaboration,<br><span style="color:var(--t3);display:inline;">structured.</span></h1>
     <p class="body-lg" style="max-width:520px;margin:0 auto 36px;">Artist Collab handles everything from discovery to payout — so you can focus on the music.</p>
-    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+    <div class="hiw-hero-ctas" style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
       <a href="/signup" class="btn btn-primary btn-xl">
         <i class="fas fa-microphone-alt" style="font-size:13px;"></i>
         Start Collaborating
@@ -213,7 +223,7 @@ export function termsPage(): string {
   .legal-section h2 { font-size: 1.125rem; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 12px; }
   .legal-section p, .legal-section li { font-size: 0.9375rem; color: var(--t3); line-height: 1.8; margin-bottom: 10px; }
   .legal-section ul { padding-left: 20px; }
-  .legal-section a { color: var(--signal); }
+  .legal-section a { color: var(--signal); padding: 4px 0; display: inline-block; }
   @media (max-width: 600px) { .legal-page { padding: 40px 16px; } }
 `) + publicNav() + `
 <div style="background:var(--c-base);border-bottom:1px solid var(--c-wire);padding:52px 24px 44px;text-align:center;">

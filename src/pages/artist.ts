@@ -211,7 +211,11 @@ ${siteFooter()}${closeShell()}`;
     .artist-profile-inner { flex-wrap: wrap; margin-top: -36px; }
     .artist-stats-row { overflow-x: auto; scrollbar-width: none; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; }
     .artist-stat { min-width: 80px; padding: 14px 12px; }
-    .artist-profile-inner .btn-primary, .artist-profile-inner .btn-secondary { padding: 8px 14px; font-size: 0.8125rem; }
+    .artist-profile-inner .btn-primary, .artist-profile-inner .btn-secondary { padding: 10px 16px; font-size: 0.875rem; min-height: 44px; }
+    /* Tab: bigger touch target, scrollable */
+    .artist-tab { padding: 14px 16px; min-height: 48px; font-size: 0.8125rem; }
+    /* View All button bigger */
+    .btn-ghost.btn-xs { min-height: 40px; padding: 8px 12px; font-size: 0.8125rem; }
   }
   @media (max-width: 480px) {
     .artist-cover-band { height: 160px; }
@@ -220,6 +224,8 @@ ${siteFooter()}${closeShell()}`;
     .artist-profile-strip { padding: 0 14px; }
     .artist-stats-row .artist-stat { min-width: 70px; padding: 12px 10px; }
     .profile-layout { padding: 0 0 60px; }
+    /* Booking sidebar on mobile: not sticky, full width */
+    .booking-sidebar { top: auto; margin-top: 24px; }
   }
 
 `) + publicNav('explore') + `

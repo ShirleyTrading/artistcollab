@@ -11,6 +11,7 @@ export function marketplacePage(): string {
     background: var(--c-base);
     border-bottom: 1px solid var(--c-wire);
     padding: 48px 24px 36px;
+    overflow: hidden;
   }
 
   /* Category tabs */
@@ -20,6 +21,7 @@ export function marketplacePage(): string {
     border-bottom: 1px solid var(--c-wire);
     padding: 0 24px;
     overflow-x: auto;
+    overflow-y: hidden;
     scrollbar-width: none;
     background: var(--c-base);
     position: sticky;
@@ -27,6 +29,8 @@ export function marketplacePage(): string {
     z-index: 200;
     backdrop-filter: blur(16px);
     background: rgba(7,7,11,0.92);
+    /* Clip tab content from overflowing viewport */
+    max-width: 100vw;
   }
   .cat-tabs::-webkit-scrollbar { display: none; }
   .cat-tab {
@@ -169,12 +173,21 @@ export function marketplacePage(): string {
   }
   @media (max-width: 768px) {
     .listing-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-    .cat-tabs { padding: 0 12px; }
+    .cat-tabs { padding: 0 8px; gap: 0; }
+    .cat-tab { padding: 12px 12px; font-size: 0.75rem; min-height: 44px; }
     .mkt-header { padding: 36px 16px 28px; }
+    .mkt-header h1.d2 br { display: none; }
+    .mkt-header h1.d2 { word-break: break-word; overflow-wrap: break-word; }
+    .mkt-header .body-lg { word-break: break-word; }
+    /* Header inner max-width: clip the flex row */
+    .mkt-header > div { overflow: hidden; }
   }
   @media (max-width: 480px) {
     .listing-grid { grid-template-columns: 1fr; }
     .featured-listing-left { padding: 24px 20px; }
+    .cat-tab { padding: 12px 10px; font-size: 0.7rem; }
+    /* Stack the header row vertically on small screens */
+    .mkt-header > div > div[style] { flex-direction: column; align-items: flex-start !important; }
   }
 
 `) + publicNav('marketplace') + `
@@ -188,7 +201,7 @@ export function marketplacePage(): string {
     </div>
     <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px;">
       <div>
-        <h1 class="d2" style="margin-bottom:10px;">Book studio-grade<br>services</h1>
+        <h1 class="d2" style="margin-bottom:10px;word-break:break-word;overflow-wrap:break-word;">Book studio-grade<br class="mob-hide"> services</h1>
         <p class="body-lg" style="max-width:520px;">
           ${activeListings.length} active service listings from verified artists — vocals, mixing, beats, songwriting, and more.
         </p>

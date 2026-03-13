@@ -22,9 +22,9 @@ export function adminPage(): string {
   .adm-nav-item:hover { color: var(--t1); background: var(--c-ghost); }
   .adm-nav-item.on { color: var(--t1); background: var(--signal-dim); border-left: 2px solid var(--signal); }
   .adm-nav-section { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--t4); padding: 14px 16px 4px; font-family: var(--font-mono); }
-  .user-row { display: grid; grid-template-columns: 2.5fr 1fr 1fr 1fr 100px; align-items: center; gap: 12px; padding: 12px 20px; border-bottom: 1px solid rgba(255,255,255,0.03); transition: background var(--t-fast); }
+  .user-row { display: grid; grid-template-columns: 2.5fr 1fr 1fr 1fr 100px; align-items: center; gap: 12px; padding: 12px 20px; border-bottom: 1px solid rgba(255,255,255,0.03); transition: background var(--t-fast); min-width: 560px; }
   .user-row:hover { background: var(--c-ghost); }
-  .user-row-head { display: grid; grid-template-columns: 2.5fr 1fr 1fr 1fr 100px; gap: 12px; padding: 10px 20px; border-bottom: 1px solid var(--c-wire); }
+  .user-row-head { display: grid; grid-template-columns: 2.5fr 1fr 1fr 1fr 100px; gap: 12px; padding: 10px 20px; border-bottom: 1px solid var(--c-wire); min-width: 560px; }
   @media (max-width: 1100px) {
     .adm-layout { grid-template-columns: 1fr; }
     .adm-sidebar { display: none; }
@@ -34,11 +34,16 @@ export function adminPage(): string {
   @media (max-width: 768px) {
     .adm-stats { grid-template-columns: 1fr 1fr; gap: 10px; }
     .adm-stat { padding: 16px; }
+    /* Tables scroll on mobile - make adm-section a scroll container */
     .adm-section { overflow-x: auto; }
-    .user-row, .user-row-head { min-width: 600px; }
+    /* Action buttons: bigger touch target */
+    .adm-section .btn-xs { min-height: 40px; min-width: 40px; padding: 8px; }
+    /* Quick actions: 1-col on mobile */
+    .adm-content > div:last-child > div { grid-template-columns: 1fr !important; }
   }
   @media (max-width: 480px) {
     .adm-stats { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .adm-stat { padding: 14px; }
   }
 `) + authedNav() + `
 
@@ -115,6 +120,7 @@ export function adminPage(): string {
           </div>
           <a href="/admin/users" class="btn btn-ghost btn-xs" style="color:var(--t3);">View All</a>
         </div>
+        <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
         <div class="user-row-head">
           ${['Artist','Type','Rating','Status','Actions'].map(h => `<span style="font-family:var(--font-mono);font-size:0.6rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--t4);">${h}</span>`).join('')}
         </div>
@@ -134,10 +140,11 @@ export function adminPage(): string {
           <span style="font-size:0.875rem;color:var(--signal);">★ ${u.rating.toFixed(1)}</span>
           <span class="badge ${u.availability ? 'badge-ok' : 'badge-muted'}">${u.availability ? 'Available' : 'Busy'}</span>
           <div style="display:flex;gap:5px;">
-            <button class="btn btn-ghost btn-xs" onclick="alert('View user: ${u.artistName}')"><i class="fas fa-eye"></i></button>
-            <button class="btn btn-ghost btn-xs" style="color:var(--channel);" title="Suspend" onclick="alert('Suspend user?')"><i class="fas fa-ban"></i></button>
+            <button class="btn btn-ghost btn-xs" style="min-width:40px;min-height:40px;" onclick="alert('View user: ${u.artistName}')"><i class="fas fa-eye"></i></button>
+            <button class="btn btn-ghost btn-xs" style="color:var(--channel);min-width:40px;min-height:40px;" title="Suspend" onclick="alert('Suspend user?')"><i class="fas fa-ban"></i></button>
           </div>
         </div>`).join('')}
+        </div>
       </div>
 
       <!-- Orders table -->

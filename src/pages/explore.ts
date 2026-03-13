@@ -83,7 +83,7 @@ export function explorePage(): string {
   .filter-select:focus { border-color: var(--signal); }
 
   .filter-chip {
-    padding: 8px 14px;
+    padding: 9px 14px;
     border-radius: var(--r);
     font-size: 0.8125rem;
     font-weight: 500;
@@ -94,6 +94,7 @@ export function explorePage(): string {
     color: var(--t3);
     font-family: var(--font-body);
     white-space: nowrap;
+    min-height: 40px;
   }
   .filter-chip:hover { color: var(--t1); border-color: rgba(255,255,255,0.12); background: var(--c-ghost); }
   .filter-chip.on { background: var(--signal-dim); border-color: rgba(200,255,0,0.25); color: var(--signal); }
