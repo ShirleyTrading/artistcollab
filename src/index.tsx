@@ -123,11 +123,13 @@ app.get('/forgot-password', (c) => c.html(forgotPasswordPage()))
 app.get('/logout',          (c) => c.html(logoutPage()))
 
 // ─── Artist Profiles ─────────────────────────────────────────────────────────
-// PGES: Sanitize input ID
+// PGES: Sanitize input ID; return 404 status when artist not found
 app.get('/artist/:id', (c) => {
   const rawId = c.req.param('id') ?? '';
   const id    = rawId.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 32);
   if (!id) return c.redirect('/explore');
+  const user = getUserById(id);
+  if (!user) return c.html(artistPage(id), 404);
   return c.html(artistPage(id))
 })
 
@@ -203,6 +205,8 @@ app.get('/split-sheet/:id', (c) => {
   const rawId = c.req.param('id') ?? '';
   const id    = rawId.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 32);
   if (!id) return c.redirect('/split-sheets');
+  const ss = getSplitSheetById(id);
+  if (!ss) return c.html(splitSheetPage(id), 404);
   return c.html(splitSheetPage(id))
 })
 
@@ -215,6 +219,8 @@ app.get('/agreement/:projectId', (c) => {
   const rawId = c.req.param('projectId') ?? '';
   const id    = rawId.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 32);
   if (!id) return c.redirect('/dashboard/projects');
+  const ag = getAgreementByProject(id);
+  if (!ag) return c.html(agreementPage(id), 404);
   return c.html(agreementPage(id))
 })
 
