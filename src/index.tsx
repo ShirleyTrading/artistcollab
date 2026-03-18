@@ -19,8 +19,11 @@ import {
   splitSheetPage, splitSheetsListPage,
   ndaPage, agreementPage,
 } from './pages/splitsheet'
-import { workspacePage } from './pages/workspace'
-import { transparencyPage } from './pages/transparency'
+import { workspacePage }     from './pages/workspace'
+import { transparencyPage }  from './pages/transparency'
+import { sessionRoomPage }   from './pages/session'
+import { dawCompanionPage }  from './pages/daw_companion'
+import { dawBridgePage }     from './pages/daw_bridge'
 
 // ─── Layout helpers ───────────────────────────────────────────────────────────
 import { shell, closeShell, authedNav, publicNav, siteFooter } from './layout'
@@ -227,6 +230,23 @@ app.get('/agreement/:projectId', (c) => {
 // ─── Transparency Dashboard ───────────────────────────────────────────────────
 app.get('/transparency',           (c) => c.html(transparencyPage()))
 app.get('/dashboard/transparency', (c) => c.html(transparencyPage()))
+
+// ─── Session Room (Phase 1) ──────────────────────────────────────────────────
+app.get('/session/:id', (c) => {
+  const rawId = c.req.param('id') ?? ''
+  const id    = rawId.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 32)
+  if (!id) return c.redirect('/dashboard/projects')
+  return c.html(sessionRoomPage(id))
+})
+app.get('/session', (c) => c.html(sessionRoomPage('p1')))
+
+// ─── DAW Companion (Phase 2) ─────────────────────────────────────────────────
+app.get('/daw-companion', (c) => c.html(dawCompanionPage()))
+app.get('/companion',     (c) => c.redirect('/daw-companion'))
+
+// ─── DAW Bridge Architecture (Phase 3) ───────────────────────────────────────
+app.get('/daw-bridge',    (c) => c.html(dawBridgePage()))
+app.get('/integrations',  (c) => c.redirect('/daw-bridge'))
 
 // ─── Admin ───────────────────────────────────────────────────────────────────
 app.get('/admin',   (c) => c.html(adminPage()))

@@ -1292,6 +1292,12 @@ export const appSidebar = (active = '') => `
       <li><a href="/dashboard/listings" class="${active === 'listings' ? 'on' : ''}"><span class="sb-icon"><i class="fas fa-list-ul"></i></span>My Listings</a></li>
       <li><a href="/explore"><span class="sb-icon"><i class="fas fa-compass"></i></span>Find Artists</a></li>
     </ul>
+    <div class="sb-section">Live Session</div>
+    <ul class="sb-nav">
+      <li><a href="/session/p1" class="${active === 'session' ? 'on' : ''}"><span class="sb-icon"><i class="fas fa-circle" style="color:var(--channel);font-size:8px;"></i></span>Join Session<span class="notif" style="background:var(--channel);">LIVE</span></a></li>
+      <li><a href="/daw-companion" class="${active === 'companion' ? 'on' : ''}"><span class="sb-icon"><i class="fas fa-laptop"></i></span>DAW Companion</a></li>
+      <li><a href="/daw-bridge" class="${active === 'daw-bridge' ? 'on' : ''}"><span class="sb-icon"><i class="fas fa-plug"></i></span>DAW Bridge</a></li>
+    </ul>
     <div class="sb-section">Collab</div>
     <ul class="sb-nav">
       <li><a href="/split-sheets" class="${active === 'splits' ? 'on' : ''}"><span class="sb-icon"><i class="fas fa-chart-pie"></i></span>Split Sheets</a></li>
@@ -1338,6 +1344,8 @@ export const siteFooter = () => `
       <div class="footer-head">Platform</div>
       <a href="/explore" class="footer-link">Explore Artists</a>
       <a href="/marketplace" class="footer-link">Marketplace</a>
+      <a href="/session/p1" class="footer-link">Live Session Room</a>
+      <a href="/daw-companion" class="footer-link">DAW Companion</a>
       <a href="/how-it-works" class="footer-link">How It Works</a>
       <a href="/signup" class="footer-link">Join as Artist</a>
     </div>
