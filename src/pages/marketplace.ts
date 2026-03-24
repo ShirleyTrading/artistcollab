@@ -197,18 +197,24 @@ export function marketplacePage(): string {
   <div style="max-width:1280px;margin:0 auto;">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
       <div style="height:1px;width:24px;background:var(--signal);box-shadow:0 0 6px var(--signal-glow);"></div>
-      <span style="font-family:var(--font-mono);font-size:0.65rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--signal);">Feature Marketplace</span>
+      <span style="font-family:var(--font-mono);font-size:0.65rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--signal);">Service Marketplace</span>
     </div>
     <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px;">
       <div>
-        <h1 class="d2" style="margin-bottom:10px;word-break:break-word;overflow-wrap:break-word;">Book studio-grade<br class="mob-hide"> services</h1>
+        <h1 class="d2" style="margin-bottom:10px;word-break:break-word;overflow-wrap:break-word;">Browse services,<br class="mob-hide"> book instantly</h1>
         <p class="body-lg" style="max-width:520px;">
-          ${activeListings.length} active service listings from verified artists — vocals, mixing, beats, songwriting, and more.
+          ${activeListings.length} active listings — vocals, mixing, beats, songwriting, and more. Fixed pricing, escrow protection, fast delivery.
         </p>
+        <div style="margin-top:12px;">
+          <a href="/explore" style="font-size:0.8125rem;color:var(--t3);display:inline-flex;align-items:center;gap:6px;text-decoration:none;transition:color var(--t-fast);" onmouseover="this.style.color='var(--t1)'" onmouseout="this.style.color='var(--t3)'">
+            <i class="fas fa-users" style="font-size:11px;"></i>
+            Looking for an artist instead? Browse profiles →
+          </a>
+        </div>
       </div>
       <a href="/signup" class="btn btn-primary">
         <i class="fas fa-plus" style="font-size:12px;"></i>
-        List Your Services
+        List Your Service
       </a>
     </div>
   </div>

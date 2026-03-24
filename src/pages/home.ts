@@ -512,10 +512,10 @@ export function homePage(): string {
       <div class="hero-ctas">
         <a href="/signup" class="btn btn-primary btn-lg">
           <i class="fas fa-microphone-alt" style="font-size:13px;"></i>
-          Start Your Session
+          Start Free
         </a>
         <a href="/explore" class="btn btn-secondary btn-lg">
-          Browse Artists
+          Find Artists
         </a>
       </div>
 
@@ -700,7 +700,7 @@ export function homePage(): string {
 
     <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:40px;flex-wrap:wrap;gap:16px;">
       <h2 class="d3">Artists ready<br>to collaborate</h2>
-      <a href="/explore" class="btn btn-secondary btn-sm">Browse All Artists</a>
+      <a href="/explore" class="btn btn-secondary btn-sm">Find All Artists</a>
     </div>
 
     <div class="artist-grid">
@@ -839,9 +839,9 @@ export function homePage(): string {
     <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
       <a href="/signup" class="btn btn-primary btn-xl">
         <i class="fas fa-microphone-alt" style="font-size:14px;"></i>
-        Join as an Artist
+        Join Free — Start Collaborating
       </a>
-      <a href="/explore" class="btn btn-outline btn-xl">Browse Artists</a>
+      <a href="/explore" class="btn btn-outline btn-xl">Find Artists</a>
     </div>
   </div>
 </section>

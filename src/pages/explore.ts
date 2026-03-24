@@ -213,10 +213,20 @@ export function explorePage(): string {
       <span style="font-family:var(--font-mono);font-size:0.65rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--signal);">Artist Roster</span>
     </div>
 
-    <h1 class="d2" style="margin-bottom:12px;">Find your<br>collaborator</h1>
-    <p class="body-lg" style="max-width:500px;">
-      ${users.length} verified artists and producers across every genre — all open to collaboration.
-    </p>
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:12px;">
+      <div>
+        <h1 class="d2" style="margin-bottom:8px;">Find your<br>collaborator</h1>
+        <p class="body-lg" style="max-width:500px;">
+          Browse ${users.length}+ verified artists by vibe, genre, and price. View their full profiles, audio samples, and reviews — then book directly.
+        </p>
+      </div>
+      <div style="display:flex;gap:8px;flex-shrink:0;align-self:flex-end;">
+        <a href="/marketplace" class="btn btn-ghost btn-sm" style="color:var(--t3);">
+          <i class="fas fa-store" style="font-size:11px;"></i>
+          Browse Services Instead
+        </a>
+      </div>
+    </div>
   </div>
 </div>
 

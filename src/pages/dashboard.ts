@@ -202,13 +202,25 @@ export function dashboardPage(): string {
     <div class="app-page">
 
       <!-- Greeting -->
-      <div style="margin-bottom:28px;">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-          <div class="node node-ok"></div>
-          <span class="mono-sm" style="color:var(--s-ok);">SESSION ACTIVE</span>
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px;">
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+            <div class="node node-ok"></div>
+            <span class="mono-sm" style="color:var(--s-ok);">SESSION ACTIVE</span>
+          </div>
+          <h1 style="font-family:var(--font-display);font-size:1.75rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:4px;">Good evening, ${demoUser.artistName} ↗</h1>
+          <p class="body-sm">You have ${activeProjects.length} active project${activeProjects.length !== 1 ? 's' : ''} in progress · 3 unread messages.</p>
         </div>
-        <h1 style="font-family:var(--font-display);font-size:1.75rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:4px;">Good evening, ${demoUser.artistName} ↗</h1>
-        <p class="body-sm">You have ${activeProjects.length} active project${activeProjects.length !== 1 ? 's' : ''} in progress.</p>
+        <div style="display:flex;gap:8px;align-items:flex-start;">
+          <a href="/session/p1" class="btn btn-secondary btn-sm" style="flex-shrink:0;">
+            <i class="fas fa-circle" style="color:var(--channel);font-size:8px;"></i>
+            Live Session
+          </a>
+          <a href="/explore" class="btn btn-primary btn-sm" style="flex-shrink:0;">
+            <i class="fas fa-plus" style="font-size:10px;"></i>
+            New Collab
+          </a>
+        </div>
       </div>
 
       <!-- Stat tiles (the signal path motif: left strip = active color) -->
@@ -301,26 +313,26 @@ export function dashboardPage(): string {
         </div>
       </div>
 
-      <!-- Quick actions -->
-      <div style="margin-bottom:28px;">
-        <div class="sec-label">
-          <div class="sec-label-bar"></div>
-          <span class="sec-label-text">Quick Actions</span>
+      <!-- Conversion panel: contextual next steps -->
+      <div style="background:var(--c-panel);border:1px solid rgba(200,255,0,0.15);border-radius:var(--r-lg);padding:20px 24px;margin-bottom:28px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;border-left:3px solid var(--signal);">
+        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;flex:1;">
+          <div style="width:40px;height:40px;background:var(--signal-dim);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <i class="fas fa-bolt" style="color:var(--signal);font-size:1rem;"></i>
+          </div>
+          <div>
+            <div style="font-weight:700;font-size:0.9375rem;margin-bottom:2px;">Ready to start a new collab?</div>
+            <div class="body-sm">Browse 12K+ artists and book a feature, verse, or production session.</div>
+          </div>
         </div>
-        <div class="quick-grid">
-          ${[
-            { href:'/explore', icon:'fa-compass', label:'Find Artists' },
-            { href:'/dashboard/listings', icon:'fa-list-ul', label:'My Services' },
-            { href:'/dashboard/messages', icon:'fa-comment-dots', label:'Messages', badge:'3' },
-            { href:'/dashboard/earnings', icon:'fa-dollar-sign', label:'Earnings' },
-          ].map(q => `
-          <a href="${q.href}" class="quick-btn">
-            <div style="position:relative;">
-              <i class="fas ${q.icon} quick-icon"></i>
-              ${q.badge ? `<span style="position:absolute;top:-6px;right:-10px;background:var(--signal);color:#000;border-radius:var(--r-full);padding:1px 5px;font-size:0.6rem;font-weight:700;font-family:var(--font-mono);">${q.badge}</span>` : ''}
-            </div>
-            <span style="font-size:0.8125rem;font-weight:600;">${q.label}</span>
-          </a>`).join('')}
+        <div style="display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap;">
+          <a href="/marketplace" class="btn btn-secondary btn-sm">
+            <i class="fas fa-store" style="font-size:11px;"></i>
+            Browse Services
+          </a>
+          <a href="/explore" class="btn btn-primary btn-sm">
+            <i class="fas fa-compass" style="font-size:11px;"></i>
+            Discover Artists
+          </a>
         </div>
       </div>
 

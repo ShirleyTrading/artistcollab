@@ -1178,11 +1178,11 @@ export const publicNav = (active = '') => `
 <div class="pub-nav-drawer" id="pub-nav-drawer" role="dialog" aria-label="Mobile navigation menu" aria-hidden="true">
   <a href="/explore" class="${active === 'explore' ? 'active' : ''}">
     <i class="fas fa-compass" style="width:18px;text-align:center;color:var(--t4);font-size:0.875rem;"></i>
-    Explore
+    Find Artists
   </a>
   <a href="/marketplace" class="${active === 'marketplace' ? 'active' : ''}">
     <i class="fas fa-store" style="width:18px;text-align:center;color:var(--t4);font-size:0.875rem;"></i>
-    Marketplace
+    Browse Services
   </a>
   <a href="/how-it-works" class="${active === 'how' ? 'active' : ''}">
     <i class="fas fa-circle-question" style="width:18px;text-align:center;color:var(--t4);font-size:0.875rem;"></i>
@@ -1196,7 +1196,7 @@ export const publicNav = (active = '') => `
     </a>
     <a href="/signup" class="btn btn-primary btn-w" style="min-height:48px;justify-content:center;font-size:0.9375rem;">
       <i class="fas fa-microphone-alt" style="font-size:13px;"></i>
-      Get Started
+      Start Free
     </a>
   </div>
 </div>
@@ -1211,13 +1211,13 @@ export const publicNav = (active = '') => `
       <span>Artist Collab</span>
     </a>
     <ul class="nav-links mob-hide">
-      <li><a href="/explore" class="${active === 'explore' ? 'active' : ''}">Explore</a></li>
-      <li><a href="/marketplace" class="${active === 'marketplace' ? 'active' : ''}">Marketplace</a></li>
+      <li><a href="/explore" class="${active === 'explore' ? 'active' : ''}">Find Artists</a></li>
+      <li><a href="/marketplace" class="${active === 'marketplace' ? 'active' : ''}">Browse Services</a></li>
       <li><a href="/how-it-works" class="${active === 'how' ? 'active' : ''}">How It Works</a></li>
     </ul>
     <div class="nav-cta">
-      <a href="/login" class="btn btn-ghost btn-sm mob-hide">Sign in</a>
-      <a href="/signup" class="btn btn-primary btn-sm" style="min-height:40px;">Get started</a>
+      <a href="/login" class="btn btn-ghost btn-sm mob-hide" style="color:var(--t2);">Sign in</a>
+      <a href="/signup" class="btn btn-primary btn-sm" style="min-height:40px;">Start Free</a>
       <button
         class="btn btn-ghost mob-show"
         id="pub-hamburger"
@@ -1232,10 +1232,86 @@ export const publicNav = (active = '') => `
 </nav>`;
 
 export const authedNav = (active = '') => `
+<style>
+  /* ── Dropdown nav ── */
+  .nav-dropdown { position: relative; }
+  .nav-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(16,16,24,0.98);
+    border: 1px solid var(--c-rim);
+    border-radius: var(--r-lg);
+    padding: 6px;
+    min-width: 200px;
+    z-index: 500;
+    box-shadow: var(--sh-xl);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    animation: popIn 0.15s var(--ease-spring) forwards;
+  }
+  .nav-dropdown:hover .nav-dropdown-menu,
+  .nav-dropdown:focus-within .nav-dropdown-menu { display: block; }
+  .nav-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: var(--r-sm);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--t2);
+    text-decoration: none;
+    transition: all var(--t-fast);
+    cursor: pointer;
+  }
+  .nav-dropdown-item:hover { color: var(--t1); background: var(--c-ghost); }
+  .nav-dropdown-item .dd-icon { width: 16px; text-align: center; color: var(--t4); font-size: 0.75rem; flex-shrink: 0; }
+  .nav-dropdown-divider { height: 1px; background: var(--c-wire); margin: 4px 8px; }
+  .nav-dropdown-trigger {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 12px;
+    border-radius: var(--r-sm);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--t3);
+    transition: color var(--t-fast), background var(--t-fast);
+    min-height: 40px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-family: var(--font-body);
+    text-decoration: none;
+  }
+  .nav-dropdown-trigger:hover { color: var(--t1); background: var(--c-ghost); }
+  .nav-dropdown-trigger .dd-caret { font-size: 0.625rem; opacity: 0.5; transition: transform var(--t-fast); }
+  .nav-dropdown:hover .dd-caret { transform: rotate(180deg); }
+  /* New collab button in nav */
+  .nav-new-collab {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    background: var(--signal);
+    color: #000;
+    border-radius: var(--r);
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all var(--t-base);
+    min-height: 36px;
+    white-space: nowrap;
+  }
+  .nav-new-collab:hover { background: var(--signal-pale); box-shadow: var(--sh-sig); transform: translateY(-1px); }
+</style>
 <nav class="nav">
   <div class="nav-inner">
-    <div style="display:flex;align-items:center;gap:20px;">
-      <button class="btn btn-ghost mob-show" onclick="toggleSidebar()" style="padding:0;width:44px;height:44px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;"><i class="fas fa-bars" style="font-size:1.125rem;"></i></button>
+    <div style="display:flex;align-items:center;gap:16px;">
+      <button class="btn btn-ghost mob-show" onclick="toggleSidebar()" style="padding:0;width:44px;height:44px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;" aria-label="Open menu"><i class="fas fa-bars" style="font-size:1.125rem;"></i></button>
       <a href="/dashboard" class="nav-mark">
         <div class="nav-logo">
           <span class="nav-logo-text">AC</span>
@@ -1244,20 +1320,75 @@ export const authedNav = (active = '') => `
         <span class="mob-hide">Artist Collab</span>
       </a>
     </div>
-    <ul class="nav-links mob-hide">
-      <li><a href="/explore" class="${active === 'explore' ? 'active' : ''}">Explore</a></li>
-      <li><a href="/marketplace" class="${active === 'marketplace' ? 'active' : ''}">Marketplace</a></li>
-      <li><a href="/dashboard/projects" class="${active === 'projects' ? 'active' : ''}">Projects</a></li>
-      <li><a href="/dashboard/messages" class="${active === 'messages' ? 'active' : ''}">
-        Messages <span class="notif">3</span>
+
+    <!-- Desktop nav links with dropdowns -->
+    <ul class="nav-links mob-hide" style="gap:0;">
+      <li><a href="/explore" class="nav-dropdown-trigger${active === 'explore' ? ' active' : ''}" style="${active === 'explore' ? 'color:var(--t1);' : ''}">Discover</a></li>
+      <li><a href="/marketplace" class="nav-dropdown-trigger${active === 'marketplace' ? ' active' : ''}" style="${active === 'marketplace' ? 'color:var(--t1);' : ''}">Marketplace</a></li>
+      <li><a href="/dashboard/projects" class="nav-dropdown-trigger${active === 'projects' ? ' active' : ''}" style="${active === 'projects' ? 'color:var(--t1);' : ''}">Projects</a></li>
+      <li><a href="/dashboard/messages" class="nav-dropdown-trigger${active === 'messages' ? ' active' : ''}" style="${active === 'messages' ? 'color:var(--t1);' : ''}">
+        Messages <span class="notif" style="position:static;margin-left:4px;">3</span>
       </a></li>
+      <!-- More dropdown -->
+      <li class="nav-dropdown">
+        <button class="nav-dropdown-trigger">
+          More <i class="fas fa-chevron-down dd-caret" style="margin-left:2px;"></i>
+        </button>
+        <div class="nav-dropdown-menu" style="left:auto;right:0;transform:none;">
+          <a href="/session/p1" class="nav-dropdown-item">
+            <span class="dd-icon"><i class="fas fa-circle" style="color:var(--channel);font-size:8px;"></i></span>
+            Live Session
+            <span class="notif" style="position:static;margin-left:auto;background:var(--channel);">LIVE</span>
+          </a>
+          <a href="/split-sheets" class="nav-dropdown-item">
+            <span class="dd-icon"><i class="fas fa-chart-pie"></i></span>Split Sheets
+          </a>
+          <a href="/transparency" class="nav-dropdown-item">
+            <span class="dd-icon"><i class="fas fa-shield-halved"></i></span>Transparency
+          </a>
+          <div class="nav-dropdown-divider"></div>
+          <a href="/daw-companion" class="nav-dropdown-item">
+            <span class="dd-icon"><i class="fas fa-laptop"></i></span>DAW Companion
+          </a>
+          <a href="/daw-bridge" class="nav-dropdown-item">
+            <span class="dd-icon"><i class="fas fa-plug"></i></span>DAW Bridge
+          </a>
+          <div class="nav-dropdown-divider"></div>
+          <a href="/dashboard/settings" class="nav-dropdown-item">
+            <span class="dd-icon"><i class="fas fa-sliders-h"></i></span>Settings
+          </a>
+          <a href="/logout" class="nav-dropdown-item" style="color:var(--t3);">
+            <span class="dd-icon"><i class="fas fa-arrow-right-from-bracket"></i></span>Sign Out
+          </a>
+        </div>
+      </li>
     </ul>
-    <div class="nav-cta">
-      <a href="/dashboard" class="nav-user">
-        <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=60&h=60&fit=crop&crop=face" class="av av-xs" style="border:1.5px solid var(--c-rim);" alt="XAVI">
-        <span style="font-size:0.8125rem;font-weight:600;color:var(--t2);" class="mob-hide">XAVI</span>
-        <div class="node node-ok" style="margin-left:2px;width:6px;height:6px;"></div>
+
+    <div class="nav-cta" style="gap:10px;">
+      <!-- Primary CTA: New Collab -->
+      <a href="/explore" class="nav-new-collab mob-hide">
+        <i class="fas fa-plus" style="font-size:10px;"></i>
+        New Collab
       </a>
+      <!-- User avatar dropdown -->
+      <div class="nav-dropdown">
+        <a href="/dashboard" class="nav-user" style="text-decoration:none;">
+          <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=60&h=60&fit=crop&crop=face" class="av av-xs" style="border:1.5px solid var(--c-rim);" alt="XAVI">
+          <span style="font-size:0.8125rem;font-weight:600;color:var(--t2);" class="mob-hide">XAVI</span>
+          <div class="node node-ok" style="margin-left:2px;width:6px;height:6px;"></div>
+        </a>
+        <div class="nav-dropdown-menu" style="right:0;left:auto;transform:none;min-width:180px;">
+          <div style="padding:10px 12px 8px;border-bottom:1px solid var(--c-wire);margin-bottom:4px;">
+            <div style="font-size:0.8125rem;font-weight:700;">XAVI</div>
+            <div style="font-size:0.69rem;color:var(--t4);font-family:var(--font-mono);">@xavi_official</div>
+          </div>
+          <a href="/profile/me" class="nav-dropdown-item"><span class="dd-icon"><i class="fas fa-user"></i></span>My Profile</a>
+          <a href="/dashboard/earnings" class="nav-dropdown-item"><span class="dd-icon"><i class="fas fa-dollar-sign"></i></span>Earnings</a>
+          <a href="/dashboard/settings" class="nav-dropdown-item"><span class="dd-icon"><i class="fas fa-sliders-h"></i></span>Settings</a>
+          <div class="nav-dropdown-divider"></div>
+          <a href="/logout" class="nav-dropdown-item" style="color:var(--channel);"><span class="dd-icon"><i class="fas fa-arrow-right-from-bracket" style="color:var(--channel);"></i></span>Sign Out</a>
+        </div>
+      </div>
     </div>
   </div>
 </nav>`;
@@ -1266,60 +1397,95 @@ export const authedNav = (active = '') => `
 export const appSidebar = (active = '') => `
 <div class="sidebar-overlay" id="sidebar-overlay"></div>
 <aside class="app-sidebar" id="app-sidebar">
-  <div class="sb-user">
+
+  <!-- User block with profile link -->
+  <a href="/profile/me" class="sb-user" style="text-decoration:none;display:flex;align-items:center;gap:9px;transition:background var(--t-fast);" onmouseover="this.style.background='var(--c-ghost)'" onmouseout="this.style.background='transparent'">
     <div style="position:relative;">
       <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=80&h=80&fit=crop&crop=face" class="av av-sm" style="border:1.5px solid var(--c-rim);" alt="XAVI">
       <div class="node node-ok" style="position:absolute;bottom:0;right:0;width:7px;height:7px;border:2px solid var(--c-base);"></div>
     </div>
-    <div style="min-width:0;">
+    <div style="min-width:0;flex:1;">
       <div style="font-weight:700;font-size:0.8125rem;letter-spacing:-0.01em;">XAVI</div>
       <div style="font-size:0.69rem;color:var(--t4);font-family:var(--font-mono);">@xavi_official</div>
     </div>
+    <i class="fas fa-chevron-right" style="font-size:0.6rem;color:var(--t4);flex-shrink:0;margin-right:2px;"></i>
+  </a>
+
+  <!-- Primary CTA: always visible -->
+  <div style="padding:10px 10px 6px;">
+    <a href="/explore" class="btn btn-primary btn-w btn-sm" style="min-height:40px;font-size:0.8125rem;">
+      <i class="fas fa-plus" style="font-size:10px;"></i>
+      New Collaboration
+    </a>
   </div>
 
   <div style="flex:1;overflow-y:auto;padding-bottom:16px;">
-    <div class="sb-section">Overview</div>
+
+    <!-- WORK section: what you do every day -->
+    <div class="sb-section">Work</div>
     <ul class="sb-nav">
       <li><a href="/dashboard" class="${active === 'home' ? 'on' : ''}"><span class="sb-icon"><i class="fas fa-grid-2"></i></span>Dashboard</a></li>
       <li><a href="/dashboard/projects" class="${active === 'projects' ? 'on' : ''}"><span class="sb-icon"><i class="fas fa-layer-group"></i></span>Projects<span class="notif">2</span></a></li>
       <li><a href="/dashboard/messages" class="${active === 'messages' ? 'on' : ''}"><span class="sb-icon"><i class="fas fa-comment-dots"></i></span>Messages<span class="notif">3</span></a></li>
       <li><a href="/dashboard/orders" class="${active === 'orders' ? 'on' : ''}"><span class="sb-icon"><i class="fas fa-receipt"></i></span>Orders</a></li>
-      <li><a href="/dashboard/earnings" class="${active === 'earnings' ? 'on' : ''}"><span class="sb-icon"><i class="fas fa-dollar-sign"></i></span>Earnings</a></li>
+      <li><a href="/session/p1" class="${active === 'session' ? 'on' : ''}"><span class="sb-icon"><i class="fas fa-circle" style="color:var(--channel);font-size:8px;"></i></span>Live Session<span class="notif" style="background:var(--channel);">LIVE</span></a></li>
     </ul>
+
+    <!-- STUDIO section: your assets -->
     <div class="sb-section">Studio</div>
     <ul class="sb-nav">
-      <li><a href="/profile/me" class="${active === 'profile' ? 'on' : ''}"><span class="sb-icon"><i class="fas fa-user"></i></span>My Profile</a></li>
-      <li><a href="/dashboard/listings" class="${active === 'listings' ? 'on' : ''}"><span class="sb-icon"><i class="fas fa-list-ul"></i></span>My Listings</a></li>
-      <li><a href="/explore"><span class="sb-icon"><i class="fas fa-compass"></i></span>Find Artists</a></li>
+      <li><a href="/dashboard/listings" class="${active === 'listings' ? 'on' : ''}"><span class="sb-icon"><i class="fas fa-list-ul"></i></span>My Services</a></li>
+      <li><a href="/dashboard/earnings" class="${active === 'earnings' ? 'on' : ''}"><span class="sb-icon"><i class="fas fa-dollar-sign"></i></span>Earnings</a></li>
+      <li><a href="/split-sheets" class="${active === 'splits' ? 'on' : ''}"><span class="sb-icon"><i class="fas fa-chart-pie"></i></span>Split Sheets</a></li>
     </ul>
-    <div class="sb-section">Live Session</div>
-    <ul class="sb-nav">
-      <li><a href="/session/p1" class="${active === 'session' ? 'on' : ''}"><span class="sb-icon"><i class="fas fa-circle" style="color:var(--channel);font-size:8px;"></i></span>Join Session<span class="notif" style="background:var(--channel);">LIVE</span></a></li>
+
+    <!-- TOOLS section: expandable extras -->
+    <div class="sb-section" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding-right:14px;" onclick="toggleSbTools(this)" id="sb-tools-toggle">
+      <span>Tools</span>
+      <i class="fas fa-chevron-down" style="font-size:0.55rem;transition:transform var(--t-fast);" id="sb-tools-caret"></i>
+    </div>
+    <ul class="sb-nav" id="sb-tools-list" style="display:none;">
+      <li><a href="/transparency" class="${active === 'transparency' ? 'on' : ''}"><span class="sb-icon"><i class="fas fa-shield-halved"></i></span>Transparency</a></li>
+      <li><a href="/nda" class="${active === 'nda' ? 'on' : ''}"><span class="sb-icon"><i class="fas fa-file-contract"></i></span>NDA & Agreements</a></li>
       <li><a href="/daw-companion" class="${active === 'companion' ? 'on' : ''}"><span class="sb-icon"><i class="fas fa-laptop"></i></span>DAW Companion</a></li>
       <li><a href="/daw-bridge" class="${active === 'daw-bridge' ? 'on' : ''}"><span class="sb-icon"><i class="fas fa-plug"></i></span>DAW Bridge</a></li>
     </ul>
-    <div class="sb-section">Collab</div>
-    <ul class="sb-nav">
-      <li><a href="/split-sheets" class="${active === 'splits' ? 'on' : ''}"><span class="sb-icon"><i class="fas fa-chart-pie"></i></span>Split Sheets</a></li>
-      <li><a href="/dashboard/transparency" class="${active === 'transparency' ? 'on' : ''}"><span class="sb-icon"><i class="fas fa-shield-halved"></i></span>Transparency</a></li>
-      <li><a href="/nda" class="${active === 'nda' ? 'on' : ''}"><span class="sb-icon"><i class="fas fa-file-contract"></i></span>NDA & Agreements</a></li>
-    </ul>
-    <div class="sb-section">Account</div>
-    <ul class="sb-nav">
-      <li><a href="/dashboard/settings" class="${active === 'settings' ? 'on' : ''}"><span class="sb-icon"><i class="fas fa-sliders-h"></i></span>Settings</a></li>
-      <li><a href="/logout"><span class="sb-icon"><i class="fas fa-arrow-right-from-bracket"></i></span>Sign Out</a></li>
-    </ul>
+
   </div>
 
-  <!-- Sidebar footer: signal path motif -->
-  <div style="padding:12px 14px;border-top:1px solid var(--c-wire);">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-      ${meterCluster(5, 3)}
-      <span style="font-size:0.6rem;font-family:var(--font-mono);color:var(--t4);margin-left:4px;">LIVE</span>
+  <!-- Sidebar bottom: settings + sign out -->
+  <div style="border-top:1px solid var(--c-wire);padding:6px;">
+    <ul class="sb-nav" style="padding:0;">
+      <li><a href="/dashboard/settings" class="${active === 'settings' ? 'on' : ''}"><span class="sb-icon"><i class="fas fa-sliders-h"></i></span>Settings</a></li>
+      <li><a href="/logout" style="color:var(--t3);"><span class="sb-icon"><i class="fas fa-arrow-right-from-bracket"></i></span>Sign Out</a></li>
+    </ul>
+    <div style="padding:8px 10px 4px;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        ${meterCluster(5, 3)}
+        <span style="font-size:0.6rem;font-family:var(--font-mono);color:var(--t4);margin-left:4px;">SESSION · AC/1</span>
+      </div>
     </div>
-    <div style="font-size:0.69rem;color:var(--t4);font-family:var(--font-mono);">SESSION · AC/1</div>
   </div>
-</aside>`;
+</aside>
+<script>
+function toggleSbTools(el) {
+  var list = document.getElementById('sb-tools-list');
+  var caret = document.getElementById('sb-tools-caret');
+  if (!list) return;
+  var hidden = list.style.display === 'none';
+  list.style.display = hidden ? 'block' : 'none';
+  if (caret) caret.style.transform = hidden ? 'rotate(180deg)' : 'rotate(0deg)';
+}
+// Auto-expand Tools if a tools item is active
+(function(){
+  var list = document.getElementById('sb-tools-list');
+  var caret = document.getElementById('sb-tools-caret');
+  if (list && list.querySelector('.on')) {
+    list.style.display = 'block';
+    if (caret) caret.style.transform = 'rotate(180deg)';
+  }
+})();
+</script>`;
 
 // ─── Site Footer ──────────────────────────────────────────────────────────────
 export const siteFooter = () => `
@@ -1342,8 +1508,8 @@ export const siteFooter = () => `
     </div>
     <div>
       <div class="footer-head">Platform</div>
-      <a href="/explore" class="footer-link">Explore Artists</a>
-      <a href="/marketplace" class="footer-link">Marketplace</a>
+      <a href="/explore" class="footer-link">Find Artists</a>
+      <a href="/marketplace" class="footer-link">Browse Services</a>
       <a href="/session/p1" class="footer-link">Live Session Room</a>
       <a href="/daw-companion" class="footer-link">DAW Companion</a>
       <a href="/how-it-works" class="footer-link">How It Works</a>

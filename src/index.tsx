@@ -229,7 +229,7 @@ app.get('/agreement/:projectId', (c) => {
 
 // ─── Transparency Dashboard ───────────────────────────────────────────────────
 app.get('/transparency',           (c) => c.html(transparencyPage()))
-app.get('/dashboard/transparency', (c) => c.html(transparencyPage()))
+app.get('/dashboard/transparency', (c) => c.redirect('/transparency'))
 
 // ─── Session Room (Phase 1) ──────────────────────────────────────────────────
 app.get('/session/:id', (c) => {
