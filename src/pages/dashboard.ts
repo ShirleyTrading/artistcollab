@@ -90,31 +90,6 @@ const DASH_STYLES = `
   }
   .proj-row:hover { border-color: rgba(255,255,255,0.1); background: var(--c-lift); }
 
-  /* Quick-action grid */
-  .quick-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-  .quick-btn {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    padding: 20px 12px;
-    background: var(--c-raised);
-    border: 1px solid var(--c-wire);
-    border-radius: var(--r-lg);
-    cursor: pointer;
-    transition: all var(--t-fast);
-    text-decoration: none;
-    color: var(--t1);
-    text-align: center;
-    font-family: var(--font-body);
-  }
-  .quick-btn:hover {
-    border-color: var(--signal);
-    background: var(--signal-dim);
-  }
-  .quick-btn:hover .quick-icon { color: var(--signal); }
-  .quick-icon { font-size: 1.125rem; color: var(--t3); transition: color var(--t-fast); }
-
   /* Feed items */
   .feed-item {
     display: flex;
@@ -154,19 +129,14 @@ const DASH_STYLES = `
     .stat-tiles { grid-template-columns: 1fr 1fr; gap: 10px; }
     .stat-tile { padding: 16px; }
     .stat-tile-val { font-size: 1.5rem; }
-    .quick-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-    .quick-btn { padding: 16px 10px; }
     .proj-row { gap: 10px; padding: 12px; }
-    /* On mobile: hide the badge/price block or shrink it */
     .proj-row-meta { max-width: 90px; }
     .settings-layout { grid-template-columns: 1fr; }
     .settings-nav { display: none; }
     .settings-nav-mobile { display: flex; overflow-x: auto; gap: 6px; padding-bottom: 4px; }
-    /* Settings nav buttons: bigger touch target */
     .settings-nav-mobile a { min-height: 44px; padding: 10px 16px !important; font-size: 0.875rem !important; }
     .form-2col { grid-template-columns: 1fr; }
     .dash-two-col { grid-template-columns: 1fr; }
-    /* View All / Details links: bigger touch target */
     .btn-xs { min-height: 36px; padding: 8px 12px; }
   }
   @media (max-width: 480px) {
@@ -174,12 +144,6 @@ const DASH_STYLES = `
     .stat-tile { padding: 14px; }
     .stat-tile-val { font-size: 1.25rem; }
     .stat-tile-lbl { font-size: 0.55rem; }
-    .quick-grid { grid-template-columns: repeat(4, 1fr); gap: 8px; }
-    .quick-btn { padding: 12px 8px; gap: 6px; }
-    .quick-btn span { font-size: 0.7rem; }
-    .quick-icon { font-size: 1rem; }
-    /* On very small screens, keep 2-col quick-grid instead of 4-col */
-    .quick-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
   }
 `;
 
@@ -201,15 +165,11 @@ export function dashboardPage(): string {
   <main class="app-main">
     <div class="app-page">
 
-      <!-- Greeting -->
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px;">
+      <!-- Greeting: welcome + quick action buttons only — numbers live in stat tiles below -->
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
         <div>
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-            <div class="node node-ok"></div>
-            <span class="mono-sm" style="color:var(--s-ok);">SESSION ACTIVE</span>
-          </div>
-          <h1 style="font-family:var(--font-display);font-size:1.75rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:4px;">Good evening, ${demoUser.artistName} ↗</h1>
-          <p class="body-sm">You have ${activeProjects.length} active project${activeProjects.length !== 1 ? 's' : ''} in progress · 3 unread messages.</p>
+          <h1 style="font-family:var(--font-display);font-size:1.75rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:4px;">Welcome back, ${demoUser.artistName} 👋</h1>
+          <p class="body-sm" style="color:var(--t3);">Here's what's happening with your collabs today.</p>
         </div>
         <div style="display:flex;gap:8px;align-items:flex-start;">
           <a href="/session/p1" class="btn btn-secondary btn-sm" style="flex-shrink:0;">
@@ -223,23 +183,23 @@ export function dashboardPage(): string {
         </div>
       </div>
 
-      <!-- Stat tiles (the signal path motif: left strip = active color) -->
-      <div class="stat-tiles">
+      <!-- Stat tiles — each one is a clickable link so users can drill in immediately -->
+      <div class="stat-tiles" style="margin-bottom:28px;">
         ${[
-          { color:'var(--signal)', icon:'fa-layer-group', val: activeProjects.length.toString(), lbl:'Active Projects', sub:'+2 this month', upColor:'var(--signal)' },
-          { color:'var(--s-ok)', icon:'fa-dollar-sign', val:`$${totalEarnings.toLocaleString()}`, lbl:'Total Earnings', sub:'+$1,480 last month', upColor:'var(--s-ok)' },
-          { color:'var(--patch)', icon:'fa-check-circle', val: completedCount.toString(), lbl:'Completed', sub:'3 awaiting review', upColor:'var(--patch)' },
-          { color:'var(--warm)', icon:'fa-star', val:`${demoUser.rating.toFixed(1)}`, lbl:'Avg Rating', sub:`${demoUser.reviewCount} reviews`, upColor:'var(--warm)' },
+          { color:'var(--signal)', icon:'fa-layer-group', val: activeProjects.length.toString(),   lbl:'Active Projects',  sub:'Tap to view projects', href:'/dashboard/projects' },
+          { color:'var(--s-ok)',   icon:'fa-dollar-sign', val:`$${totalEarnings.toLocaleString()}`, lbl:'Total Earned',      sub:'Tap to view earnings', href:'/dashboard/earnings' },
+          { color:'var(--patch)',  icon:'fa-check-circle',val: completedCount.toString(),           lbl:'Completed',         sub:'All done ✓',           href:'/dashboard/projects' },
+          { color:'var(--warm)',   icon:'fa-star',        val:`${demoUser.rating.toFixed(1)} ★`,   lbl:'Your Rating',       sub:`${demoUser.reviewCount} reviews`,  href:'/artist/u1' },
         ].map(s => `
-        <div class="stat-tile">
+        <a href="${s.href}" class="stat-tile" style="text-decoration:none;display:block;">
           <div class="stat-tile-bar" style="background:${s.color};"></div>
           <div class="stat-tile-icon" style="background:${s.color}15;">
             <i class="fas ${s.icon}" style="color:${s.color};"></i>
           </div>
           <div class="stat-tile-val" style="color:${s.color};">${s.val}</div>
           <div class="stat-tile-lbl">${s.lbl}</div>
-          <div class="stat-tile-sub"><i class="fas fa-arrow-up" style="font-size:9px;color:${s.upColor};"></i><span>${s.sub}</span></div>
-        </div>`).join('')}
+          <div class="stat-tile-sub">${s.sub}</div>
+        </a>`).join('')}
       </div>
 
       <!-- Two columns: projects + activity -->
@@ -262,7 +222,7 @@ export function dashboardPage(): string {
               const progressMap: Record<string,number> = { pending:0, in_progress:45, awaiting_delivery:70, delivered:85, revision_requested:60, completed:100 };
               const prog = progressMap[p.status] || 30;
               return `
-            <div class="proj-row" data-href="/workspace/${p.id}">
+            <div class="proj-row" onclick="window.location='/workspace/${p.id}'">
               <img src="${counterpart?.profileImage}" class="av av-sm" style="border:1.5px solid var(--c-rim);flex-shrink:0;" alt="${counterpart?.artistName}">
               <div style="flex:1;min-width:0;">
                 <div style="font-size:0.875rem;font-weight:700;letter-spacing:-0.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.title}</div>
@@ -313,26 +273,20 @@ export function dashboardPage(): string {
         </div>
       </div>
 
-      <!-- Conversion panel: contextual next steps -->
-      <div style="background:var(--c-panel);border:1px solid rgba(200,255,0,0.15);border-radius:var(--r-lg);padding:20px 24px;margin-bottom:28px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;border-left:3px solid var(--signal);">
-        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;flex:1;">
-          <div style="width:40px;height:40px;background:var(--signal-dim);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+      <!-- Start a new collab CTA — simple, one clear action -->
+      <div style="background:var(--c-panel);border:1px solid rgba(200,255,0,0.15);border-left:3px solid var(--signal);border-radius:var(--r-lg);padding:18px 22px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:14px;">
+          <div style="width:38px;height:38px;background:var(--signal-dim);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
             <i class="fas fa-bolt" style="color:var(--signal);font-size:1rem;"></i>
           </div>
           <div>
-            <div style="font-weight:700;font-size:0.9375rem;margin-bottom:2px;">Ready to start a new collab?</div>
-            <div class="body-sm">Browse 12K+ artists and book a feature, verse, or production session.</div>
+            <div style="font-weight:700;font-size:0.9375rem;margin-bottom:2px;">Start a new collaboration</div>
+            <div class="body-sm">Find artists, book features, and create together.</div>
           </div>
         </div>
-        <div style="display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap;">
-          <a href="/marketplace" class="btn btn-secondary btn-sm">
-            <i class="fas fa-store" style="font-size:11px;"></i>
-            Browse Services
-          </a>
-          <a href="/explore" class="btn btn-primary btn-sm">
-            <i class="fas fa-compass" style="font-size:11px;"></i>
-            Discover Artists
-          </a>
+        <div style="display:flex;gap:8px;flex-shrink:0;">
+          <a href="/marketplace" class="btn btn-secondary btn-sm"><i class="fas fa-store" style="font-size:11px;"></i> Browse Services</a>
+          <a href="/explore" class="btn btn-primary btn-sm"><i class="fas fa-search" style="font-size:11px;"></i> Find Artists</a>
         </div>
       </div>
 
@@ -384,7 +338,7 @@ export function projectsPage(): string {
           const roleColor = role === 'SELLER' ? 'var(--signal)' : 'var(--patch)';
 
           return `
-        <div class="proj-row" data-href="/workspace/${p.id}" data-status="${p.status}" style="border-left:2px solid ${sc};">
+        <div class="proj-row" onclick="window.location='/workspace/${p.id}'" data-status="${p.status}" style="border-left:2px solid ${sc};">
           <img src="${counterpart?.profileImage}" class="av av-md" style="border:1.5px solid var(--c-rim);flex-shrink:0;" alt="${counterpart?.artistName}">
           <div style="flex:1;min-width:0;">
             <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;flex-wrap:wrap;">

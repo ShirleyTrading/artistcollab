@@ -70,42 +70,46 @@ ${siteFooter()}${closeShell()}`;
 
   const availColor = user.availability === 'available' ? 'var(--s-ok)' : user.availability === 'busy' ? 'var(--channel)' : 'var(--t4)';
   const availGlow  = user.availability === 'available' ? 'rgba(45,202,114,0.5)' : 'rgba(255,77,109,0.5)';
-  const availLabel = user.availability === 'available' ? 'AVAILABLE' : user.availability === 'busy' ? 'BUSY' : 'AWAY';
+  const availLabel = user.availability === 'available' ? 'Available' : user.availability === 'busy' ? 'Busy' : 'Away';
+
+  // Fastest delivery across all active listings
+  const fastestDelivery = activeListings.length
+    ? Math.min(...activeListings.map(l => l.packages?.[0]?.deliveryDays ?? 7))
+    : null;
 
   return shell(`${user.artistName} — Artist Profile`, `
   /* ══ Artist Profile Styles ═════════════════════════════════════════════════ */
 
-  /* Cover band */
   .ap-cover {
     position: relative;
-    height: 260px;
+    height: 240px;
     overflow: hidden;
     background: var(--c-base);
   }
   .ap-cover img {
     width: 100%; height: 100%;
     object-fit: cover;
-    opacity: 0.32;
+    opacity: 0.28;
   }
   .ap-cover-grad {
     position: absolute; inset: 0;
     background:
       linear-gradient(to bottom, rgba(3,3,5,0) 30%, var(--c-void) 100%),
-      linear-gradient(to right, rgba(0,0,0,0.55) 0%, transparent 55%);
+      linear-gradient(to right, rgba(0,0,0,0.5) 0%, transparent 55%);
   }
   .ap-waveform {
     position: absolute;
     bottom: 0; left: 0; right: 0;
-    height: 72px;
+    height: 64px;
     display: flex;
     align-items: flex-end;
     gap: 2px;
     padding: 0 32px;
-    opacity: 0.12;
+    opacity: 0.1;
     pointer-events: none;
   }
 
-  /* ── Hero header (desktop & mobile shared wrapper) ── */
+  /* ── Hero ── */
   .ap-hero {
     background: var(--c-void);
     border-bottom: 1px solid var(--c-wire);
@@ -113,26 +117,23 @@ ${siteFooter()}${closeShell()}`;
   .ap-hero-inner {
     max-width: 1280px;
     margin: 0 auto;
-    padding: 0 24px 0;
+    padding: 0 24px 20px;
   }
 
-  /* Avatar row: avatar left, CTAs right, pulled up over cover */
+  /* Avatar row */
   .ap-avatar-row {
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
-    margin-top: -60px;
-    padding-bottom: 16px;
+    margin-top: -56px;
+    padding-bottom: 14px;
     position: relative;
     z-index: 2;
   }
-  .ap-avatar-wrap {
-    position: relative;
-    flex-shrink: 0;
-  }
+  .ap-avatar-wrap { position: relative; flex-shrink: 0; }
   .ap-avatar-wrap img {
     display: block;
-    width: 112px; height: 112px;
+    width: 108px; height: 108px;
     border-radius: 50%;
     object-fit: cover;
     border: 4px solid var(--c-void);
@@ -151,20 +152,18 @@ ${siteFooter()}${closeShell()}`;
     display: flex;
     gap: 8px;
     align-items: center;
-    padding-bottom: 6px;
+    padding-bottom: 4px;
   }
 
   /* Name block */
-  .ap-name-block {
-    padding-bottom: 20px;
-  }
+  .ap-name-block { padding-bottom: 0; }
   .ap-name {
     font-family: var(--font-display);
-    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    font-size: clamp(1.625rem, 4vw, 2.25rem);
     font-weight: 800;
     letter-spacing: -0.03em;
     line-height: 1.05;
-    margin: 0 0 10px;
+    margin: 0 0 8px;
     word-break: break-word;
   }
   .ap-badges {
@@ -172,14 +171,15 @@ ${siteFooter()}${closeShell()}`;
     flex-wrap: wrap;
     gap: 6px;
     align-items: center;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
   }
+  /* Single clean meta row — location · response time · listeners */
   .ap-meta-row {
     display: flex;
     flex-wrap: wrap;
-    gap: 14px;
+    gap: 16px;
     align-items: center;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
     font-size: 0.8125rem;
     color: var(--t3);
   }
@@ -202,18 +202,17 @@ ${siteFooter()}${closeShell()}`;
     color: var(--t4);
   }
 
-  /* Stats strip */
+  /* ── Stats strip: 4 unique stats only ── */
   .ap-stats {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     background: var(--c-base);
     border: 1px solid var(--c-wire);
     border-radius: var(--r-lg);
     overflow: hidden;
-    margin-bottom: 0;
   }
   .ap-stat {
-    padding: 16px 12px;
+    padding: 14px 12px;
     text-align: center;
     border-right: 1px solid var(--c-wire);
     min-width: 0;
@@ -221,7 +220,7 @@ ${siteFooter()}${closeShell()}`;
   .ap-stat:last-child { border-right: none; }
   .ap-stat-val {
     font-family: var(--font-display);
-    font-size: 1.1rem;
+    font-size: 1.05rem;
     font-weight: 800;
     letter-spacing: -0.03em;
     margin-bottom: 3px;
@@ -231,14 +230,14 @@ ${siteFooter()}${closeShell()}`;
   }
   .ap-stat-lbl {
     font-family: var(--font-mono);
-    font-size: 0.55rem;
+    font-size: 0.52rem;
     color: var(--t4);
     letter-spacing: 0.08em;
     text-transform: uppercase;
     white-space: nowrap;
   }
   .ap-stats-wrap {
-    padding: 0 24px 24px;
+    padding: 0 24px 20px;
     max-width: 1280px;
     margin: 0 auto;
   }
@@ -259,7 +258,7 @@ ${siteFooter()}${closeShell()}`;
   }
   .ap-tabs::-webkit-scrollbar { display: none; }
   .ap-tab {
-    padding: 14px 18px;
+    padding: 13px 18px;
     font-size: 0.875rem;
     font-weight: 500;
     color: var(--t3);
@@ -278,8 +277,8 @@ ${siteFooter()}${closeShell()}`;
   /* Content layout */
   .ap-layout {
     display: grid;
-    grid-template-columns: 1fr 320px;
-    gap: 32px;
+    grid-template-columns: 1fr 300px;
+    gap: 28px;
     align-items: start;
     max-width: 1280px;
     margin: 0 auto;
@@ -301,7 +300,7 @@ ${siteFooter()}${closeShell()}`;
     box-shadow: var(--sh);
   }
 
-  /* Booking sidebar */
+  /* Booking sidebar — streamlined */
   .ap-sidebar {
     background: var(--c-panel);
     border: 1px solid var(--c-wire);
@@ -310,6 +309,36 @@ ${siteFooter()}${closeShell()}`;
     position: sticky;
     top: 76px;
   }
+  .ap-sidebar-head {
+    padding: 20px;
+    border-bottom: 1px solid var(--c-wire);
+    background: var(--c-raised);
+    border-top: 3px solid ${idColor};
+  }
+  .ap-sidebar-avail {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .ap-sidebar-price-label {
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    color: var(--t4);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 3px;
+  }
+  .ap-sidebar-price {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    color: ${idColor};
+    line-height: 1;
+    margin-bottom: 3px;
+  }
+  .ap-sidebar-body { padding: 18px 20px; }
 
   /* Review card */
   .ap-review {
@@ -397,30 +426,29 @@ ${siteFooter()}${closeShell()}`;
     .ap-sidebar { position: static; }
   }
   @media (max-width: 768px) {
-    .ap-cover { height: 180px; }
-    .ap-avatar-row { margin-top: -50px; }
-    .ap-avatar-wrap img { width: 88px; height: 88px; border-width: 3px; }
+    .ap-cover { height: 170px; }
+    .ap-avatar-row { margin-top: -48px; }
+    .ap-avatar-wrap img { width: 84px; height: 84px; border-width: 3px; }
     .ap-verified-dot { width: 18px; height: 18px; bottom: 4px; right: 4px; }
-    .ap-name { font-size: 1.625rem; }
-    /* Stats: 3 visible, scroll for rest */
+    .ap-name { font-size: 1.5rem; }
     .ap-stats {
-      grid-template-columns: repeat(5, minmax(72px, 1fr));
+      grid-template-columns: repeat(4, minmax(70px, 1fr));
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
     }
     .ap-stat { padding: 12px 8px; }
-    .ap-stat-val { font-size: 0.95rem; }
-    .ap-layout { padding: 20px 16px 64px; gap: 24px; }
+    .ap-stat-val { font-size: 0.9rem; }
+    .ap-layout { padding: 20px 16px 64px; gap: 20px; }
     .ap-tabs { padding: 0 16px; }
     .ap-tab { padding: 12px 14px; min-height: 48px; font-size: 0.8125rem; }
-    .ap-hero-inner { padding: 0 16px 0; }
-    .ap-stats-wrap { padding: 0 16px 20px; }
+    .ap-hero-inner { padding: 0 16px 16px; }
+    .ap-stats-wrap { padding: 0 16px 16px; }
   }
   @media (max-width: 480px) {
-    .ap-cover { height: 150px; }
-    .ap-avatar-row { margin-top: -44px; }
-    .ap-avatar-wrap img { width: 80px; height: 80px; }
-    .ap-name { font-size: 1.5rem; }
+    .ap-cover { height: 140px; }
+    .ap-avatar-row { margin-top: -42px; }
+    .ap-avatar-wrap img { width: 76px; height: 76px; }
+    .ap-name { font-size: 1.375rem; }
     .ap-meta-row { gap: 10px; font-size: 0.75rem; }
     .ap-cta-row .btn-sm span { display: none; }
   }
@@ -439,7 +467,7 @@ ${siteFooter()}${closeShell()}`;
 <div class="ap-hero">
   <div class="ap-hero-inner">
 
-    <!-- Row 1: Avatar (pulled up) + CTA buttons -->
+    <!-- Avatar row: avatar left, CTA buttons right -->
     <div class="ap-avatar-row">
       <div class="ap-avatar-wrap">
         <img src="${user.profileImage}" alt="${user.artistName}">
@@ -457,10 +485,11 @@ ${siteFooter()}${closeShell()}`;
       </div>
     </div>
 
-    <!-- Row 2: Name + badges -->
+    <!-- Name + badges + ONE clean meta row -->
     <div class="ap-name-block">
       <h1 class="ap-name">${user.artistName}</h1>
 
+      <!-- Badges: verified · account type · NDA · username pill -->
       <div class="ap-badges">
         ${user.verified ? `<span class="badge badge-signal" style="font-size:0.65rem;"><i class="fas fa-check-circle" style="font-size:9px;"></i> Verified</span>` : ''}
         <span class="badge badge-muted" style="font-size:0.65rem;">${user.accountType === 'producer' ? 'Producer' : 'Artist'}</span>
@@ -471,12 +500,15 @@ ${siteFooter()}${closeShell()}`;
         </div>
       </div>
 
-      <!-- Meta: location, response time, listeners, PRO -->
+      <!--
+        Meta row: location · response time · monthly listeners
+        (PRO affiliation lives in Collab Info tab — not duplicated here)
+        (Availability lives in the stats strip — not duplicated here)
+      -->
       <div class="ap-meta-row">
         <span><i class="fas fa-map-marker-alt"></i>${user.location}</span>
         <span><i class="fas fa-clock"></i>Responds ${user.responseTime}</span>
-        <span style="color:var(--t3);"><i class="fas fa-headphones" style="color:${idColor};"></i>${formatListeners(user.monthlyListeners)} monthly</span>
-        <span style="color:var(--patch);"><i class="fas fa-music" style="font-size:10px;"></i>${proLabel(user.proAffiliation)}</span>
+        <span><i class="fas fa-headphones" style="color:${idColor};"></i>${formatListeners(user.monthlyListeners)} monthly listeners</span>
       </div>
 
       <!-- Genre + tag pills -->
@@ -488,16 +520,18 @@ ${siteFooter()}${closeShell()}`;
 
   </div>
 
-  <!-- Stats strip — full width inside hero, below name block -->
+  <!--
+    Stats strip — 4 unique, non-redundant stats:
+    Rating | Projects Done | Starting Price | Availability
+    (Listeners already in meta row above — not repeated here)
+  -->
   <div class="ap-stats-wrap">
     <div class="ap-stats">
       ${[
-        { val: `★ ${user.rating.toFixed(1)}`, lbl: `${user.reviewCount} Reviews`,    color: 'var(--signal)' },
-        { val: String(user.completedProjects), lbl: 'Projects Done',                  color: 'var(--patch)'  },
-        { val: formatListeners(user.monthlyListeners), lbl: 'Listeners',              color: 'var(--warm)'   },
-        { val: formatPrice(user.startingPrice), lbl: 'Starting From',                 color: idColor         },
-        { val: availLabel, lbl: 'Availability',
-          color: availColor },
+        { val: `★ ${user.rating.toFixed(1)}`, lbl: `${user.reviewCount} Reviews`,   color: 'var(--signal)' },
+        { val: String(user.completedProjects), lbl: 'Projects Done',                 color: 'var(--patch)'  },
+        { val: formatPrice(user.startingPrice), lbl: 'Starting From',                color: idColor         },
+        { val: availLabel,                      lbl: 'Status',                       color: availColor       },
       ].map(s => `
       <div class="ap-stat">
         <div class="ap-stat-val" style="color:${s.color};">${s.val}</div>
@@ -545,22 +579,22 @@ ${siteFooter()}${closeShell()}`;
         </div>
       </div>` : ''}
 
-      <!-- Management contact -->
+      <!-- Management contact (only shown here in About — not duplicated in Collab tab) -->
       ${user.managementContact ? `
       <div style="margin-bottom:28px;padding:14px 16px;background:var(--c-panel);border:1px solid var(--c-wire);border-radius:var(--r-lg);display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
         <div style="width:36px;height:36px;background:var(--c-raised);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
           <i class="fas fa-briefcase" style="color:var(--patch);font-size:13px;"></i>
         </div>
         <div style="flex:1;min-width:0;">
-          <div style="font-size:0.8125rem;font-weight:700;margin-bottom:2px;">Management: ${user.managementContact.name}</div>
+          <div style="font-size:0.8125rem;font-weight:700;margin-bottom:2px;">${user.managementContact.name}</div>
           <div style="font-size:0.75rem;color:var(--t3);">${user.managementContact.company ?? ''}</div>
         </div>
         <a href="mailto:${user.managementContact.email}" class="btn btn-secondary btn-xs">
-          <i class="fas fa-envelope" style="font-size:10px;"></i> Contact
+          <i class="fas fa-envelope" style="font-size:10px;"></i> Contact Management
         </a>
       </div>` : ''}
 
-      <!-- Featured services preview -->
+      <!-- Featured services preview (2 max) -->
       ${activeListings.length > 0 ? `
       <div>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
@@ -568,7 +602,7 @@ ${siteFooter()}${closeShell()}`;
             <div style="height:1px;width:20px;background:${idColor};"></div>
             <span style="font-family:var(--font-mono);font-size:0.62rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:${idColor};">Featured Services</span>
           </div>
-          <button class="btn btn-ghost btn-xs" style="color:var(--t3);" onclick="switchTab('listings', document.querySelector('.ap-tab:nth-child(2)'))">View All →</button>
+          <button class="btn btn-ghost btn-xs" style="color:var(--t3);" onclick="switchTab('listings', document.querySelector('.ap-tab:nth-child(2)'))">View All ${activeListings.length} →</button>
         </div>
         <div style="display:grid;gap:12px;">
           ${activeListings.slice(0, 2).map(l => {
@@ -644,7 +678,7 @@ ${siteFooter()}${closeShell()}`;
             <div style="display:flex;gap:6px;flex-wrap:wrap;">
               ${l.packages.map((p, pi) => `<span style="padding:4px 12px;border-radius:var(--r-xs);font-size:0.72rem;font-weight:600;background:${pi===0?'var(--signal-dim)':'var(--c-sub)'};border:1px solid ${pi===0?'rgba(200,255,0,0.25)':'var(--c-wire)'};color:${pi===0?'var(--signal)':'var(--t3)'};">${p.name} · ${formatPrice(p.price)}</span>`).join('')}
             </div>
-            <a href="/booking/${user.id}?listing=${l.id}" class="btn btn-primary btn-sm">Book</a>
+            <a href="/booking/${user.id}?listing=${l.id}" class="btn btn-primary btn-sm">Book This</a>
           </div>
         </div>`;
         }).join('') : `<div style="padding:48px;text-align:center;color:var(--t4);">No active services.</div>`}
@@ -658,6 +692,7 @@ ${siteFooter()}${closeShell()}`;
         <span style="font-family:var(--font-mono);font-size:0.62rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:${idColor};">Collaboration Info</span>
       </div>
 
+      <!-- PRO Affiliation (only place it appears) -->
       <div class="cp-card" style="border-top:2px solid var(--patch);">
         <div class="cp-head"><i class="fas fa-music" style="color:var(--patch);"></i> PRO Affiliation &amp; Registration</div>
         <div class="cp-body">
@@ -678,6 +713,7 @@ ${siteFooter()}${closeShell()}`;
         </div>
       </div>
 
+      <!-- Collab Preferences -->
       <div class="cp-card" style="border-top:2px solid ${idColor};">
         <div class="cp-head"><i class="fas fa-handshake" style="color:${idColor};"></i> Collaboration Preferences</div>
         <div class="cp-body">
@@ -724,23 +760,7 @@ ${siteFooter()}${closeShell()}`;
         </div>
       </div>
 
-      ${user.managementContact ? `
-      <div class="cp-card" style="border-top:2px solid var(--warm);">
-        <div class="cp-head"><i class="fas fa-briefcase" style="color:var(--warm);"></i> Management Contact</div>
-        <div class="cp-body">
-          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
-            <div>
-              <div style="font-weight:700;font-size:0.9375rem;margin-bottom:3px;">${user.managementContact.name}</div>
-              ${user.managementContact.company ? `<div style="font-size:0.8125rem;color:var(--t3);">${user.managementContact.company}</div>` : ''}
-              <div class="mono-sm" style="color:var(--t4);margin-top:2px;">${user.managementContact.email}</div>
-            </div>
-            <a href="mailto:${user.managementContact.email}" class="btn btn-secondary btn-sm">
-              <i class="fas fa-envelope" style="font-size:11px;"></i> Email Management
-            </a>
-          </div>
-        </div>
-      </div>` : ''}
-
+      <!-- Legal Status -->
       <div class="cp-card">
         <div class="cp-head"><i class="fas fa-shield-halved" style="color:#22c55e;"></i> Legal Status</div>
         <div class="cp-body">
@@ -836,46 +856,45 @@ ${siteFooter()}${closeShell()}`;
 
   </div>
 
-  <!-- ── RIGHT SIDEBAR ── -->
+  <!-- ── RIGHT SIDEBAR — clean, no duplicated data ── -->
   <div>
     <div class="ap-sidebar">
-      <!-- Sidebar head -->
-      <div style="padding:20px;border-bottom:1px solid var(--c-wire);background:var(--c-raised);border-top:3px solid ${idColor};">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
-          <div style="width:7px;height:7px;border-radius:50%;background:${availColor};box-shadow:0 0 6px ${availGlow};"></div>
-          <span class="mono-sm" style="color:${availColor};">${availLabel} NOW</span>
+
+      <!-- Head: availability status + price (these are the ONLY place price appears in sidebar) -->
+      <div class="ap-sidebar-head">
+        <div class="ap-sidebar-avail">
+          <div style="width:8px;height:8px;border-radius:50%;background:${availColor};box-shadow:0 0 8px ${availGlow};flex-shrink:0;"></div>
+          <span style="font-size:0.8125rem;font-weight:700;color:${availColor};">${availLabel}</span>
+          <span class="mono-sm" style="color:var(--t4);">to collaborate</span>
         </div>
-        <div style="font-family:var(--font-mono);font-size:0.58rem;color:var(--t4);margin-bottom:4px;">STARTING AT</div>
-        <div style="font-family:var(--font-display);font-size:2.25rem;font-weight:800;letter-spacing:-0.04em;color:${idColor};margin-bottom:4px;">${formatPrice(user.startingPrice)}</div>
+        <div class="ap-sidebar-price-label">Starting at</div>
+        <div class="ap-sidebar-price">${formatPrice(user.startingPrice)}</div>
         <div class="mono-sm" style="color:var(--t4);">per feature / collaboration</div>
       </div>
 
-      <div style="padding:20px;">
-        ${[
-          { icon: 'fa-clock',         label: 'Response time',   val: user.responseTime },
-          { icon: 'fa-redo',          label: 'Free revisions',  val: `${activeListings[0]?.packages?.[0]?.revisions ?? 2} included` },
-          { icon: 'fa-shipping-fast', label: 'Fastest delivery',val: `${Math.min(...activeListings.map(l => l.packages?.[0]?.deliveryDays ?? 7), 99)} days` },
-          { icon: 'fa-music',         label: 'PRO',             val: proLabel(user.proAffiliation) },
-        ].map(row => `
-        <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--c-wire);">
-          <i class="fas ${row.icon}" style="color:var(--t4);width:16px;text-align:center;font-size:0.8125rem;flex-shrink:0;"></i>
-          <div style="font-size:0.8125rem;color:var(--t3);flex:1;">${row.label}</div>
-          <div style="font-size:0.8125rem;font-weight:600;">${row.val}</div>
-        </div>`).join('')}
+      <!-- Body: delivery info + CTA buttons + trust badge -->
+      <div class="ap-sidebar-body">
 
-        <!-- Collab type badges -->
-        <div style="padding:10px 0;border-bottom:1px solid var(--c-wire);">
-          <div style="font-size:0.72rem;color:var(--t4);margin-bottom:6px;">Collab types</div>
-          <div style="display:flex;gap:5px;flex-wrap:wrap;">
-            ${(cp?.preferredCollabTypes ?? []).map(t =>
-              t === 'ownership_split'
-                ? `<span style="font-size:0.65rem;padding:2px 8px;border-radius:var(--r-full);background:var(--signal-dim);color:var(--signal);border:1px solid rgba(200,255,0,0.2);">Splits</span>`
-                : `<span style="font-size:0.65rem;padding:2px 8px;border-radius:var(--r-full);background:rgba(255,140,66,0.1);color:var(--warm);border:1px solid rgba(255,140,66,0.2);">Pay-for-Hire</span>`
-            ).join('') || `<span style="font-size:0.65rem;color:var(--t4);">Contact artist</span>`}
+        <!-- Quick delivery facts (NOT duplicating meta-row data) -->
+        <div style="display:flex;gap:16px;margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid var(--c-wire);">
+          <div style="flex:1;text-align:center;">
+            <div style="font-family:var(--font-display);font-size:1.25rem;font-weight:800;letter-spacing:-0.03em;color:var(--t1);">${fastestDelivery !== null ? fastestDelivery + 'd' : '—'}</div>
+            <div class="mono-sm" style="color:var(--t4);">Delivery</div>
+          </div>
+          <div style="width:1px;background:var(--c-wire);"></div>
+          <div style="flex:1;text-align:center;">
+            <div style="font-family:var(--font-display);font-size:1.25rem;font-weight:800;letter-spacing:-0.03em;color:var(--t1);">${activeListings[0]?.packages?.[0]?.revisions ?? 2}</div>
+            <div class="mono-sm" style="color:var(--t4);">Revisions</div>
+          </div>
+          <div style="width:1px;background:var(--c-wire);"></div>
+          <div style="flex:1;text-align:center;">
+            <div style="font-family:var(--font-display);font-size:1.25rem;font-weight:800;letter-spacing:-0.03em;color:var(--signal);">★ ${user.rating.toFixed(1)}</div>
+            <div class="mono-sm" style="color:var(--t4);">Rating</div>
           </div>
         </div>
 
-        <a href="/booking/${user.id}" class="btn btn-primary btn-lg" style="width:100%;justify-content:center;margin-top:20px;margin-bottom:10px;">
+        <!-- Primary CTA -->
+        <a href="/booking/${user.id}" class="btn btn-primary btn-lg" style="width:100%;justify-content:center;margin-bottom:8px;">
           <i class="fas fa-microphone-alt" style="font-size:13px;"></i>
           Book a Session
         </a>
@@ -884,13 +903,19 @@ ${siteFooter()}${closeShell()}`;
           Message Artist
         </a>
 
-        <div style="margin-top:16px;padding:12px;background:var(--signal-dim);border:1px solid rgba(200,255,0,0.18);border-radius:var(--r);display:flex;gap:8px;">
+        <!-- Escrow trust notice -->
+        <div style="margin-top:14px;padding:12px;background:var(--signal-dim);border:1px solid rgba(200,255,0,0.18);border-radius:var(--r);display:flex;gap:8px;">
           <i class="fas fa-shield-alt" style="color:var(--signal);font-size:0.875rem;flex-shrink:0;margin-top:1px;"></i>
           <div>
             <div style="font-size:0.75rem;font-weight:700;color:var(--signal);margin-bottom:3px;">Escrow Protected</div>
-            <div style="font-size:0.75rem;color:var(--t3);line-height:1.5;">Payment held securely until you approve delivery. Split sheets required for all ownership deals.</div>
+            <div style="font-size:0.75rem;color:var(--t3);line-height:1.5;">Payment held securely until you approve the delivery.</div>
           </div>
         </div>
+
+        <!-- See collab terms link -->
+        <button onclick="switchTab('collab', document.querySelectorAll('.ap-tab')[2])" style="background:none;border:none;width:100%;padding:10px 0 0;font-size:0.75rem;color:var(--t4);cursor:pointer;font-family:var(--font-body);text-align:center;display:flex;align-items:center;justify-content:center;gap:5px;transition:color 0.15s;" onmouseover="this.style.color='var(--t3)'" onmouseout="this.style.color='var(--t4)'">
+          <i class="fas fa-info-circle" style="font-size:10px;"></i> View collab terms &amp; PRO info
+        </button>
       </div>
     </div>
   </div>
