@@ -3,778 +3,756 @@ import { users, projects, listings, getUserById, statusColor, statusLabel, forma
 
 const demoUser = users[0];
 
-// ─── Shared dashboard wrapper styles ─────────────────────────────────────────
+// ─── Shared styles ────────────────────────────────────────────────────────────
 const DASH_STYLES = `
   .app-page { padding: 28px 32px; max-width: 1200px; overflow-x: hidden; }
 
-  /* Section label */
   .sec-label {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 20px;
+    display: flex; align-items: center; gap: 10px; margin-bottom: 20px;
   }
   .sec-label-bar { height: 1px; width: 20px; background: var(--signal); box-shadow: 0 0 6px var(--signal-glow); }
   .sec-label-text {
-    font-family: var(--font-mono);
-    font-size: 0.65rem;
-    font-weight: 600;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--signal);
+    font-family: var(--font-mono); font-size: 0.65rem; font-weight: 600;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--signal);
   }
 
   /* Stat tiles */
   .stat-tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 36px; }
   .stat-tile {
-    background: var(--c-panel);
-    border: 1px solid var(--c-wire);
-    border-radius: var(--r-lg);
-    padding: 22px;
-    position: relative;
-    overflow: hidden;
-    transition: border-color var(--t-base), transform var(--t-base);
+    background: var(--c-panel); border: 1px solid var(--c-wire);
+    border-radius: var(--r-lg); padding: 20px;
+    position: relative; overflow: hidden;
+    transition: border-color 0.2s, transform 0.2s;
+    text-decoration: none; display: block; cursor: pointer;
   }
   .stat-tile:hover { border-color: rgba(255,255,255,0.1); transform: translateY(-2px); }
-  .stat-tile-bar {
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-  }
+  .stat-tile-bar { position: absolute; top: 0; left: 0; right: 0; height: 2px; }
   .stat-tile-icon {
-    width: 36px; height: 36px;
-    border-radius: var(--r-sm);
+    width: 34px; height: 34px; border-radius: var(--r-sm);
     display: flex; align-items: center; justify-content: center;
-    font-size: 0.875rem;
-    margin-bottom: 14px;
+    font-size: 0.875rem; margin-bottom: 12px;
   }
   .stat-tile-val {
-    font-family: var(--font-display);
-    font-size: 2rem;
-    font-weight: 800;
-    letter-spacing: -0.04em;
-    line-height: 1;
-    margin-bottom: 5px;
+    font-family: var(--font-display); font-size: 1.75rem; font-weight: 800;
+    letter-spacing: -0.03em; line-height: 1; margin-bottom: 4px; color: var(--t1);
   }
   .stat-tile-lbl {
-    font-family: var(--font-mono);
-    font-size: 0.6rem;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--t4);
-  }
-  .stat-tile-sub {
-    font-size: 0.75rem;
-    color: var(--t4);
-    margin-top: 6px;
-    display: flex;
-    align-items: center;
-    gap: 4px;
+    font-family: var(--font-mono); font-size: 0.625rem; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--t3);
   }
 
-  /* Project rows */
+  /* Project list */
   .proj-row {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 14px 16px;
-    border-radius: var(--r-md);
-    background: var(--c-raised);
-    border: 1px solid var(--c-wire);
-    cursor: pointer;
-    transition: border-color var(--t-fast), background var(--t-fast);
-    /* Prevent row content from overflowing on mobile */
-    min-width: 0;
-    overflow: hidden;
+    display: flex; align-items: center; gap: 14px;
+    background: var(--c-panel); border: 1px solid var(--c-wire);
+    border-radius: var(--r-lg); padding: 14px 16px;
+    margin-bottom: 8px; cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
   }
-  .proj-row:hover { border-color: rgba(255,255,255,0.1); background: var(--c-lift); }
-
-  /* Feed items */
-  .feed-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    padding: 14px 0;
-    border-bottom: 1px solid var(--c-wire);
+  .proj-row:hover { background: var(--c-raised); }
+  .av { border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+  .av-md { width: 40px; height: 40px; }
+  .badge {
+    display: inline-flex; align-items: center;
+    padding: 3px 9px; border-radius: var(--r-full);
+    font-family: var(--font-mono); font-size: 0.6rem;
+    font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
   }
-  .feed-item:last-child { border-bottom: none; }
+  .prog-bar { height: 3px; background: var(--c-rim); border-radius: 2px; overflow: hidden; flex: 1; min-width: 60px; }
+  .prog-fill { height: 100%; border-radius: 2px; transition: width 0.4s; }
 
-  /* Profile strength meter */
-  .strength-bar { height: 4px; background: var(--c-rim); border-radius: 2px; overflow: hidden; margin: 8px 0 4px; }
-  .strength-fill { height: 100%; border-radius: 2px; background: var(--signal); transition: width 0.6s var(--ease); }
+  /* Next Step panel */
+  .next-step-panel {
+    background: linear-gradient(135deg, var(--c-panel) 0%, var(--c-raised) 100%);
+    border: 1px solid rgba(200,255,0,0.15);
+    border-radius: var(--r-xl); padding: 24px;
+    position: relative; overflow: hidden; margin-bottom: 28px;
+  }
+  .next-step-panel::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--signal) 0%, transparent 60%);
+  }
 
-  /* Earnings chart bars */
-  .earn-chart { display: flex; align-items: flex-end; gap: 5px; height: 80px; }
-  .earn-bar { flex: 1; border-radius: 2px 2px 0 0; min-width: 0; transition: opacity var(--t-fast); }
-  .earn-bar:hover { opacity: 0.8; }
+  /* Earnings chart */
+  .chart-bars {
+    display: flex; align-items: flex-end; gap: 6px;
+    height: 80px; padding-bottom: 4px;
+  }
+  .chart-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .chart-bar {
+    width: 100%; border-radius: 3px 3px 0 0;
+    background: var(--c-lift); transition: background 0.2s;
+    cursor: pointer; position: relative;
+  }
+  .chart-bar:last-child, .chart-bar.current { background: var(--signal); }
+  .chart-bar:hover { background: rgba(200,255,0,0.5); }
+  .chart-month {
+    font-family: var(--font-mono); font-size: 0.5625rem;
+    color: var(--t4); letter-spacing: 0.05em;
+  }
 
-  /* Dashboard two-col layout */
-  .dash-two-col { display: grid; grid-template-columns: 1fr 320px; gap: 24px; margin-bottom: 28px; }
+  /* Mobile nav pills (dashboard sub-nav) */
+  .mob-dash-nav {
+    display: none;
+    overflow-x: auto; gap: 6px; padding: 0 0 16px;
+    scrollbar-width: none;
+  }
+  .mob-dash-nav::-webkit-scrollbar { display: none; }
+  .mob-nav-pill {
+    display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0;
+    padding: 8px 14px; border-radius: var(--r-full);
+    background: var(--c-raised); border: 1px solid var(--c-rim);
+    font-size: 0.8125rem; color: var(--t2); text-decoration: none;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .mob-nav-pill.active { border-color: var(--signal); color: var(--signal); }
 
-  /* Settings two-col layout */
-  .settings-layout { display: grid; grid-template-columns: 220px 1fr; gap: 24px; align-items: start; }
-  .settings-nav { background: var(--c-panel); border: 1px solid var(--c-wire); border-radius: var(--r-lg); overflow: hidden; position: sticky; top: 80px; }
-  .settings-nav-mobile { display: none; margin-bottom: 16px; }
-
-  /* Form grid */
-  .form-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-
-  @media (max-width: 1100px) {
+  @media (max-width: 1024px) {
     .stat-tiles { grid-template-columns: repeat(2, 1fr); }
-    .dash-two-col { grid-template-columns: 1fr; }
+    .app-page { padding: 20px; }
   }
   @media (max-width: 768px) {
-    .app-page { padding: 16px; }
-    .stat-tiles { grid-template-columns: 1fr 1fr; gap: 10px; }
-    .stat-tile { padding: 16px; }
-    .stat-tile-val { font-size: 1.5rem; }
-    .proj-row { gap: 10px; padding: 12px; }
-    .proj-row-meta { max-width: 90px; }
-    .settings-layout { grid-template-columns: 1fr; }
-    .settings-nav { display: none; }
-    .settings-nav-mobile { display: flex; overflow-x: auto; gap: 6px; padding-bottom: 4px; }
-    .settings-nav-mobile a { min-height: 44px; padding: 10px 16px !important; font-size: 0.875rem !important; }
-    .form-2col { grid-template-columns: 1fr; }
-    .dash-two-col { grid-template-columns: 1fr; }
-    .btn-xs { min-height: 36px; padding: 8px 12px; }
+    .stat-tiles { grid-template-columns: repeat(2, 1fr); }
+    .mob-dash-nav { display: flex; }
   }
   @media (max-width: 480px) {
-    .stat-tiles { grid-template-columns: 1fr 1fr; gap: 8px; }
-    .stat-tile { padding: 14px; }
-    .stat-tile-val { font-size: 1.25rem; }
-    .stat-tile-lbl { font-size: 0.55rem; }
+    .stat-tiles { grid-template-columns: 1fr 1fr; }
+    .app-page { padding: 16px 14px; }
   }
 `;
 
-// ─────────────────────────────────────────────────────────────────────────────
-// DASHBOARD HOME
-// ─────────────────────────────────────────────────────────────────────────────
+// ─── DASHBOARD (Overview) ─────────────────────────────────────────────────────
 export function dashboardPage(): string {
-  const userProjects = projects.filter(p => p.buyerId === demoUser.id || p.sellerId === demoUser.id);
+  const userProjects  = projects.filter(p => p.buyerId === demoUser.id || p.sellerId === demoUser.id);
   const activeProjects = userProjects.filter(p => !['completed', 'cancelled'].includes(p.status));
   const completedCount = userProjects.filter(p => p.status === 'completed').length;
-  const totalEarnings = 4820;
+  const totalEarnings  = 4820;
 
   const earningMonths = [820, 1200, 680, 1540, 980, 1480, 4820];
-  const maxEarn = Math.max(...earningMonths);
+  const monthLabels   = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'];
+  const maxEarn       = Math.max(...earningMonths);
 
-  return shell('Dashboard', DASH_STYLES) + authedNav('home') + `
-<div class="app-shell">
-  ${appSidebar('home')}
-  <main class="app-main">
-    <div class="app-page">
+  const progressMap: Record<string, number> = {
+    pending: 5, in_progress: 45, awaiting_delivery: 70,
+    delivered: 85, revision_requested: 60, completed: 100,
+  };
 
-      <!-- Greeting: welcome + quick action buttons only — numbers live in stat tiles below -->
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
-        <div>
-          <h1 style="font-family:var(--font-display);font-size:1.75rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:4px;">Welcome back, ${demoUser.artistName} 👋</h1>
-          <p class="body-sm" style="color:var(--t3);">Here's what's happening with your collabs today.</p>
-        </div>
-        <div style="display:flex;gap:8px;align-items:flex-start;">
-          <a href="/session/p1" class="btn btn-secondary btn-sm" style="flex-shrink:0;">
-            <i class="fas fa-circle" style="color:var(--channel);font-size:8px;"></i>
-            Live Session
-          </a>
-          <a href="/explore" class="btn btn-primary btn-sm" style="flex-shrink:0;">
-            <i class="fas fa-plus" style="font-size:10px;"></i>
-            New Collab
-          </a>
-        </div>
-      </div>
+  const statusColors: Record<string, string> = {
+    pending: 'var(--s-warn)', in_progress: 'var(--patch)',
+    awaiting_delivery: 'var(--warm)', delivered: 'var(--s-ok)',
+    revision_requested: 'var(--channel)', completed: 'var(--signal)',
+    cancelled: 'var(--t4)',
+  };
 
-      <!-- Stat tiles — each one is a clickable link so users can drill in immediately -->
-      <div class="stat-tiles" style="margin-bottom:28px;">
-        ${[
-          { color:'var(--signal)', icon:'fa-layer-group', val: activeProjects.length.toString(),   lbl:'Active Projects',  sub:'Tap to view projects', href:'/dashboard/projects' },
-          { color:'var(--s-ok)',   icon:'fa-dollar-sign', val:`$${totalEarnings.toLocaleString()}`, lbl:'Total Earned',      sub:'Tap to view earnings', href:'/dashboard/earnings' },
-          { color:'var(--patch)',  icon:'fa-check-circle',val: completedCount.toString(),           lbl:'Completed',         sub:'All done ✓',           href:'/dashboard/projects' },
-          { color:'var(--warm)',   icon:'fa-star',        val:`${demoUser.rating.toFixed(1)} ★`,   lbl:'Your Rating',       sub:`${demoUser.reviewCount} reviews`,  href:'/artist/u1' },
-        ].map(s => `
-        <a href="${s.href}" class="stat-tile" style="text-decoration:none;display:block;">
-          <div class="stat-tile-bar" style="background:${s.color};"></div>
-          <div class="stat-tile-icon" style="background:${s.color}15;">
-            <i class="fas ${s.icon}" style="color:${s.color};"></i>
-          </div>
-          <div class="stat-tile-val" style="color:${s.color};">${s.val}</div>
-          <div class="stat-tile-lbl">${s.lbl}</div>
-          <div class="stat-tile-sub">${s.sub}</div>
-        </a>`).join('')}
-      </div>
+  const statusLabels: Record<string, string> = {
+    pending: 'Pending', in_progress: 'In Progress',
+    awaiting_delivery: 'Awaiting', delivered: 'Delivered',
+    revision_requested: 'Revision', completed: 'Complete', cancelled: 'Cancelled',
+  };
 
-      <!-- Two columns: projects + activity -->
-      <div class="dash-two-col">
+  // Determine "next step" action
+  const nextProj = activeProjects[0];
+  const nextStepMap: Record<string, { label: string; action: string; cta: string }> = {
+    pending:            { label: 'Your collab is waiting to start.', action: 'Review & Confirm', cta: 'Review Project' },
+    in_progress:        { label: 'Work is underway — chat with your collaborator.', action: 'Open Project Room', cta: 'Open Room' },
+    awaiting_delivery:  { label: 'Delivery is expected soon.', action: 'Check Project Room', cta: 'View Status' },
+    delivered:          { label: 'Delivery received — review and approve to release payment.', action: 'Approve Delivery', cta: 'Review Delivery' },
+    revision_requested: { label: 'Revision requested — the artist is working on changes.', action: 'Check Progress', cta: 'View Room' },
+  };
+  const ns = nextProj ? nextStepMap[nextProj.status] : null;
 
-        <!-- Active projects -->
-        <div>
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-            <div class="sec-label" style="margin-bottom:0;">
-              <div class="sec-label-bar"></div>
-              <span class="sec-label-text">Active Projects</span>
-            </div>
-            <a href="/dashboard/projects" class="btn btn-ghost btn-xs" style="color:var(--t3);">View All <i class="fas fa-arrow-right" style="font-size:10px;margin-left:4px;"></i></a>
-          </div>
-          <div style="display:flex;flex-direction:column;gap:8px;">
-            ${activeProjects.slice(0, 4).map(p => {
-              const counterpart = getUserById(p.buyerId === demoUser.id ? p.sellerId : p.buyerId);
-              const sc = statusColor(p.status);
-              const sl = statusLabel(p.status);
-              const progressMap: Record<string,number> = { pending:0, in_progress:45, awaiting_delivery:70, delivered:85, revision_requested:60, completed:100 };
-              const prog = progressMap[p.status] || 30;
-              return `
-            <div class="proj-row" onclick="window.location='/workspace/${p.id}'">
-              <img src="${counterpart?.profileImage}" class="av av-sm" style="border:1.5px solid var(--c-rim);flex-shrink:0;" alt="${counterpart?.artistName}">
-              <div style="flex:1;min-width:0;">
-                <div style="font-size:0.875rem;font-weight:700;letter-spacing:-0.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.title}</div>
-                <div style="font-size:0.75rem;color:var(--t4);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${counterpart?.artistName} · ${p.selectedPackage || p.package || "Standard"}</div>
-                <div style="margin-top:8px;height:3px;background:var(--c-rim);border-radius:2px;overflow:hidden;">
-                  <div style="height:100%;width:${prog}%;background:${sc};border-radius:2px;transition:width 0.6s ease;"></div>
-                </div>
-              </div>
-              <div class="proj-row-meta" style="text-align:right;flex-shrink:0;max-width:110px;">
-                <span class="badge" style="background:${sc}18;color:${sc};border:1px solid ${sc}33;font-family:var(--font-mono);white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis;">${sl}</span>
-                <div class="mono-sm" style="color:var(--t4);margin-top:6px;">${formatPrice(p.orderTotal)}</div>
-              </div>
-            </div>`;}).join('')}
-          </div>
-        </div>
+  return shell('Dashboard — ArtistCollab', DASH_STYLES, authedNav() + appSidebar('overview') + `
 
-        <!-- Earnings mini-chart + activity -->
-        <div style="display:flex;flex-direction:column;gap:16px;">
+  <div class="app-page">
 
-          <!-- Earnings card -->
-          <div style="background:var(--c-panel);border:1px solid var(--c-wire);border-radius:var(--r-lg);padding:20px;">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-              <div>
-                <div class="mono-sm" style="color:var(--t4);">THIS MONTH</div>
-                <div style="font-family:var(--font-display);font-size:1.5rem;font-weight:800;letter-spacing:-0.04em;color:var(--s-ok);">$${earningMonths[earningMonths.length-1].toLocaleString()}</div>
-              </div>
-              <a href="/dashboard/earnings" class="btn btn-ghost btn-xs" style="color:var(--t4);">Details</a>
-            </div>
-            <div class="earn-chart">
-              ${earningMonths.map((v,i) => {
-                const h = Math.round((v / maxEarn) * 100);
-                const isLast = i === earningMonths.length - 1;
-                return `<div class="earn-bar" style="height:${h}%;background:${isLast ? 'var(--signal)' : 'var(--c-rim)'};"></div>`;
-              }).join('')}
-            </div>
-            <div style="display:flex;justify-content:space-between;margin-top:4px;">
-              ${['J','F','M','A','M','J','J'].map(m => `<span class="mono-sm" style="color:var(--t4);flex:1;text-align:center;">${m}</span>`).join('')}
-            </div>
-          </div>
-
-          <!-- Profile strength -->
-          <div style="background:var(--c-panel);border:1px solid var(--c-wire);border-radius:var(--r-lg);padding:20px;">
-            <div class="mono-sm" style="color:var(--t4);margin-bottom:4px;">PROFILE STRENGTH</div>
-            <div style="font-size:0.875rem;font-weight:700;margin-bottom:2px;">72% complete</div>
-            <div class="strength-bar"><div class="strength-fill" style="width:72%;"></div></div>
-            <div class="mono-sm" style="color:var(--t4);">Add cover image to reach 85%</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Start a new collab CTA — simple, one clear action -->
-      <div style="background:var(--c-panel);border:1px solid rgba(200,255,0,0.15);border-left:3px solid var(--signal);border-radius:var(--r-lg);padding:18px 22px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
-        <div style="display:flex;align-items:center;gap:14px;">
-          <div style="width:38px;height:38px;background:var(--signal-dim);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-            <i class="fas fa-bolt" style="color:var(--signal);font-size:1rem;"></i>
-          </div>
-          <div>
-            <div style="font-weight:700;font-size:0.9375rem;margin-bottom:2px;">Start a new collaboration</div>
-            <div class="body-sm">Find artists, book features, and create together.</div>
-          </div>
-        </div>
-        <div style="display:flex;gap:8px;flex-shrink:0;">
-          <a href="/marketplace" class="btn btn-secondary btn-sm"><i class="fas fa-store" style="font-size:11px;"></i> Browse Services</a>
-          <a href="/explore" class="btn btn-primary btn-sm"><i class="fas fa-search" style="font-size:11px;"></i> Find Artists</a>
-        </div>
-      </div>
-
+    <!-- Greeting -->
+    <div style="margin-bottom:28px;">
+      <h1 style="font-family:var(--font-display);font-size:1.5rem;font-weight:800;color:var(--t1);margin-bottom:4px;">
+        Hey, ${demoUser.artistName} 👋
+      </h1>
+      <p style="font-size:0.875rem;color:var(--t2);">
+        ${activeProjects.length > 0
+          ? `You have ${activeProjects.length} active collab${activeProjects.length > 1 ? 's' : ''} in progress.`
+          : 'No active collabs — start one below.'}
+      </p>
     </div>
-  </main>
-</div>
-${closeShell()}`;
-}
 
-// ─────────────────────────────────────────────────────────────────────────────
-// PROJECTS
-// ─────────────────────────────────────────────────────────────────────────────
-export function projectsPage(): string {
-  const userProjects = projects.filter(p => p.buyerId === demoUser.id || p.sellerId === demoUser.id);
-  const active = userProjects.filter(p => !['completed','cancelled'].includes(p.status));
-  const completed = userProjects.filter(p => p.status === 'completed');
-
-  return shell('Projects', DASH_STYLES) + authedNav('projects') + `
-<div class="app-shell">
-  ${appSidebar('projects')}
-  <main class="app-main">
-    <div class="app-page">
-
-      <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px;">
+    <!-- Next Step Panel -->
+    ${ns && nextProj ? `
+    <div class="next-step-panel">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;">
         <div>
-          <h1 style="font-family:var(--font-display);font-size:1.5rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:4px;">Projects</h1>
-          <p class="body-sm">${active.length} active · ${completed.length} completed</p>
+          <div style="font-family:var(--font-mono);font-size:0.625rem;color:var(--signal);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">
+            <i class="fas fa-bolt" style="margin-right:4px;"></i> Next Step
+          </div>
+          <div style="font-size:1rem;font-weight:700;color:var(--t1);margin-bottom:4px;">${ns.action}</div>
+          <div style="font-size:0.875rem;color:var(--t2);">${ns.label}</div>
+          <div style="font-size:0.75rem;color:var(--t3);margin-top:6px;">Project: <strong style="color:var(--t2);">${nextProj.title}</strong></div>
         </div>
-        <a href="/explore" class="btn btn-primary btn-sm">
-          <i class="fas fa-plus" style="font-size:11px;"></i>
-          New Project
+        <a href="/workspace/${nextProj.id}" class="btn btn-primary" style="flex-shrink:0;">
+          <i class="fas fa-arrow-right"></i> ${ns.cta}
         </a>
       </div>
-
-      <!-- Filter tabs -->
-      <div style="display:flex;gap:2px;border-bottom:1px solid var(--c-wire);margin-bottom:24px;">
-        ${['All','Active','Completed','Cancelled'].map((t,i) => `<button onclick="filterProjects('${t.toLowerCase()}',this)" style="padding:10px 16px;font-size:0.8125rem;font-weight:500;cursor:pointer;border:none;background:none;font-family:var(--font-body);border-bottom:2px solid ${i===0?'var(--signal)':'transparent'};margin-bottom:-1px;color:${i===0?'var(--t1)':'var(--t3)'};transition:all 0.15s;">${t}</button>`).join('')}
-      </div>
-
-      <div style="display:flex;flex-direction:column;gap:8px;" id="projects-list">
-        ${userProjects.map(p => {
-          const counterpart = getUserById(p.buyerId === demoUser.id ? p.sellerId : p.buyerId);
-          const sc = statusColor(p.status);
-          const sl = statusLabel(p.status);
-          const isActive = !['completed','cancelled'].includes(p.status);
-          const progressMap: Record<string,number> = { pending:10, in_progress:45, awaiting_delivery:70, delivered:85, revision_requested:60, completed:100, cancelled:0 };
-          const prog = progressMap[p.status] || 20;
-          const role = p.sellerId === demoUser.id ? 'SELLER' : 'BUYER';
-          const roleColor = role === 'SELLER' ? 'var(--signal)' : 'var(--patch)';
-
-          return `
-        <div class="proj-row" onclick="window.location='/workspace/${p.id}'" data-status="${p.status}" style="border-left:2px solid ${sc};">
-          <img src="${counterpart?.profileImage}" class="av av-md" style="border:1.5px solid var(--c-rim);flex-shrink:0;" alt="${counterpart?.artistName}">
-          <div style="flex:1;min-width:0;">
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;flex-wrap:wrap;">
-              <span style="font-size:0.9375rem;font-weight:700;letter-spacing:-0.01em;">${p.title}</span>
-              <span class="badge" style="background:${roleColor}15;color:${roleColor};border:1px solid ${roleColor}33;font-family:var(--font-mono);">${role}</span>
-            </div>
-            <div class="mono-sm" style="color:var(--t4);margin-bottom:8px;">With ${counterpart?.artistName} · ${p.selectedPackage || p.package || "Standard"}</div>
-            ${isActive ? `
-            <div style="height:3px;background:var(--c-rim);border-radius:2px;overflow:hidden;max-width:360px;">
-              <div style="height:100%;width:${prog}%;background:${sc};border-radius:2px;"></div>
-            </div>` : ''}
+    </div>` : `
+    <div class="next-step-panel">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+        <div>
+          <div style="font-family:var(--font-mono);font-size:0.625rem;color:var(--signal);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">
+            <i class="fas fa-rocket" style="margin-right:4px;"></i> Ready to Collaborate?
           </div>
-          <div style="text-align:right;flex-shrink:0;">
-            <div style="margin-bottom:6px;">
-              <span class="badge" style="background:${sc}18;color:${sc};border:1px solid ${sc}33;font-family:var(--font-mono);">${sl}</span>
-            </div>
-            <div style="font-size:0.875rem;font-weight:700;letter-spacing:-0.01em;">${formatPrice(p.orderTotal)}</div>
-            <div class="mono-sm" style="color:var(--t4);">Due ${p.dueDate}</div>
-          </div>
-        </div>`}).join('')}
+          <div style="font-size:1rem;font-weight:700;color:var(--t1);margin-bottom:4px;">Start a new collab</div>
+          <div style="font-size:0.875rem;color:var(--t2);">Find an artist, book a session, and create something together.</div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <a href="/explore" class="btn btn-primary">
+            <i class="fas fa-search"></i> Find Artists
+          </a>
+          <a href="/marketplace" class="btn btn-secondary">
+            <i class="fas fa-store"></i> Browse Services
+          </a>
+        </div>
       </div>
+    </div>`}
 
+    <!-- Stat tiles -->
+    <div class="stat-tiles">
+      <a class="stat-tile" href="/dashboard/projects">
+        <div class="stat-tile-bar" style="background:var(--patch);"></div>
+        <div class="stat-tile-icon" style="background:var(--patch-dim);">
+          <i class="fas fa-layer-group" style="color:var(--patch);"></i>
+        </div>
+        <div class="stat-tile-val">${activeProjects.length}</div>
+        <div class="stat-tile-lbl">Active Projects</div>
+      </a>
+      <a class="stat-tile" href="/dashboard/earnings">
+        <div class="stat-tile-bar" style="background:var(--signal);"></div>
+        <div class="stat-tile-icon" style="background:var(--signal-dim);">
+          <i class="fas fa-dollar-sign" style="color:var(--signal);"></i>
+        </div>
+        <div class="stat-tile-val">$${totalEarnings.toLocaleString()}</div>
+        <div class="stat-tile-lbl">Total Earned</div>
+      </a>
+      <a class="stat-tile" href="/dashboard/projects">
+        <div class="stat-tile-bar" style="background:var(--s-ok);"></div>
+        <div class="stat-tile-icon" style="background:var(--s-ok-d);">
+          <i class="fas fa-check-circle" style="color:var(--s-ok);"></i>
+        </div>
+        <div class="stat-tile-val">${completedCount}</div>
+        <div class="stat-tile-lbl">Completed</div>
+      </a>
+      <a class="stat-tile" href="/dashboard/listings">
+        <div class="stat-tile-bar" style="background:var(--warm);"></div>
+        <div class="stat-tile-icon" style="background:var(--warm-dim);">
+          <i class="fas fa-star" style="color:var(--warm);"></i>
+        </div>
+        <div class="stat-tile-val">${demoUser.rating.toFixed(1)}</div>
+        <div class="stat-tile-lbl">Avg Rating</div>
+      </a>
     </div>
-  </main>
-</div>
-<script>
-function filterProjects(status, btn) {
-  document.querySelectorAll('#projects-list .proj-row').forEach(row => {
-    const s = row.dataset.status;
-    row.style.display = (status === 'all' || (status === 'active' && !['completed','cancelled'].includes(s)) || s === status) ? '' : 'none';
-  });
-  document.querySelectorAll('[onclick*=filterProjects]').forEach(b => {
-    b.style.borderBottomColor = 'transparent';
-    b.style.color = 'var(--t3)';
-  });
-  btn.style.borderBottomColor = 'var(--signal)';
-  btn.style.color = 'var(--t1)';
-}
-</script>
-${closeShell()}`;
-}
 
-// ─────────────────────────────────────────────────────────────────────────────
-// EARNINGS
-// ─────────────────────────────────────────────────────────────────────────────
-export function earningsPage(): string {
-  const earningMonths = [
-    { month:'Jan', amount: 820 },
-    { month:'Feb', amount: 1200 },
-    { month:'Mar', amount: 680 },
-    { month:'Apr', amount: 1540 },
-    { month:'May', amount: 980 },
-    { month:'Jun', amount: 1480 },
-    { month:'Jul', amount: 4820 },
-  ];
-  const total = earningMonths.reduce((a,b) => a + b.amount, 0);
-  const maxEarn = Math.max(...earningMonths.map(m => m.amount));
+    <!-- Two-column: projects + earnings chart -->
+    <div style="display:grid;grid-template-columns:1fr 280px;gap:20px;align-items:start;">
 
-  const payouts = [
-    { date:'Jul 14, 2026', desc:'Hook Feature — Nova Lee', amount:810, status:'paid' },
-    { date:'Jul 8, 2026',  desc:'Verse Feature — Marcus X', amount:450, status:'paid' },
-    { date:'Jun 28, 2026', desc:'Studio Session — DJ Krome', amount:1200, status:'paid' },
-    { date:'Jun 15, 2026', desc:'Promo Package — Aria', amount:540, status:'paid' },
-    { date:'May 30, 2026', desc:'Hook Feature — Unknown', amount:650, status:'paid' },
-  ];
-
-  return shell('Earnings', DASH_STYLES) + authedNav('earnings') + `
-<div class="app-shell">
-  ${appSidebar('earnings')}
-  <main class="app-main">
-    <div class="app-page">
-
-      <h1 style="font-family:var(--font-display);font-size:1.5rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:24px;">Earnings</h1>
-
-      <!-- Stat row -->
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:32px;" class="stat-tiles">
-        ${[
-          { label:'Total Earned', val:`$${total.toLocaleString()}`, color:'var(--s-ok)', icon:'fa-dollar-sign' },
-          { label:'This Month',   val:'$4,820',                    color:'var(--signal)', icon:'fa-arrow-trend-up' },
-          { label:'Pending',      val:'$810',                      color:'var(--warm)',   icon:'fa-clock' },
-        ].map(s => `
-        <div class="stat-tile">
-          <div class="stat-tile-bar" style="background:${s.color};"></div>
-          <div class="stat-tile-icon" style="background:${s.color}15;">
-            <i class="fas ${s.icon}" style="color:${s.color};"></i>
-          </div>
-          <div class="stat-tile-val" style="color:${s.color};">${s.val}</div>
-          <div class="stat-tile-lbl">${s.label}</div>
-        </div>`).join('')}
-      </div>
-
-      <!-- Chart -->
-      <div style="background:var(--c-panel);border:1px solid var(--c-wire);border-radius:var(--r-lg);padding:24px;margin-bottom:24px;">
-        <div class="sec-label" style="margin-bottom:20px;">
-          <div class="sec-label-bar"></div>
-          <span class="sec-label-text">Monthly Earnings</span>
-        </div>
-        <div style="display:flex;align-items:flex-end;gap:8px;height:120px;margin-bottom:8px;">
-          ${earningMonths.map((m,i) => {
-            const h = Math.round((m.amount / maxEarn) * 100);
-            const isLast = i === earningMonths.length - 1;
-            return `
-          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;">
-            <span style="font-family:var(--font-mono);font-size:0.6rem;color:var(--t4);">$${m.amount >= 1000 ? (m.amount/1000).toFixed(1)+'K' : m.amount}</span>
-            <div style="width:100%;height:${h}%;background:${isLast ? 'var(--signal)' : 'var(--c-rim)'};border-radius:3px 3px 0 0;min-height:4px;${isLast ? 'box-shadow:0 0 12px var(--signal-glow);' : ''}"></div>
-          </div>`;}).join('')}
-        </div>
-        <div style="display:flex;gap:8px;">
-          ${earningMonths.map(m => `<div style="flex:1;text-align:center;font-family:var(--font-mono);font-size:0.6rem;color:var(--t4);">${m.month}</div>`).join('')}
-        </div>
-      </div>
-
-      <!-- Payout history -->
+      <!-- Active Projects -->
       <div>
         <div class="sec-label">
           <div class="sec-label-bar"></div>
-          <span class="sec-label-text">Payout History</span>
+          <div class="sec-label-text">Active Projects</div>
         </div>
-        <div style="background:var(--c-panel);border:1px solid var(--c-wire);border-radius:var(--r-lg);overflow:hidden;">
-          ${payouts.map((py,i) => `
-          <div style="display:flex;align-items:center;gap:14px;padding:14px 20px;${i < payouts.length-1 ? 'border-bottom:1px solid var(--c-wire);' : ''}">
-            <div style="width:36px;height:36px;background:rgba(45,202,114,0.1);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-              <i class="fas fa-arrow-down" style="color:var(--s-ok);font-size:13px;"></i>
+
+        ${activeProjects.slice(0, 4).map(p => {
+          const counterpartId = p.buyerId === demoUser.id ? p.sellerId : p.buyerId;
+          const counterpart   = getUserById(counterpartId);
+          const sc  = statusColors[p.status] || 'var(--t3)';
+          const sl  = statusLabels[p.status] || p.status;
+          const pct = progressMap[p.status] ?? 0;
+          return `
+        <div class="proj-row" onclick="location.href='/workspace/${p.id}'" style="border-left:2px solid ${sc};">
+          <img src="${counterpart?.profileImage || ''}" class="av av-md" style="border:1.5px solid var(--c-rim);" alt="${counterpart?.artistName}">
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;flex-wrap:wrap;">
+              <span style="font-size:0.875rem;font-weight:700;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;">${p.title}</span>
+              <span class="badge" style="background:${sc}22;color:${sc};">${sl}</span>
+              <span class="badge" style="background:${p.sellerId === demoUser.id ? 'var(--signal-dim)' : 'var(--patch-dim)'};color:${p.sellerId === demoUser.id ? 'var(--signal)' : 'var(--patch)'};">
+                ${p.sellerId === demoUser.id ? 'SELLER' : 'BUYER'}
+              </span>
             </div>
-            <div style="flex:1;min-width:0;">
-              <div style="font-size:0.875rem;font-weight:600;margin-bottom:2px;">${py.desc}</div>
-              <div class="mono-sm" style="color:var(--t4);">${py.date}</div>
-            </div>
-            <div style="font-size:0.9375rem;font-weight:800;letter-spacing:-0.02em;color:var(--s-ok);">+${formatPrice(py.amount)}</div>
-            <span class="badge badge-ok">Paid</span>
-          </div>`).join('')}
-        </div>
-      </div>
-
-    </div>
-  </main>
-</div>
-${closeShell()}`;
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// ORDERS
-// ─────────────────────────────────────────────────────────────────────────────
-export function ordersPage(): string {
-  const userProjects = projects.filter(p => p.buyerId === demoUser.id || p.sellerId === demoUser.id);
-
-  return shell('Orders', DASH_STYLES) + authedNav() + `
-<div class="app-shell">
-  ${appSidebar('orders')}
-  <main class="app-main">
-    <div class="app-page">
-
-      <h1 style="font-family:var(--font-display);font-size:1.5rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:24px;">Orders</h1>
-
-      <div style="overflow:auto;">
-        <table class="tbl" style="min-width:700px;">
-          <thead>
-            <tr>
-              <th>Project</th>
-              <th>Counterpart</th>
-              <th>Package</th>
-              <th>Amount</th>
-              <th>Status</th>
-              <th>Due</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            ${userProjects.map(p => {
-              const counterpart = getUserById(p.buyerId === demoUser.id ? p.sellerId : p.buyerId);
-              const sc = statusColor(p.status);
-              const sl = statusLabel(p.status);
-              return `
-            <tr>
-              <td><div style="font-weight:600;font-size:0.875rem;">${p.title}</div></td>
-              <td>
-                <div style="display:flex;align-items:center;gap:8px;">
-                  <img src="${counterpart?.profileImage}" class="av av-xs" style="border:1px solid var(--c-rim);" alt="${counterpart?.artistName}">
-                  <span style="font-size:0.875rem;">${counterpart?.artistName}</span>
-                </div>
-              </td>
-              <td><span class="mono-sm" style="color:var(--t3);">${p.selectedPackage || p.package || "Standard"}</span></td>
-              <td><span style="font-weight:700;">${formatPrice(p.orderTotal)}</span></td>
-              <td><span class="badge" style="background:${sc}18;color:${sc};border:1px solid ${sc}33;font-family:var(--font-mono);">${sl}</span></td>
-              <td class="mono-sm" style="color:var(--t4);">${p.dueDate}</td>
-              <td><a href="/workspace/${p.id}" class="btn btn-ghost btn-xs">View</a></td>
-            </tr>`;}).join('')}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </main>
-</div>
-${closeShell()}`;
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// LISTINGS
-// ─────────────────────────────────────────────────────────────────────────────
-export function listingsPage(): string {
-  const userListings = listings.filter(l => l.userId === demoUser.id);
-
-  return shell('My Listings', DASH_STYLES) + authedNav() + `
-<div class="app-shell">
-  ${appSidebar('listings')}
-  <main class="app-main">
-    <div class="app-page">
-
-      <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
-        <div>
-          <h1 style="font-family:var(--font-display);font-size:1.5rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:4px;">My Services</h1>
-          <p class="body-sm">${userListings.filter(l=>l.active).length} active · ${userListings.filter(l=>!l.active).length} paused</p>
-        </div>
-        <a href="#" class="btn btn-primary btn-sm" onclick="alert('Create listing — coming soon')">
-          <i class="fas fa-plus" style="font-size:11px;"></i>
-          Add Service
-        </a>
-      </div>
-
-      <div style="display:grid;gap:12px;">
-        ${userListings.map(l => `
-        <div style="background:var(--c-panel);border:1px solid var(--c-wire);border-radius:var(--r-lg);overflow:hidden;border-left:3px solid ${l.active ? 'var(--signal)' : 'var(--c-rim)'};">
-          <div style="padding:16px 20px;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;">
-            <div style="flex:1;min-width:0;">
-              <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-                <h3 style="font-size:0.9375rem;font-weight:700;letter-spacing:-0.01em;">${l.title}</h3>
-                <span class="badge ${l.active ? 'badge-signal' : 'badge-muted'}">${l.active ? 'Active' : 'Paused'}</span>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="font-size:0.75rem;color:var(--t3);">with ${counterpart?.artistName}</span>
+              <div class="prog-bar">
+                <div class="prog-fill" style="width:${pct}%;background:${sc};"></div>
               </div>
-              <div style="font-size:0.8125rem;color:var(--t3);margin-bottom:8px;">${l.category}</div>
-              <div style="display:flex;gap:16px;flex-wrap:wrap;">
-                ${[
-                  { icon:'fa-eye', val:`${l.orders || 0} orders` },
-                  { icon:'fa-star', val:`${demoUser.rating.toFixed(1)} rating` },
-                  { icon:'fa-dollar-sign', val:`from ${formatPrice(l.packages[0]?.price || 0)}` },
-                ].map(s => `
-                <div style="display:flex;align-items:center;gap:5px;font-size:0.75rem;color:var(--t4);">
-                  <i class="fas ${s.icon}" style="font-size:10px;"></i>${s.val}
-                </div>`).join('')}
-              </div>
-            </div>
-            <div style="display:flex;gap:6px;flex-shrink:0;">
-              <button class="btn btn-secondary btn-xs" onclick="alert('Edit coming soon')"><i class="fas fa-pencil"></i></button>
-              <button class="btn btn-ghost btn-xs" style="color:var(--t3);" onclick="alert('Toggle listing')"><i class="fas ${l.active ? 'fa-pause' : 'fa-play'}"></i></button>
+              <span style="font-family:var(--font-mono);font-size:0.6875rem;color:var(--t3);flex-shrink:0;">${pct}%</span>
             </div>
           </div>
-          <!-- Package chips -->
-          <div style="padding:10px 20px;background:var(--c-raised);border-top:1px solid var(--c-wire);display:flex;gap:6px;flex-wrap:wrap;">
-            ${l.packages.map(p => `
-            <span style="padding:4px 10px;border-radius:var(--r-xs);font-size:0.71rem;font-weight:600;background:var(--c-sub);border:1px solid var(--c-wire);color:var(--t3);">${p.name} · ${formatPrice(p.price)}</span>`).join('')}
+          <div style="font-family:var(--font-mono);font-size:0.875rem;font-weight:700;color:var(--t1);flex-shrink:0;">${formatPrice(p.orderTotal)}</div>
+        </div>`;
+        }).join('') || `
+        <div style="text-align:center;padding:48px 24px;background:var(--c-panel);border:1px solid var(--c-wire);border-radius:var(--r-lg);">
+          <i class="fas fa-music" style="font-size:2rem;color:var(--t4);margin-bottom:14px;display:block;"></i>
+          <p style="color:var(--t3);font-size:0.875rem;">No active projects yet.</p>
+          <a href="/explore" class="btn btn-primary" style="margin-top:16px;display:inline-flex;">Find an Artist</a>
+        </div>`}
+
+        ${activeProjects.length > 4 ? `
+        <a href="/dashboard/projects" class="btn btn-secondary" style="width:100%;justify-content:center;margin-top:8px;display:flex;">
+          View all ${activeProjects.length} projects <i class="fas fa-arrow-right" style="margin-left:6px;"></i>
+        </a>` : ''}
+      </div>
+
+      <!-- Earnings chart + quick actions -->
+      <div>
+        <!-- Earnings mini chart -->
+        <div style="background:var(--c-panel);border:1px solid var(--c-wire);border-radius:var(--r-lg);padding:18px;margin-bottom:16px;">
+          <div class="sec-label" style="margin-bottom:14px;">
+            <div class="sec-label-bar"></div>
+            <div class="sec-label-text">Earnings</div>
           </div>
+          <div style="font-family:var(--font-display);font-size:1.5rem;font-weight:800;color:var(--signal);margin-bottom:4px;">
+            $${earningMonths[earningMonths.length - 1].toLocaleString()}
+          </div>
+          <div style="font-size:0.75rem;color:var(--t3);margin-bottom:16px;">This month</div>
+          <div class="chart-bars">
+            ${earningMonths.map((v, i) => `
+            <div class="chart-bar-wrap">
+              <div class="chart-bar${i === earningMonths.length - 1 ? ' current' : ''}"
+                   style="height:${Math.round((v / maxEarn) * 72)}px;"
+                   title="${monthLabels[i]}: $${v.toLocaleString()}">
+              </div>
+              <span class="chart-month">${monthLabels[i]}</span>
+            </div>`).join('')}
+          </div>
+          <a href="/dashboard/earnings" style="font-size:0.75rem;color:var(--patch);text-decoration:none;display:block;margin-top:10px;text-align:right;">
+            View full report <i class="fas fa-arrow-right" style="font-size:9px;"></i>
+          </a>
+        </div>
+
+        <!-- Profile strength -->
+        <div style="background:var(--c-panel);border:1px solid var(--c-wire);border-radius:var(--r-lg);padding:18px;">
+          <div class="sec-label" style="margin-bottom:12px;">
+            <div class="sec-label-bar"></div>
+            <div class="sec-label-text">Profile Strength</div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <span style="font-size:0.875rem;color:var(--t2);">72% complete</span>
+            <span style="font-family:var(--font-mono);font-size:0.75rem;color:var(--signal);">72%</span>
+          </div>
+          <div style="height:6px;background:var(--c-rim);border-radius:3px;overflow:hidden;margin-bottom:12px;">
+            <div style="height:100%;width:72%;background:var(--signal);border-radius:3px;"></div>
+          </div>
+          <div style="font-size:0.75rem;color:var(--t3);">Add a cover image to reach 85%</div>
+          <a href="/dashboard/settings" style="font-size:0.75rem;color:var(--patch);text-decoration:none;margin-top:8px;display:inline-block;">
+            Complete profile <i class="fas fa-arrow-right" style="font-size:9px;"></i>
+          </a>
+        </div>
+      </div>
+
+    </div><!-- /grid -->
+
+  </div><!-- /app-page -->
+  ${closeShell()}`);
+}
+
+// ─── PROJECTS ────────────────────────────────────────────────────────────────
+export function projectsPage(): string {
+  const userProjects   = projects.filter(p => p.buyerId === demoUser.id || p.sellerId === demoUser.id);
+  const activeProjects = userProjects.filter(p => !['completed', 'cancelled'].includes(p.status));
+  const completedProj  = userProjects.filter(p => p.status === 'completed');
+
+  const statusColors: Record<string, string> = {
+    pending: 'var(--s-warn)', in_progress: 'var(--patch)',
+    awaiting_delivery: 'var(--warm)', delivered: 'var(--s-ok)',
+    revision_requested: 'var(--channel)', completed: 'var(--signal)', cancelled: 'var(--t4)',
+  };
+  const statusLabels: Record<string, string> = {
+    pending: 'Pending', in_progress: 'In Progress', awaiting_delivery: 'Awaiting',
+    delivered: 'Delivered', revision_requested: 'Revision', completed: 'Complete', cancelled: 'Cancelled',
+  };
+  const progressMap: Record<string, number> = {
+    pending: 5, in_progress: 45, awaiting_delivery: 70,
+    delivered: 85, revision_requested: 60, completed: 100,
+  };
+
+  function renderProjects(list: typeof projects) {
+    if (!list.length) return `<div style="text-align:center;padding:48px;color:var(--t3);">No projects found</div>`;
+    return list.map(p => {
+      const cid  = p.buyerId === demoUser.id ? p.sellerId : p.buyerId;
+      const cp   = getUserById(cid);
+      const sc   = statusColors[p.status] || 'var(--t3)';
+      const sl   = statusLabels[p.status] || p.status;
+      const pct  = progressMap[p.status] ?? 0;
+      return `
+    <div class="proj-row" onclick="location.href='/workspace/${p.id}'" style="border-left:2px solid ${sc};">
+      <img src="${cp?.profileImage || ''}" class="av av-md" style="border:1.5px solid var(--c-rim);" alt="${cp?.artistName}">
+      <div style="flex:1;min-width:0;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap;">
+          <span style="font-size:0.875rem;font-weight:700;color:var(--t1);">${p.title}</span>
+          <span class="badge" style="background:${sc}22;color:${sc};">${sl}</span>
+          <span class="badge" style="background:${p.sellerId === demoUser.id ? 'var(--signal-dim)' : 'var(--patch-dim)'};color:${p.sellerId === demoUser.id ? 'var(--signal)' : 'var(--patch)'};">
+            ${p.sellerId === demoUser.id ? 'SELLER' : 'BUYER'}
+          </span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:0.75rem;color:var(--t3);">${cp?.artistName}</span>
+          <div class="prog-bar"><div class="prog-fill" style="width:${pct}%;background:${sc};"></div></div>
+          <span style="font-family:var(--font-mono);font-size:0.6875rem;color:var(--t3);">${pct}%</span>
+        </div>
+      </div>
+      <div style="text-align:right;flex-shrink:0;">
+        <div style="font-family:var(--font-mono);font-size:0.875rem;font-weight:700;color:var(--t1);">${formatPrice(p.orderTotal)}</div>
+        <div style="font-size:0.6875rem;color:var(--t3);">Due ${new Date(p.dueDate).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</div>
+      </div>
+    </div>`;
+    }).join('');
+  }
+
+  return shell('Projects — ArtistCollab', DASH_STYLES + `
+  .filter-pills { display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap; }
+  .fp { padding:7px 16px;border-radius:var(--r-full);border:1px solid var(--c-rim);background:var(--c-raised);font-size:0.8125rem;color:var(--t2);cursor:pointer;transition:all 0.15s; }
+  .fp.on { border-color:var(--signal);background:var(--signal-dim);color:var(--signal); }
+  `, authedNav() + appSidebar('projects') + `
+  <div class="app-page">
+    <div style="margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+      <div>
+        <h1 style="font-family:var(--font-display);font-size:1.375rem;font-weight:800;color:var(--t1);margin-bottom:4px;">Projects</h1>
+        <p style="font-size:0.875rem;color:var(--t2);">${activeProjects.length} active · ${completedProj.length} completed</p>
+      </div>
+      <a href="/explore" class="btn btn-primary"><i class="fas fa-plus"></i> New Collab</a>
+    </div>
+
+    <div class="filter-pills">
+      <div class="fp on" onclick="filterProj('all',this)">All (${userProjects.length})</div>
+      <div class="fp" onclick="filterProj('active',this)">Active (${activeProjects.length})</div>
+      <div class="fp" onclick="filterProj('completed',this)">Completed (${completedProj.length})</div>
+      <div class="fp" onclick="filterProj('cancelled',this)">Cancelled</div>
+    </div>
+
+    <div id="proj-list-all">${renderProjects(userProjects)}</div>
+    <div id="proj-list-active" style="display:none;">${renderProjects(activeProjects)}</div>
+    <div id="proj-list-completed" style="display:none;">${renderProjects(completedProj)}</div>
+    <div id="proj-list-cancelled" style="display:none;"><div style="text-align:center;padding:48px;color:var(--t3);">No cancelled projects</div></div>
+  </div>
+
+  <script>
+  function filterProj(type, el) {
+    document.querySelectorAll('.fp').forEach(b => b.classList.remove('on'));
+    el.classList.add('on');
+    ['all','active','completed','cancelled'].forEach(t => {
+      document.getElementById('proj-list-'+t).style.display = t === type ? '' : 'none';
+    });
+  }
+  </script>
+  ${closeShell()}`);
+}
+
+// ─── EARNINGS ────────────────────────────────────────────────────────────────
+export function earningsPage(): string {
+  const earningMonths = [820, 1200, 680, 1540, 980, 1480, 4820];
+  const monthLabels   = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'];
+  const maxEarn       = Math.max(...earningMonths);
+  const totalEarned   = earningMonths.reduce((a, b) => a + b, 0);
+
+  const payouts = [
+    { date: 'Jul 14, 2026', desc: 'Feature Verse — Marcus B',        amount: 810,  status: 'Paid' },
+    { date: 'Jul 8, 2026',  desc: 'Hook Writing — SoundWave Studio', amount: 450,  status: 'Paid' },
+    { date: 'Jun 28, 2026', desc: 'Premium Vocal Package',           amount: 1200, status: 'Paid' },
+    { date: 'Jun 15, 2026', desc: 'Production Co-write',             amount: 540,  status: 'Paid' },
+    { date: 'May 30, 2026', desc: 'Feature + Hook',                  amount: 650,  status: 'Paid' },
+  ];
+
+  return shell('Earnings — ArtistCollab', DASH_STYLES + `
+  .earn-tiles { display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:32px; }
+  @media(max-width:768px){.earn-tiles{grid-template-columns:1fr;}}
+  `, authedNav() + appSidebar('earnings') + `
+  <div class="app-page">
+    <h1 style="font-family:var(--font-display);font-size:1.375rem;font-weight:800;color:var(--t1);margin-bottom:24px;">Earnings</h1>
+
+    <div class="earn-tiles">
+      <div style="background:var(--c-panel);border:1px solid var(--c-wire);border-radius:var(--r-lg);padding:22px;border-top:2px solid var(--signal);">
+        <div style="font-family:var(--font-mono);font-size:0.625rem;color:var(--t3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">Total Earned</div>
+        <div style="font-family:var(--font-display);font-size:2rem;font-weight:800;color:var(--signal);">$${totalEarned.toLocaleString()}</div>
+      </div>
+      <div style="background:var(--c-panel);border:1px solid var(--c-wire);border-radius:var(--r-lg);padding:22px;border-top:2px solid var(--patch);">
+        <div style="font-family:var(--font-mono);font-size:0.625rem;color:var(--t3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">This Month</div>
+        <div style="font-family:var(--font-display);font-size:2rem;font-weight:800;color:var(--patch);">$${earningMonths[earningMonths.length-1].toLocaleString()}</div>
+      </div>
+      <div style="background:var(--c-panel);border:1px solid var(--c-wire);border-radius:var(--r-lg);padding:22px;border-top:2px solid var(--s-warn);">
+        <div style="font-family:var(--font-mono);font-size:0.625rem;color:var(--t3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">Pending Release</div>
+        <div style="font-family:var(--font-display);font-size:2rem;font-weight:800;color:var(--s-warn);">$810</div>
+      </div>
+    </div>
+
+    <!-- Chart -->
+    <div style="background:var(--c-panel);border:1px solid var(--c-wire);border-radius:var(--r-lg);padding:22px;margin-bottom:28px;">
+      <div class="sec-label" style="margin-bottom:20px;"><div class="sec-label-bar"></div><div class="sec-label-text">Monthly Earnings</div></div>
+      <div class="chart-bars" style="height:120px;">
+        ${earningMonths.map((v, i) => `
+        <div class="chart-bar-wrap">
+          <div class="chart-bar${i === earningMonths.length-1 ? ' current' : ''}"
+               style="height:${Math.round((v/maxEarn)*112)}px;" title="${monthLabels[i]}: $${v.toLocaleString()}">
+          </div>
+          <span class="chart-month">${monthLabels[i]}</span>
         </div>`).join('')}
       </div>
     </div>
-  </main>
-</div>
-${closeShell()}`;
+
+    <!-- Payout history -->
+    <div style="background:var(--c-panel);border:1px solid var(--c-wire);border-radius:var(--r-lg);overflow:hidden;">
+      <div style="padding:16px 20px;border-bottom:1px solid var(--c-wire);">
+        <div class="sec-label" style="margin-bottom:0;"><div class="sec-label-bar"></div><div class="sec-label-text">Payout History</div></div>
+      </div>
+      <table style="width:100%;border-collapse:collapse;">
+        <thead>
+          <tr style="background:var(--c-raised);">
+            <th style="padding:10px 20px;text-align:left;font-family:var(--font-mono);font-size:0.625rem;color:var(--t4);letter-spacing:0.1em;text-transform:uppercase;font-weight:600;">Date</th>
+            <th style="padding:10px 20px;text-align:left;font-family:var(--font-mono);font-size:0.625rem;color:var(--t4);letter-spacing:0.1em;text-transform:uppercase;font-weight:600;">Description</th>
+            <th style="padding:10px 20px;text-align:right;font-family:var(--font-mono);font-size:0.625rem;color:var(--t4);letter-spacing:0.1em;text-transform:uppercase;font-weight:600;">Amount</th>
+            <th style="padding:10px 20px;text-align:center;font-family:var(--font-mono);font-size:0.625rem;color:var(--t4);letter-spacing:0.1em;text-transform:uppercase;font-weight:600;">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${payouts.map(row => `
+          <tr style="border-top:1px solid var(--c-wire);">
+            <td style="padding:13px 20px;font-size:0.8125rem;color:var(--t2);">${row.date}</td>
+            <td style="padding:13px 20px;font-size:0.875rem;color:var(--t1);">${row.desc}</td>
+            <td style="padding:13px 20px;text-align:right;font-family:var(--font-mono);font-size:0.875rem;font-weight:700;color:var(--signal);">+$${row.amount.toLocaleString()}</td>
+            <td style="padding:13px 20px;text-align:center;">
+              <span style="background:var(--s-ok-d);color:var(--s-ok);font-family:var(--font-mono);font-size:0.625rem;font-weight:700;padding:3px 10px;border-radius:var(--r-full);">${row.status}</span>
+            </td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+  ${closeShell()}`);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// SETTINGS
-// ─────────────────────────────────────────────────────────────────────────────
-export function settingsPage(): string {
-  return shell('Settings', DASH_STYLES) + authedNav() + `
-<div class="app-shell">
-  ${appSidebar('settings')}
-  <main class="app-main">
-    <div class="app-page">
-
-      <h1 style="font-family:var(--font-display);font-size:1.5rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:28px;">Settings</h1>
-
-      <!-- Settings: mobile nav pills + desktop sidebar -->
-      <div class="settings-nav-mobile" style="overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;">
-        ${[
-          { id:'profile', icon:'fa-user', label:'Profile' },
-          { id:'notifications', icon:'fa-bell', label:'Notifs' },
-          { id:'payout', icon:'fa-dollar-sign', label:'Payout' },
-          { id:'danger', icon:'fa-triangle-exclamation', label:'Danger', danger:true },
-        ].map(item => `
-        <a href="#${item.id}" style="flex-shrink:0;padding:10px 16px;background:var(--c-raised);border:1px solid var(--c-wire);border-radius:var(--r);font-size:0.875rem;font-weight:600;color:${item.danger ? 'var(--channel)' : 'var(--t3)'};text-decoration:none;display:flex;align-items:center;gap:6px;min-height:44px;white-space:nowrap;">
-          <i class="fas ${item.icon}" style="font-size:12px;"></i>${item.label}
-        </a>`).join('')}
-      </div>
-
-      <div class="settings-layout">
-
-        <!-- Settings nav (desktop) -->
-        <div class="settings-nav">
-          ${[
-            { id:'profile', icon:'fa-user', label:'Profile' },
-            { id:'account', icon:'fa-at', label:'Account' },
-            { id:'notifications', icon:'fa-bell', label:'Notifications' },
-            { id:'payout', icon:'fa-dollar-sign', label:'Payout' },
-            { id:'security', icon:'fa-shield-alt', label:'Security' },
-            { id:'danger', icon:'fa-triangle-exclamation', label:'Danger Zone', danger:true },
-          ].map((item,i) => `
-          <a href="#${item.id}" style="display:flex;align-items:center;gap:10px;padding:12px 16px;font-size:0.8125rem;font-weight:500;color:${item.danger ? 'var(--channel)' : i===0 ? 'var(--t1)' : 'var(--t3)'};text-decoration:none;border-bottom:1px solid var(--c-wire);background:${i===0 ? 'var(--signal-dim)' : 'transparent'};transition:all 0.15s;" onmouseover="if(!this.style.background.includes('signal'))this.style.background='var(--c-ghost)'" onmouseout="if(!${i===0})this.style.background='transparent'">
-            <i class="fas ${item.icon}" style="width:14px;text-align:center;font-size:0.8125rem;color:${item.danger ? 'var(--channel)' : i===0 ? 'var(--signal)' : 'var(--t4)'};"></i>
-            ${item.label}
-          </a>`).join('')}
-        </div>
-
-        <!-- Settings content -->
-        <div style="display:flex;flex-direction:column;gap:20px;">
-
-          <!-- Profile section -->
-          <div id="profile" style="background:var(--c-panel);border:1px solid var(--c-wire);border-radius:var(--r-lg);overflow:hidden;">
-            <div style="padding:20px;border-bottom:1px solid var(--c-wire);display:flex;align-items:center;justify-content:space-between;">
-              <div>
-                <h3 style="font-size:1rem;font-weight:700;margin-bottom:2px;">Profile</h3>
-                <p class="body-sm">Your public artist profile information.</p>
+// ─── ORDERS ────────────────────────────────────────────────────────────────────
+export function ordersPage(): string {
+  const userProjects = projects.filter(p => p.buyerId === demoUser.id || p.sellerId === demoUser.id);
+  return shell('Orders — ArtistCollab', DASH_STYLES, authedNav() + appSidebar('orders') + `
+  <div class="app-page">
+    <h1 style="font-family:var(--font-display);font-size:1.375rem;font-weight:800;color:var(--t1);margin-bottom:24px;">Orders</h1>
+    <div style="background:var(--c-panel);border:1px solid var(--c-wire);border-radius:var(--r-lg);overflow:hidden;">
+      <table style="width:100%;border-collapse:collapse;">
+        <thead>
+          <tr style="background:var(--c-raised);">
+            ${['Project','With','Package','Amount','Status','Due',''].map(h =>
+              `<th style="padding:11px 16px;text-align:left;font-family:var(--font-mono);font-size:0.6rem;color:var(--t4);letter-spacing:0.1em;text-transform:uppercase;font-weight:600;">${h}</th>`
+            ).join('')}
+          </tr>
+        </thead>
+        <tbody>
+          ${userProjects.map(p => {
+            const cid = p.buyerId === demoUser.id ? p.sellerId : p.buyerId;
+            const cp  = getUserById(cid);
+            return `
+          <tr style="border-top:1px solid var(--c-wire);cursor:pointer;transition:background 0.1s;" onclick="location.href='/workspace/${p.id}'"
+              onmouseover="this.style.background='var(--c-raised)'" onmouseout="this.style.background=''">
+            <td style="padding:12px 16px;font-size:0.875rem;font-weight:600;color:var(--t1);">${p.title}</td>
+            <td style="padding:12px 16px;">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <img src="${cp?.profileImage || ''}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;" alt="${cp?.artistName}">
+                <span style="font-size:0.8125rem;color:var(--t2);">${cp?.artistName || '—'}</span>
               </div>
-            </div>
-            <div style="padding:24px;">
-              <!-- Avatar -->
-              <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px;padding-bottom:24px;border-bottom:1px solid var(--c-wire);flex-wrap:wrap;">
-                <div style="position:relative;">
-                  <img src="${demoUser.profileImage}" class="av av-xl" style="border:2px solid var(--c-rim);" alt="${demoUser.artistName}">
-                  <button style="position:absolute;bottom:0;right:0;width:24px;height:24px;background:var(--signal);border-radius:50%;border:2px solid var(--c-panel);display:flex;align-items:center;justify-content:center;cursor:pointer;" onclick="alert('Upload photo coming soon')">
-                    <i class="fas fa-camera" style="font-size:9px;color:#000;"></i>
-                  </button>
-                </div>
-                <div>
-                  <div style="font-size:0.875rem;font-weight:700;margin-bottom:4px;">${demoUser.artistName}</div>
-                  <div class="mono-sm" style="color:var(--t4);">@${demoUser.username}</div>
-                  <button class="btn btn-ghost btn-xs" style="margin-top:8px;color:var(--signal);" onclick="alert('Upload coming soon')">Change photo</button>
-                </div>
-              </div>
-
-              <div style="display:grid;gap:16px;">
-                <div class="form-2col">
-                  <div class="field">
-                    <label class="field-label">Artist Name</label>
-                    <input class="field-input" value="${demoUser.artistName}">
-                  </div>
-                  <div class="field">
-                    <label class="field-label">Username</label>
-                    <input class="field-input" value="@${demoUser.username}">
-                  </div>
-                </div>
-                <div class="field">
-                  <label class="field-label">Bio</label>
-                  <textarea class="field-input" rows="4">${demoUser.bio}</textarea>
-                </div>
-                <div class="form-2col">
-                  <div class="field">
-                    <label class="field-label">Location</label>
-                    <input class="field-input" value="${demoUser.location}">
-                  </div>
-                  <div class="field">
-                    <label class="field-label">Starting Price ($)</label>
-                    <input class="field-input" type="number" value="${demoUser.startingPrice}">
-                  </div>
-                </div>
-                <div style="padding-top:4px;">
-                  <button class="btn btn-primary btn-sm" onclick="alert('Saved!')">
-                    <i class="fas fa-check" style="font-size:11px;"></i>
-                    Save Changes
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Notifications section -->
-          <div id="notifications" style="background:var(--c-panel);border:1px solid var(--c-wire);border-radius:var(--r-lg);overflow:hidden;">
-            <div style="padding:20px;border-bottom:1px solid var(--c-wire);">
-              <h3 style="font-size:1rem;font-weight:700;margin-bottom:2px;">Notifications</h3>
-              <p class="body-sm">Control what you receive.</p>
-            </div>
-            <div style="padding:8px 0;">
-              ${[
-                { label:'New project requests', sub:'When someone books you', on:true },
-                { label:'Project messages', sub:'New messages in your workspace', on:true },
-                { label:'Delivery confirmations', sub:'When a delivery is approved', on:true },
-                { label:'Payment received', sub:'When escrow is released to you', on:true },
-                { label:'Marketing emails', sub:'Tips, updates, and announcements', on:false },
-              ].map(n => `
-              <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--c-wire);">
-                <div>
-                  <div style="font-size:0.875rem;font-weight:600;margin-bottom:2px;">${n.label}</div>
-                  <div class="body-sm">${n.sub}</div>
-                </div>
-                <!-- Toggle: tap target wraps the visual toggle -->
-                <label style="display:flex;align-items:center;cursor:pointer;padding:8px 0;flex-shrink:0;">
-                  <button onclick="this.dataset.on=this.dataset.on==='1'?'0':'1';this.style.background=this.dataset.on==='1'?'var(--signal)':'var(--c-rim)';" data-on="${n.on ? '1' : '0'}" style="width:40px;height:22px;border-radius:11px;border:none;cursor:pointer;transition:background 0.2s;background:${n.on ? 'var(--signal)' : 'var(--c-rim)'};position:relative;flex-shrink:0;">
-                    <div style="width:16px;height:16px;border-radius:50%;background:#fff;position:absolute;top:3px;${n.on ? 'right:3px;' : 'left:3px;'}transition:all 0.2s;"></div>
-                  </button>
-                </label>
-              </div>`).join('')}
-            </div>
-          </div>
-
-          <!-- Payout section -->
-          <div id="payout" style="background:var(--c-panel);border:1px solid var(--c-wire);border-radius:var(--r-lg);overflow:hidden;">
-            <div style="padding:20px;border-bottom:1px solid var(--c-wire);">
-              <h3 style="font-size:1rem;font-weight:700;margin-bottom:2px;">Payout Method</h3>
-              <p class="body-sm">How you get paid when a delivery is approved.</p>
-            </div>
-            <div style="padding:24px;">
-              <div style="display:flex;align-items:center;gap:12px;padding:16px;background:var(--signal-dim);border:1px solid rgba(200,255,0,0.2);border-radius:var(--r-lg);margin-bottom:16px;">
-                <i class="fas fa-university" style="color:var(--signal);font-size:1.25rem;flex-shrink:0;"></i>
-                <div style="flex:1;">
-                  <div style="font-size:0.875rem;font-weight:700;margin-bottom:2px;">Bank Account ···· 4821</div>
-                  <div class="mono-sm" style="color:var(--t4);">Connected · Instant payout</div>
-                </div>
-                <span class="badge badge-signal">Active</span>
-              </div>
-              <button class="btn btn-secondary btn-sm" onclick="alert('Add payout method coming soon')">
-                <i class="fas fa-plus" style="font-size:11px;"></i>
-                Add Method
-              </button>
-            </div>
-          </div>
-
-          <!-- Danger zone -->
-          <div id="danger" style="background:var(--c-panel);border:1px solid rgba(255,77,109,0.25);border-radius:var(--r-lg);overflow:hidden;">
-            <div style="padding:20px;border-bottom:1px solid rgba(255,77,109,0.15);">
-              <h3 style="font-size:1rem;font-weight:700;color:var(--channel);margin-bottom:2px;">Danger Zone</h3>
-              <p class="body-sm">Irreversible actions.</p>
-            </div>
-            <div style="padding:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
-              <div>
-                <div style="font-size:0.875rem;font-weight:600;margin-bottom:3px;">Delete Account</div>
-                <p class="body-sm">Permanently delete your account and all data.</p>
-              </div>
-              <button class="btn btn-danger btn-sm" onclick="alert('This action cannot be undone.')">
-                <i class="fas fa-trash" style="font-size:11px;"></i>
-                Delete Account
-              </button>
-            </div>
-          </div>
-
-        </div>
-      </div><!-- end settings-layout -->
+            </td>
+            <td style="padding:12px 16px;font-size:0.8125rem;color:var(--t2);">${p.package}</td>
+            <td style="padding:12px 16px;font-family:var(--font-mono);font-size:0.875rem;font-weight:700;color:var(--t1);">${formatPrice(p.orderTotal)}</td>
+            <td style="padding:12px 16px;">
+              <span style="background:${statusColor(p.status)}22;color:${statusColor(p.status)};font-family:var(--font-mono);font-size:0.6rem;font-weight:700;padding:3px 8px;border-radius:var(--r-full);">
+                ${statusLabel(p.status)}
+              </span>
+            </td>
+            <td style="padding:12px 16px;font-size:0.8125rem;color:var(--t2);">${new Date(p.dueDate).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</td>
+            <td style="padding:12px 16px;">
+              <a href="/workspace/${p.id}" style="font-size:0.75rem;color:var(--patch);text-decoration:none;">View →</a>
+            </td>
+          </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
     </div>
-  </main>
-</div>
-${closeShell()}`;
+  </div>
+  ${closeShell()}`);
+}
+
+// ─── LISTINGS ────────────────────────────────────────────────────────────────
+export function listingsPage(): string {
+  const userListings = listings.filter(l => l.userId === demoUser.id);
+  const activeCount  = userListings.filter(l => l.active).length;
+
+  return shell('My Services — ArtistCollab', DASH_STYLES, authedNav() + appSidebar('listings') + `
+  <div class="app-page">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
+      <div>
+        <h1 style="font-family:var(--font-display);font-size:1.375rem;font-weight:800;color:var(--t1);margin-bottom:4px;">My Services</h1>
+        <p style="font-size:0.875rem;color:var(--t2);">${activeCount} active · ${userListings.length - activeCount} paused</p>
+      </div>
+      <a href="/dashboard/listings/new" class="btn btn-primary"><i class="fas fa-plus"></i> Add Service</a>
+    </div>
+
+    ${userListings.map(l => {
+      const basePkg = l.packages?.[0];
+      return `
+    <div style="background:var(--c-panel);border:1px solid var(--c-wire);border-radius:var(--r-lg);padding:20px;margin-bottom:12px;display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap;">
+      <div style="flex:1;min-width:200px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+          <span style="font-size:0.9375rem;font-weight:700;color:var(--t1);">${l.title}</span>
+          <span style="background:${l.active ? 'var(--s-ok-d)' : 'var(--c-raised)'};color:${l.active ? 'var(--s-ok)' : 'var(--t3)'};font-family:var(--font-mono);font-size:0.6rem;font-weight:700;padding:3px 8px;border-radius:var(--r-full);">
+            ${l.active ? 'ACTIVE' : 'PAUSED'}
+          </span>
+        </div>
+        <div style="font-size:0.75rem;color:var(--t3);font-family:var(--font-mono);margin-bottom:10px;">${l.category}</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          ${(l.packages || []).map(pkg => `
+          <span style="background:var(--c-raised);border:1px solid var(--c-rim);border-radius:var(--r-full);padding:3px 10px;font-size:0.6875rem;color:var(--t2);font-family:var(--font-mono);">
+            ${pkg.name} · $${pkg.price}
+          </span>`).join('')}
+        </div>
+      </div>
+      <div style="display:flex;gap:20px;align-items:center;flex-shrink:0;">
+        <div style="text-align:center;">
+          <div style="font-family:var(--font-mono);font-size:0.875rem;font-weight:700;color:var(--t1);">${l.orders}</div>
+          <div style="font-size:0.625rem;color:var(--t4);text-transform:uppercase;letter-spacing:0.06em;">Orders</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-family:var(--font-mono);font-size:0.875rem;font-weight:700;color:var(--s-warn);">${l.rating.toFixed(1)}★</div>
+          <div style="font-size:0.625rem;color:var(--t4);text-transform:uppercase;letter-spacing:0.06em;">Rating</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-family:var(--font-mono);font-size:0.875rem;font-weight:700;color:var(--signal);">$${basePkg?.price || 0}</div>
+          <div style="font-size:0.625rem;color:var(--t4);text-transform:uppercase;letter-spacing:0.06em;">From</div>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="alert('Edit coming in next release')">Edit</button>
+      </div>
+    </div>`;
+    }).join('') || `
+    <div style="text-align:center;padding:80px 24px;background:var(--c-panel);border:1px solid var(--c-wire);border-radius:var(--r-lg);">
+      <i class="fas fa-store" style="font-size:2.5rem;color:var(--t4);margin-bottom:16px;display:block;"></i>
+      <p style="color:var(--t3);margin-bottom:20px;">You haven't created any services yet.</p>
+      <a href="/dashboard/listings/new" class="btn btn-primary">Create First Service</a>
+    </div>`}
+  </div>
+  ${closeShell()}`);
+}
+
+// ─── SETTINGS ────────────────────────────────────────────────────────────────
+export function settingsPage(): string {
+  return shell('Settings — ArtistCollab', DASH_STYLES + `
+  .sett-layout { display:grid;grid-template-columns:200px 1fr;gap:24px;align-items:start; }
+  .sett-nav { background:var(--c-panel);border:1px solid var(--c-wire);border-radius:var(--r-lg);overflow:hidden;position:sticky;top:76px; }
+  .sett-nav-item { display:flex;align-items:center;gap:10px;padding:13px 16px;font-size:0.875rem;color:var(--t2);cursor:pointer;border-bottom:1px solid var(--c-wire);transition:background 0.1s,color 0.1s;text-decoration:none; }
+  .sett-nav-item:last-child{border-bottom:none;}
+  .sett-nav-item.active,.sett-nav-item:hover{background:var(--c-raised);color:var(--t1);}
+  .sett-nav-item i{font-size:13px;width:16px;text-align:center;color:var(--t3);}
+  .sett-card{background:var(--c-panel);border:1px solid var(--c-wire);border-radius:var(--r-lg);padding:24px;margin-bottom:16px;}
+  .sett-field{margin-bottom:16px;}
+  .sett-label{display:block;font-size:0.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--t3);margin-bottom:6px;}
+  .sett-input{width:100%;background:var(--c-raised);border:1px solid var(--c-rim);border-radius:var(--r-md);padding:11px 14px;color:var(--t1);font-size:0.9375rem;font-family:var(--font-body);outline:none;transition:border-color 0.15s;}
+  .sett-input:focus{border-color:var(--signal);}
+  .sett-toggle{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--c-wire);}
+  .sett-toggle:last-child{border-bottom:none;}
+  .toggle-switch{width:40px;height:22px;background:var(--c-rim);border-radius:11px;cursor:pointer;position:relative;transition:background 0.2s;}
+  .toggle-switch.on{background:var(--signal);}
+  .toggle-switch::after{content:'';position:absolute;width:16px;height:16px;border-radius:50%;background:#fff;top:3px;left:3px;transition:transform 0.2s;}
+  .toggle-switch.on::after{transform:translateX(18px);}
+  @media(max-width:768px){.sett-layout{grid-template-columns:1fr;}.sett-nav{display:none;}}
+  `, authedNav() + appSidebar('settings') + `
+  <div class="app-page">
+    <h1 style="font-family:var(--font-display);font-size:1.375rem;font-weight:800;color:var(--t1);margin-bottom:24px;">Settings</h1>
+    <div class="sett-layout">
+      <nav class="sett-nav">
+        <a class="sett-nav-item active" href="#profile"><i class="fas fa-user"></i> Profile</a>
+        <a class="sett-nav-item" href="#notifications"><i class="fas fa-bell"></i> Notifications</a>
+        <a class="sett-nav-item" href="#payout"><i class="fas fa-credit-card"></i> Payout</a>
+        <a class="sett-nav-item" href="#security"><i class="fas fa-lock"></i> Security</a>
+        <a class="sett-nav-item" href="#danger" style="color:var(--channel);"><i class="fas fa-exclamation-triangle"></i> Danger</a>
+      </nav>
+
+      <div>
+        <!-- Profile -->
+        <div class="sett-card" id="profile">
+          <div class="sec-label" style="margin-bottom:20px;"><div class="sec-label-bar"></div><div class="sec-label-text">Profile</div></div>
+          <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--c-wire);">
+            <img src="${demoUser.profileImage}" style="width:64px;height:64px;border-radius:50%;object-fit:cover;border:2px solid var(--c-rim);" alt="${demoUser.artistName}">
+            <div>
+              <button class="btn btn-secondary btn-sm">Change Photo</button>
+              <div style="font-size:0.75rem;color:var(--t4);margin-top:6px;">JPG or PNG, max 5MB</div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+            <div class="sett-field">
+              <label class="sett-label">Display Name</label>
+              <input class="sett-input" type="text" value="${demoUser.artistName}">
+            </div>
+            <div class="sett-field">
+              <label class="sett-label">Username</label>
+              <input class="sett-input" type="text" value="@${demoUser.username}">
+            </div>
+          </div>
+          <div class="sett-field">
+            <label class="sett-label">Bio</label>
+            <textarea class="sett-input" rows="3" style="resize:vertical;">${demoUser.bio}</textarea>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+            <div class="sett-field">
+              <label class="sett-label">Location</label>
+              <input class="sett-input" type="text" value="${demoUser.location}">
+            </div>
+            <div class="sett-field">
+              <label class="sett-label">Starting Price ($)</label>
+              <input class="sett-input" type="number" value="${demoUser.startingPrice}">
+            </div>
+          </div>
+          <button class="btn btn-primary" onclick="alert('Profile saved!')">Save Profile</button>
+        </div>
+
+        <!-- Notifications -->
+        <div class="sett-card" id="notifications">
+          <div class="sec-label" style="margin-bottom:20px;"><div class="sec-label-bar"></div><div class="sec-label-text">Notifications</div></div>
+          ${[
+            ['Project requests', true],
+            ['Messages', true],
+            ['Delivery confirmations', true],
+            ['Payment received', true],
+            ['Split sheet approvals', true],
+            ['Live session invites', true],
+            ['Marketing emails', false],
+          ].map(([label, on]) => `
+          <div class="sett-toggle">
+            <span style="font-size:0.875rem;color:var(--t1);">${label}</span>
+            <div class="toggle-switch${on ? ' on' : ''}" onclick="this.classList.toggle('on')"></div>
+          </div>`).join('')}
+        </div>
+
+        <!-- Payout -->
+        <div class="sett-card" id="payout">
+          <div class="sec-label" style="margin-bottom:20px;"><div class="sec-label-bar"></div><div class="sec-label-text">Payout Method</div></div>
+          <div style="background:var(--c-raised);border:1px solid var(--c-rim);border-radius:var(--r-lg);padding:16px;display:flex;align-items:center;gap:14px;margin-bottom:16px;">
+            <i class="fas fa-university" style="color:var(--t3);font-size:1.25rem;"></i>
+            <div>
+              <div style="font-size:0.875rem;font-weight:600;color:var(--t1);">Bank Account ****4892</div>
+              <div style="font-size:0.75rem;color:var(--t3);">Primary · Verified</div>
+            </div>
+            <span style="margin-left:auto;background:var(--s-ok-d);color:var(--s-ok);font-family:var(--font-mono);font-size:0.6rem;font-weight:700;padding:3px 8px;border-radius:var(--r-full);">DEFAULT</span>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="alert('Connect payout method coming with Stripe integration')">
+            <i class="fas fa-plus"></i> Add Payout Method
+          </button>
+        </div>
+
+        <!-- Danger zone -->
+        <div class="sett-card" id="danger" style="border-color:var(--channel-dim);">
+          <div class="sec-label" style="margin-bottom:16px;"><div class="sec-label-bar" style="background:var(--channel);"></div><div class="sec-label-text" style="color:var(--channel);">Danger Zone</div></div>
+          <p style="font-size:0.875rem;color:var(--t2);margin-bottom:16px;">Deleting your account is permanent and cannot be undone.</p>
+          <button class="btn btn-sm" style="background:var(--channel-dim);color:var(--channel);border:1px solid var(--channel-dim);" onclick="confirm('Are you sure? This cannot be undone.') && alert('Account deletion requires email confirmation.')">
+            <i class="fas fa-trash"></i> Delete Account
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  ${closeShell()}`);
 }

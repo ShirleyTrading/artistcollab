@@ -2,394 +2,383 @@ import { shell, closeShell, publicNav, siteFooter } from '../layout';
 import { users, formatPrice, formatListeners } from '../data';
 
 export function explorePage(): string {
-  return shell('Explore Artists', `
+  const allUsers = users.filter(u => u.verified || u.rating >= 4.0);
+  const allGenres = Array.from(new Set(allUsers.flatMap(u => u.genre || []))).sort();
 
-  /* ── Explore page styles ── */
-  .explore-header {
-    background: var(--c-base);
+  return shell('Find Artists — ArtistCollab', `
+
+  /* ══ EXPLORE PAGE ══════════════════════════════════════════════════════════ */
+
+  .exp-page { max-width: 1200px; margin: 0 auto; padding: 0 24px 80px; }
+
+  /* ── Page header ── */
+  .exp-header {
+    padding: 40px 0 28px;
     border-bottom: 1px solid var(--c-wire);
-    padding: 48px 24px 36px;
+    margin-bottom: 28px;
   }
-  .explore-header-inner {
-    max-width: 1280px; margin: 0 auto;
+  .exp-h1 {
+    font-family: var(--font-display);
+    font-size: clamp(1.75rem, 3vw, 2.5rem);
+    font-weight: 800; letter-spacing: -0.02em;
+    color: var(--t1); margin-bottom: 6px;
+  }
+  .exp-sub { font-size: 0.9375rem; color: var(--t2); }
+  .exp-count {
+    font-family: var(--font-mono); font-size: 0.75rem;
+    color: var(--t3); margin-top: 4px;
   }
 
-  /* Search + filter toolbar */
-  .explore-toolbar {
-    background: var(--c-base);
-    border-bottom: 1px solid var(--c-wire);
-    padding: 14px 24px;
-    position: sticky;
-    top: 56px;
-    z-index: 200;
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    background: rgba(7,7,11,0.92);
+  /* ── Filter bar ── */
+  .exp-filters {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 28px; flex-wrap: wrap;
   }
-  .explore-toolbar-inner {
-    max-width: 1280px; margin: 0 auto;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
+  .exp-search-wrap {
+    flex: 1; min-width: 240px; position: relative;
   }
-  .search-wrap {
-    position: relative;
-    flex: 1;
-    min-width: 200px;
-  }
-  .search-icon {
-    position: absolute;
-    left: 12px;
-    top: 50%;
+  .exp-search-wrap i {
+    position: absolute; left: 14px; top: 50%;
     transform: translateY(-50%);
-    color: var(--t4);
-    font-size: 0.8125rem;
+    color: var(--t3); font-size: 13px; pointer-events: none;
   }
-  .search-input {
-    width: 100%;
-    background: var(--c-raised);
-    border: 1px solid var(--c-rim);
-    border-radius: var(--r);
-    padding: 9px 14px 9px 34px;
-    color: var(--t1);
-    font-size: 0.875rem;
-    font-family: var(--font-body);
-    outline: none;
-    transition: border-color var(--t-fast), box-shadow var(--t-fast);
+  .exp-search {
+    width: 100%; background: var(--c-raised);
+    border: 1px solid var(--c-rim); border-radius: var(--r-lg);
+    padding: 11px 14px 11px 38px;
+    color: var(--t1); font-size: 0.875rem; font-family: var(--font-body);
+    outline: none; transition: border-color 0.15s, box-shadow 0.15s;
   }
-  .search-input:focus {
-    border-color: var(--signal);
-    box-shadow: 0 0 0 3px var(--signal-dim);
+  .exp-search:focus { border-color: var(--signal); box-shadow: 0 0 0 3px var(--signal-dim); }
+  .exp-search::placeholder { color: var(--t4); }
+  .exp-select {
+    background: var(--c-raised); border: 1px solid var(--c-rim);
+    border-radius: var(--r-lg); padding: 11px 14px;
+    color: var(--t1); font-size: 0.875rem; font-family: var(--font-body);
+    outline: none; cursor: pointer; min-width: 140px;
+    transition: border-color 0.15s;
   }
-  .search-input::placeholder { color: var(--t4); }
-  .filter-select {
-    background: var(--c-raised);
-    border: 1px solid var(--c-rim);
-    border-radius: var(--r);
-    padding: 9px 30px 9px 12px;
-    color: var(--t2);
-    font-size: 0.8125rem;
-    font-family: var(--font-body);
-    cursor: pointer;
-    outline: none;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2352526A'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 10px center;
-    transition: border-color var(--t-fast);
+  .exp-select:focus { border-color: var(--signal); }
+  .exp-chip {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--c-raised); border: 1px solid var(--c-rim);
+    border-radius: var(--r-lg); padding: 10px 14px;
+    font-size: 0.8125rem; color: var(--t2); cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, color 0.15s;
     white-space: nowrap;
   }
-  .filter-select:focus { border-color: var(--signal); }
-
-  .filter-chip {
-    padding: 9px 14px;
-    border-radius: var(--r);
-    font-size: 0.8125rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all var(--t-fast);
-    border: 1px solid var(--c-rim);
-    background: transparent;
-    color: var(--t3);
-    font-family: var(--font-body);
-    white-space: nowrap;
-    min-height: 40px;
+  .exp-chip.on {
+    border-color: var(--signal); background: var(--signal-dim);
+    color: var(--signal);
   }
-  .filter-chip:hover { color: var(--t1); border-color: rgba(255,255,255,0.12); background: var(--c-ghost); }
-  .filter-chip.on { background: var(--signal-dim); border-color: rgba(200,255,0,0.25); color: var(--signal); }
+  .exp-chip i { font-size: 11px; }
 
-  /* Results grid */
-  .results-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 20px 0;
-    flex-wrap: wrap;
-    gap: 12px;
+  /* ── Results header ── */
+  .exp-results-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 20px; gap: 12px; flex-wrap: wrap;
+  }
+  .exp-results-count { font-size: 0.875rem; color: var(--t2); }
+  .exp-sort {
+    background: var(--c-raised); border: 1px solid var(--c-rim);
+    border-radius: var(--r-md); padding: 8px 12px;
+    font-size: 0.8125rem; color: var(--t2); font-family: var(--font-body);
+    outline: none; cursor: pointer;
   }
 
-  /* Artist card — identity-focused */
-  .ac-artist-card {
-    background: var(--c-panel);
-    border: 1px solid var(--c-wire);
-    border-radius: var(--r-lg);
-    overflow: hidden;
-    cursor: pointer;
-    transition: all var(--t-slow) var(--ease);
-    display: flex;
-    flex-direction: column;
-  }
-  .ac-artist-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--sh-lg);
-    border-color: rgba(255,255,255,0.1);
-  }
-
-  /* Cover */
-  .ac-cover {
-    height: 120px;
-    position: relative;
-    overflow: hidden;
-  }
-  .ac-cover img {
-    width: 100%; height: 100%;
-    object-fit: cover;
-    opacity: 0.4;
-    transition: opacity var(--t-slow), transform var(--t-slow);
-  }
-  .ac-artist-card:hover .ac-cover img { opacity: 0.55; transform: scale(1.03); }
-  .ac-cover-grad {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to bottom, transparent 20%, var(--c-panel) 100%);
-  }
-
-  /* Body */
-  .ac-artist-body { padding: 0 16px 18px; flex: 1; display: flex; flex-direction: column; }
-  .ac-artist-av-row {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    margin-bottom: 12px;
-    margin-top: -22px;
-  }
-
-  /* Waveform tag on the card — the studio motif */
-  .ac-waveform-tag {
-    display: flex;
-    align-items: center;
-    gap: 2px;
-    height: 20px;
-    opacity: 0.5;
-  }
-  .ac-wv-bar { width: 2px; border-radius: 1px; flex-shrink: 0; }
-
-  /* Tags row */
-  .ac-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 12px; }
-
-  /* Stats row */
-  .ac-stats {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding-top: 12px;
-    border-top: 1px solid var(--c-wire);
-    margin-top: auto;
-  }
-
-  /* Grid */
-  .artist-results-grid {
+  /* ── Artist grid ── */
+  .exp-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
     gap: 16px;
   }
 
-  /* Empty state */
-  .empty-state {
-    text-align: center;
-    padding: 80px 24px;
+  /* ── Artist card ── */
+  .ec {
+    background: var(--c-panel); border: 1px solid var(--c-rim);
+    border-radius: var(--r-xl); overflow: hidden;
+    text-decoration: none; display: block;
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+  }
+  .ec:hover {
+    transform: translateY(-3px);
+    border-color: rgba(200,255,0,0.2);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+  }
+  .ec-cover {
+    position: relative; height: 140px; overflow: hidden;
+    background: var(--c-raised);
+  }
+  .ec-cover img {
+    width: 100%; height: 100%; object-fit: cover;
+    opacity: 0.5; transition: opacity 0.2s, transform 0.2s;
+  }
+  .ec:hover .ec-cover img { opacity: 0.65; transform: scale(1.04); }
+  .ec-cover-grad {
+    position: absolute; inset: 0;
+    background: linear-gradient(to bottom, transparent 30%, var(--c-panel) 100%);
+  }
+  .ec-avt {
+    position: absolute; bottom: -18px; left: 14px;
+    width: 44px; height: 44px; border-radius: 50%;
+    border: 2px solid var(--c-panel); overflow: hidden;
+    background: var(--c-raised);
+  }
+  .ec-avt img { width: 100%; height: 100%; object-fit: cover; }
+  .ec-avail-dot {
+    position: absolute; bottom: -4px; right: -2px;
+    width: 10px; height: 10px; border-radius: 50%;
+    border: 2px solid var(--c-panel);
+  }
+  .ec-body { padding: 26px 14px 14px; }
+  .ec-name {
+    font-family: var(--font-display); font-size: 0.9375rem;
+    font-weight: 700; color: var(--t1); margin-bottom: 2px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .ec-verify { color: var(--s-ok); font-size: 11px; }
+  .ec-location { font-size: 0.75rem; color: var(--t3); margin-bottom: 8px; }
+  .ec-stat-row {
+    display: flex; align-items: center; gap: 12px;
+    font-size: 0.75rem; color: var(--t2); margin-bottom: 10px;
+  }
+  .ec-stat { display: flex; align-items: center; gap: 4px; }
+  .ec-stat i { font-size: 10px; color: var(--t4); }
+  .ec-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 12px; }
+  .ec-tag {
+    font-size: 0.625rem; padding: 2px 7px; border-radius: var(--r-full);
+    background: var(--c-lift); border: 1px solid var(--c-wire);
+    color: var(--t3); font-family: var(--font-mono);
+  }
+  .ec-foot {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 8px; padding-top: 10px; border-top: 1px solid var(--c-wire);
+  }
+  .ec-price { font-family: var(--font-mono); font-size: 0.8125rem; font-weight: 700; color: var(--signal); }
+  .ec-book {
+    background: var(--signal); color: var(--c-void);
+    border: none; border-radius: var(--r-md);
+    padding: 6px 14px; font-size: 0.75rem; font-weight: 700;
+    cursor: pointer; text-decoration: none;
+    transition: opacity 0.15s;
+    display: inline-flex; align-items: center; gap: 5px;
+  }
+  .ec-book:hover { opacity: 0.85; }
+
+  /* ── Empty state ── */
+  .exp-empty {
+    text-align: center; padding: 80px 24px;
     grid-column: 1 / -1;
   }
+  .exp-empty i { font-size: 2.5rem; color: var(--t4); margin-bottom: 16px; display: block; }
+  .exp-empty p { color: var(--t3); }
 
+  /* ── Responsive ── */
   @media (max-width: 768px) {
-    .explore-toolbar-inner { gap: 8px; }
-    .filter-select { display: none; }
-    .artist-results-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .exp-filters { gap: 8px; }
+    .exp-search-wrap { min-width: 100%; }
+    .exp-select { flex: 1; min-width: 120px; }
+    .exp-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
   }
   @media (max-width: 480px) {
-    .artist-results-grid { grid-template-columns: 1fr; }
+    .exp-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .ec-cover { height: 110px; }
+    .ec-body { padding: 24px 10px 10px; }
+    .exp-chips { display: none; }
   }
 
-`) + publicNav('explore') + `
+  `, publicNav() + `
 
-<!-- ── Page header ── -->
-<div class="explore-header">
-  <div class="explore-header-inner">
+  <div class="exp-page">
 
-    <!-- Section label -->
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
-      <div style="height:1px;width:24px;background:var(--signal);box-shadow:0 0 6px var(--signal-glow);"></div>
-      <span style="font-family:var(--font-mono);font-size:0.65rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--signal);">Artist Roster</span>
+    <!-- Header -->
+    <div class="exp-header">
+      <h1 class="exp-h1">Find Artists</h1>
+      <p class="exp-sub">Discover verified producers, vocalists, engineers, and beatmakers ready to collaborate.</p>
+      <div class="exp-count" id="result-count">${allUsers.length} artists available</div>
     </div>
 
-    <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:12px;">
-      <div>
-        <h1 class="d2" style="margin-bottom:8px;">Find your<br>collaborator</h1>
-        <p class="body-lg" style="max-width:500px;">
-          Browse ${users.length}+ verified artists by vibe, genre, and price. View their full profiles, audio samples, and reviews — then book directly.
-        </p>
+    <!-- Filter bar -->
+    <div class="exp-filters" id="filters">
+      <div class="exp-search-wrap">
+        <i class="fas fa-search"></i>
+        <input class="exp-search" id="exp-search" type="text" placeholder="Search by name, genre, location…" autocomplete="off">
       </div>
-      <div style="display:flex;gap:8px;flex-shrink:0;align-self:flex-end;">
-        <a href="/marketplace" class="btn btn-ghost btn-sm" style="color:var(--t3);">
-          <i class="fas fa-store" style="font-size:11px;"></i>
-          Browse Services Instead
-        </a>
+
+      <select class="exp-select" id="filter-genre">
+        <option value="">All Genres</option>
+        ${allGenres.map(g => `<option value="${g.toLowerCase()}">${g}</option>`).join('')}
+      </select>
+
+      <select class="exp-select" id="filter-price">
+        <option value="">Any Price</option>
+        <option value="0-100">Under $100</option>
+        <option value="100-250">$100 – $250</option>
+        <option value="250-500">$250 – $500</option>
+        <option value="500+">$500+</option>
+      </select>
+
+      <select class="exp-select" id="filter-sort" style="min-width:130px;">
+        <option value="rating">Top Rated</option>
+        <option value="price_asc">Price: Low–High</option>
+        <option value="price_desc">Price: High–Low</option>
+        <option value="listeners">Most Popular</option>
+      </select>
+
+      <div class="exp-chip" id="chip-available" data-key="available">
+        <i class="fas fa-circle" style="color:var(--s-ok);font-size:8px;"></i> Available Now
+      </div>
+      <div class="exp-chip" id="chip-verified" data-key="verified">
+        <i class="fas fa-check-circle"></i> Verified Only
       </div>
     </div>
-  </div>
-</div>
 
-<!-- ── Filter toolbar ── -->
-<div class="explore-toolbar">
-  <div class="explore-toolbar-inner">
-    <div class="search-wrap">
-      <i class="fas fa-search search-icon"></i>
-      <input type="text" class="search-input" placeholder="Search artists, genres, styles…" id="ac-search">
+    <!-- Results -->
+    <div class="exp-results-head">
+      <div class="exp-results-count" id="results-label">Showing all artists</div>
     </div>
 
-    <select class="filter-select" id="filter-genre">
-      <option value="">All Genres</option>
-      <option>Hip Hop</option>
-      <option>R&B</option>
-      <option>Pop</option>
-      <option>Afrobeats</option>
-      <option>Trap</option>
-      <option>Soul</option>
-      <option>Electronic</option>
-    </select>
-
-    <select class="filter-select" id="filter-type">
-      <option value="">Artist & Producer</option>
-      <option value="artist">Artists only</option>
-      <option value="producer">Producers only</option>
-    </select>
-
-    <select class="filter-select" id="filter-price">
-      <option value="">Any price</option>
-      <option value="200">Under $200</option>
-      <option value="500">Under $500</option>
-      <option value="1000">Under $1,000</option>
-    </select>
-
-    <button class="filter-chip on" id="chip-verified" onclick="this.classList.toggle('on')">
-      <i class="fas fa-check-circle" style="font-size:11px;margin-right:4px;"></i>Verified
-    </button>
-
-    <button class="filter-chip" id="chip-live" onclick="this.classList.toggle('on')">
-      <i class="fas fa-broadcast-tower" style="font-size:11px;margin-right:4px;"></i>Live sessions
-    </button>
-  </div>
-</div>
-
-<!-- ── Results ── -->
-<div style="max-width:1280px;margin:0 auto;padding:0 24px 80px;">
-
-  <div class="results-header">
-    <div style="display:flex;align-items:center;gap:8px;">
-      <span style="font-family:var(--font-mono);font-size:0.75rem;color:var(--t4);">${users.length} results</span>
-      <div class="node node-signal" style="animation:pulse 2s infinite;"></div>
+    <div class="exp-grid" id="artist-grid">
+      ${allUsers.map(u => {
+        const availColor = u.availability === 'available' ? '#2DCA72' : u.availability === 'busy' ? '#FF4D6D' : '#52526A';
+        return `
+      <a class="ec"
+         href="/artist/${u.id}"
+         data-name="${u.artistName.toLowerCase()}"
+         data-genre="${(u.genre || []).join(',').toLowerCase()}"
+         data-location="${(u.location || '').toLowerCase()}"
+         data-price="${u.startingPrice}"
+         data-rating="${u.rating}"
+         data-listeners="${u.monthlyListeners}"
+         data-available="${u.availability === 'available' ? '1' : '0'}"
+         data-verified="${u.verified ? '1' : '0'}">
+        <div class="ec-cover">
+          <img src="${u.coverImage || u.profileImage}" alt="${u.artistName}">
+          <div class="ec-cover-grad"></div>
+          <div class="ec-avt">
+            <img src="${u.profileImage}" alt="${u.artistName}">
+            <div class="ec-avail-dot" style="background:${availColor};"></div>
+          </div>
+        </div>
+        <div class="ec-body">
+          <div class="ec-name">
+            ${u.artistName}
+            ${u.verified ? '<i class="fas fa-check-circle ec-verify"></i>' : ''}
+          </div>
+          <div class="ec-location"><i class="fas fa-map-marker-alt" style="margin-right:4px;font-size:9px;"></i>${u.location}</div>
+          <div class="ec-stat-row">
+            <span class="ec-stat"><i class="fas fa-headphones"></i>${formatListeners(u.monthlyListeners)}</span>
+            <span class="ec-stat"><i class="fas fa-star" style="color:var(--s-warn);"></i>${u.rating.toFixed(1)}</span>
+            <span class="ec-stat"><i class="fas fa-check"></i>${u.completedProjects}</span>
+          </div>
+          <div class="ec-tags">
+            ${(u.genre || []).slice(0, 2).map(g => `<span class="ec-tag">${g}</span>`).join('')}
+          </div>
+          <div class="ec-foot">
+            <span class="ec-price">From ${formatPrice(u.startingPrice)}</span>
+            <a class="ec-book" href="/booking/${u.id}" onclick="event.stopPropagation();">
+              <i class="fas fa-bolt"></i> Book
+            </a>
+          </div>
+        </div>
+      </a>`;
+      }).join('')}
     </div>
-    <select class="filter-select" style="width:auto;">
-      <option>Top Rated</option>
-      <option>Price: Low to High</option>
-      <option>Price: High to Low</option>
-      <option>Most Listeners</option>
-    </select>
-  </div>
 
-  <div class="artist-results-grid" id="artists-grid">
-    ${users.map((u, i) => {
-      const stripColors = ['var(--signal)','var(--patch)','var(--warm)','var(--channel)','var(--s-ok)'];
-      const sc = stripColors[i % stripColors.length];
-      const wh = [0.4,0.7,1.0,0.8,0.6,0.9,0.5,0.7,0.85,0.6,0.4,0.75,0.9,0.65,0.5];
-      return `
-    <div class="ac-artist-card" data-href="/artist/${u.id}" data-name="${u.artistName.toLowerCase()} ${u.username.toLowerCase()} ${u.genre.join(' ').toLowerCase()}" data-verified="${u.verified}" data-type="${u.accountType}" data-price="${u.startingPrice}" style="border-left:3px solid ${sc};">
-      <div class="ac-cover">
-        <img src="${u.coverImage || u.profileImage}" alt="${u.artistName}">
-        <div class="ac-cover-grad"></div>
-        <!-- Level meter: decorative motif -->
-        <div style="position:absolute;top:10px;right:10px;display:flex;align-items:flex-end;gap:2px;height:16px;opacity:0.5;">
-          ${[0.4,0.65,0.9,0.7,0.5,0.8,0.6].map((h,j) => `<div style="width:2.5px;height:${Math.round(h*100)}%;background:${sc};border-radius:1px;"></div>`).join('')}
-        </div>
-      </div>
+  </div><!-- /exp-page -->
 
-      <div class="ac-artist-body">
-        <div class="ac-artist-av-row">
-          <div style="position:relative;">
-            <img src="${u.profileImage}" class="av av-md" style="border:2px solid var(--c-panel);" alt="${u.artistName}">
-            ${u.verified ? `<div style="position:absolute;bottom:0;right:0;width:15px;height:15px;background:var(--signal);border-radius:50%;border:2px solid var(--c-panel);display:flex;align-items:center;justify-content:center;"><i class="fas fa-check" style="font-size:7px;color:#000;"></i></div>` : ''}
-          </div>
-          <!-- Mini waveform motif -->
-          <div class="ac-waveform-tag" style="color:${sc};">
-            ${wh.map(h => `<div class="ac-wv-bar" style="height:${Math.round(h*100)}%;background:currentColor;"></div>`).join('')}
-          </div>
-        </div>
+  ${siteFooter()}
 
-        <div style="font-weight:700;font-size:0.9375rem;letter-spacing:-0.01em;margin-bottom:2px;">${u.artistName}</div>
-        <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--t4);margin-bottom:10px;">@${u.username} · ${u.accountType === 'producer' ? 'Producer' : 'Artist'}</div>
+  <script>
+  (function() {
+    const grid      = document.getElementById('artist-grid');
+    const searchEl  = document.getElementById('exp-search');
+    const genreEl   = document.getElementById('filter-genre');
+    const priceEl   = document.getElementById('filter-price');
+    const sortEl    = document.getElementById('filter-sort');
+    const countEl   = document.getElementById('result-count');
+    const labelEl   = document.getElementById('results-label');
+    const chipAvail = document.getElementById('chip-available');
+    const chipVer   = document.getElementById('chip-verified');
 
-        <div class="ac-tags">
-          ${u.genre.slice(0,2).map(g => `<span class="badge badge-muted">${g}</span>`).join('')}
-          ${u.liveSession ? `<span class="badge badge-ok"><i class="fas fa-broadcast-tower" style="font-size:8px;"></i> Live</span>` : ''}
-        </div>
+    let filterAvail = false, filterVer = false;
 
-        <!-- Bio snippet -->
-        <p style="font-size:0.8125rem;color:var(--t3);line-height:1.55;margin-bottom:12px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${u.bio}</p>
+    function getCards() { return Array.from(grid.querySelectorAll('.ec')); }
 
-        <div class="ac-stats">
-          <div>
-            <div style="font-size:0.65rem;color:var(--t4);font-family:var(--font-mono);margin-bottom:2px;">STARTING AT</div>
-            <div style="font-size:1rem;font-weight:800;letter-spacing:-0.02em;color:${sc};">${formatPrice(u.startingPrice)}</div>
-          </div>
-          <div style="text-align:right;">
-            <div style="font-size:0.75rem;font-weight:600;"><span style="color:var(--signal);">★</span> ${u.rating.toFixed(1)}</div>
-            <div class="mono-sm" style="color:var(--t4);">${u.reviewCount} reviews</div>
-          </div>
-        </div>
-      </div>
-    </div>`}).join('')}
-  </div>
-</div>
+    function applyFilters() {
+      const q     = searchEl.value.trim().toLowerCase();
+      const genre = genreEl.value;
+      const sort  = sortEl.value;
+      const price = priceEl.value;
 
-${siteFooter()}
+      let cards = getCards();
 
-<script>
-// Live search/filter
-const searchEl = document.getElementById('ac-search');
-const cards = document.querySelectorAll('.ac-artist-card');
-const chipVerified = document.getElementById('chip-verified');
+      // Filter
+      cards.forEach(c => {
+        let show = true;
+        if (q && !c.dataset.name.includes(q) && !c.dataset.genre.includes(q) && !c.dataset.location.includes(q)) show = false;
+        if (genre && !c.dataset.genre.includes(genre)) show = false;
+        if (filterAvail && c.dataset.available !== '1') show = false;
+        if (filterVer   && c.dataset.verified   !== '1') show = false;
+        if (price) {
+          const p = parseInt(c.dataset.price, 10);
+          if (price === '0-100' && p >= 100) show = false;
+          if (price === '100-250' && (p < 100 || p >= 250)) show = false;
+          if (price === '250-500' && (p < 250 || p >= 500)) show = false;
+          if (price === '500+' && p < 500) show = false;
+        }
+        c.style.display = show ? '' : 'none';
+      });
 
-function applyFilters() {
-  const q = searchEl.value.toLowerCase().trim();
-  const priceMax = parseInt(document.getElementById('filter-price').value) || Infinity;
-  const typeFilter = document.getElementById('filter-type').value;
-  const verifiedOnly = chipVerified.classList.contains('on');
+      // Sort visible cards
+      const visible = cards.filter(c => c.style.display !== 'none');
+      visible.sort((a, b) => {
+        if (sort === 'rating')      return parseFloat(b.dataset.rating) - parseFloat(a.dataset.rating);
+        if (sort === 'price_asc')   return parseInt(a.dataset.price,10) - parseInt(b.dataset.price,10);
+        if (sort === 'price_desc')  return parseInt(b.dataset.price,10) - parseInt(a.dataset.price,10);
+        if (sort === 'listeners')   return parseInt(b.dataset.listeners,10) - parseInt(a.dataset.listeners,10);
+        return 0;
+      });
+      visible.forEach(c => grid.appendChild(c));
 
-  cards.forEach(card => {
-    const name = card.dataset.name || '';
-    const price = parseInt(card.dataset.price) || 0;
-    const verified = card.dataset.verified === 'true';
-    const type = card.dataset.type || '';
+      // Update counts
+      const n = visible.length;
+      countEl.textContent = n + ' artist' + (n !== 1 ? 's' : '') + ' available';
+      labelEl.textContent = 'Showing ' + n + ' artist' + (n !== 1 ? 's' : '');
 
-    const matchQ = !q || name.includes(q);
-    const matchPrice = price <= priceMax;
-    const matchType = !typeFilter || type === typeFilter;
-    const matchVerified = !verifiedOnly || verified;
+      // Empty state
+      let empty = grid.querySelector('.exp-empty');
+      if (n === 0) {
+        if (!empty) {
+          empty = document.createElement('div');
+          empty.className = 'exp-empty';
+          empty.innerHTML = '<i class="fas fa-search"></i><p>No artists match your filters.<br>Try adjusting your search.</p>';
+          grid.appendChild(empty);
+        }
+      } else if (empty) {
+        empty.remove();
+      }
+    }
 
-    card.style.display = (matchQ && matchPrice && matchType && matchVerified) ? '' : 'none';
-  });
-}
+    searchEl.addEventListener('input', applyFilters);
+    genreEl.addEventListener('change', applyFilters);
+    priceEl.addEventListener('change', applyFilters);
+    sortEl.addEventListener('change', applyFilters);
 
-searchEl.addEventListener('input', applyFilters);
-document.getElementById('filter-genre').addEventListener('change', applyFilters);
-document.getElementById('filter-type').addEventListener('change', applyFilters);
-document.getElementById('filter-price').addEventListener('change', applyFilters);
-chipVerified.addEventListener('click', () => setTimeout(applyFilters, 0));
-document.getElementById('chip-live').addEventListener('click', () => setTimeout(applyFilters, 0));
+    chipAvail.addEventListener('click', () => {
+      filterAvail = !filterAvail;
+      chipAvail.classList.toggle('on', filterAvail);
+      applyFilters();
+    });
+    chipVer.addEventListener('click', () => {
+      filterVer = !filterVer;
+      chipVer.classList.toggle('on', filterVer);
+      applyFilters();
+    });
 
-// Stagger animation
-cards.forEach((card, i) => {
-  card.style.opacity = '0';
-  card.style.transform = 'translateY(12px)';
-  card.style.transition = 'opacity 0.35s ease, transform 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease';
-  setTimeout(() => {
-    card.style.opacity = '1';
-    card.style.transform = '';
-  }, i * 45);
-});
-</script>
-
-${closeShell()}
-`;
+    // Initial sort
+    applyFilters();
+  })();
+  </script>
+  ${closeShell()}`);
 }
